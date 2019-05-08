@@ -1,0 +1,51 @@
+echo Configuring APA 1 with RCE and fake WIB data
+echo =============================================
+echo ============== APA1 WIB 1 ================
+echo =============================================
+add_device WIB np04-wib-101
+write SYSTEM.SLOW_CONTROL_DND 1
+sleep 10
+checkedResetWIBAndCfgDTS 0 1 0 # second arg is timing partition
+configWIBFakeData 1 1 1 1
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0
+echo =============================================
+echo ============== APA1 WIB 2 ================
+echo =============================================
+add_device WIB np04-wib-102
+write SYSTEM.SLOW_CONTROL_DND 1
+sleep 10
+checkedResetWIBAndCfgDTS 0 1 0 # second arg is timing partition
+configWIBFakeData 1 1 1 1
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0
+echo =============================================
+echo ============== APA1 WIB 3 ================
+echo =============================================
+add_device WIB np04-wib-103
+write SYSTEM.SLOW_CONTROL_DND 1
+sleep 10
+checkedResetWIBAndCfgDTS 0 1 0 # second arg is timing partition
+configWIBFakeData 1 1 1 1
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0
+echo =============================================
+echo ============== APA1 WIB 4 ================
+echo =============================================
+add_device WIB np04-wib-104
+write SYSTEM.SLOW_CONTROL_DND 1
+sleep 10
+checkedResetWIBAndCfgDTS 0 1 0 # second arg is timing partition
+configWIBFakeData 1 1 1 1
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0
+echo =============================================
+echo ============== APA1 WIB 5 ================
+echo =============================================
+add_device WIB np04-wib-105
+write SYSTEM.SLOW_CONTROL_DND 1
+sleep 10
+checkedResetWIBAndCfgDTS 0 1 0 # second arg is timing partition
+configWIBFakeData 1 1 1 1
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0

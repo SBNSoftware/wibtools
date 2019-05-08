@@ -1,0 +1,84 @@
+verbose 9
+add_device WIB 192.168.200.5
+
+resetWIB
+
+femb_power 3 0
+femb_power 4 0
+
+#make sure verything DTS is off
+write DTS.CONVERT_CONTROL.HALT 1
+write DTS.CONVERT_CONTROL.ENABLE 0
+write DTS.CONVERT_CONTROL.START_SYNC 0
+sleep 1
+
+
+#configure the clocking for PDTS (assumes the PDTS is sending idle or something)
+initDTS 0 #1 means use the front panel for timing
+sleep 1
+status 1 DTS
+write FEMB_CNC.CNC_CLOCK_SELECT 1
+sleep 1
+
+#we are ready for the PDTS, start searching
+write DTS.PDTS_ENABLE 1
+sleep 3
+
+
+#Now we have the 128Mhz clock
+write FEMB1.DAQ.ENABLE 0x0
+write FEMB2.DAQ.ENABLE 0x0
+write FEMB3.DAQ.ENABLE 0x0
+write FEMB4.DAQ.ENABLE 0x0
+
+#select FEMB data source is the fake data generator
+FEMBStrMode 1-4 1-2 S
+
+FEMBStrSrc 1 1-4 F
+FEMBSource 1 F
+FEMBStrSrc 2 1-4 F
+FEMBSource 2 F
+FEMBStrSrc 3 1-4 R
+FEMBSource 3 R
+FEMBStrSrc 4 1-4 R
+FEMBSource 4 R
+
+
+fpwr 3 0
+fpwr 4 0
+sleep 1
+
+load scripts/FEMB/FEMB3_fake_word.script
+load scripts/FEMB/FEMB4_fake_word.script
+
+sleep 1
+write FEMB_CNC.FEMB_STOP 1
+sleep 1
+
+write SYSTEM.RESET.DAQ_PATH_RESET 1
+sleep 1
+
+#Enable DAQ LINK
+en_dlink_lite 1 1
+en_dlink_lite 2 1
+en_dlink_lite 3 1
+en_dlink_lite 4 1
+
+#enable the FEMB to align to idle and wait for convert
+write FEMB1.DAQ.ENABLE 0xf
+write FEMB2.DAQ.ENABLE 0xf
+write FEMB3.DAQ.ENABLE 0xf
+write FEMB4.DAQ.ENABLE 0xf
+
+
+#start sending characters from the FEMB
+start_sync_DTS 
+write FEMB_CNC.TIMESTAMP_RESET 1
+write FEMB_CNC.FEMB_START 1
+write SYSTEM.RESET.FEMB_COUNTER_RESET 1
+
+sleep 3
+spy_daq_ev 1
+spy_daq_ev 2
+spy_daq_ev 3
+spy_daq_ev 4

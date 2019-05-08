@@ -1,0 +1,94 @@
+verbose 9
+add_device WIB wib-s3
+
+resetWIB
+
+femb_power 1 0
+femb_power 2 0
+
+#make sure verything DTS is off
+write DTS.CONVERT_CONTROL.HALT 1
+write DTS.CONVERT_CONTROL.ENABLE 0
+write DTS.CONVERT_CONTROL.START_SYNC 0
+sleep 1
+
+
+#configure the SI5344 to use the local oscillator instead of the PDTS
+configSI5344 
+sleep 1
+selectSI5344 1 1 
+sleep 1
+write DTS.CONVERT_CONTROL.EN_FAKE 1
+write DTS.CONVERT_CONTROL.LOCAL_TIMESTAMP 1
+write FEMB_CNC.CNC_CLOCK_SELECT 1
+write FEMB_CNC.ENABLE_DTS_CMDS 1
+sleep 1
+
+#
+##Now we have the 128Mhz clock
+#write FEMB1.DAQ.ENABLE 0x0
+#write FEMB2.DAQ.ENABLE 0x0
+#write FEMB3.DAQ.ENABLE 0x0
+#write FEMB4.DAQ.ENABLE 0x0
+#
+##select FEMB data source is the fake data generator
+#FEMBStrMode 1-4 1-2 S
+#
+#FEMBStrSrc 1 1-4 R
+#FEMBSource 1 R
+#FEMBStrSrc 2 1-4 R
+#FEMBSource 2 R
+#FEMBStrSrc 3 1-4 F
+#FEMBSource 3 F
+#FEMBStrSrc 4 1-4 F
+#FEMBSource 4 F
+#
+configWIBFakeData 0 0 1 1
+
+fpwr 1 0
+fpwr 2 0
+sleep 1
+
+#load scripts/FEMB/FEMB1_fake_word.script
+#load scripts/FEMB/FEMB2_fake_word.script
+
+
+fpwr 1 1
+sleep 1
+configFEMBFakeData 1 1 0xFE1
+#configFEMB 1 2 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF 
+
+fpwr 2 1
+sleep 1
+#configFEMB 2 2 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF 
+configFEMBFakeData 2 1 0xFE2
+
+sleep 1
+write FEMB_CNC.FEMB_STOP 1
+sleep 1
+
+write SYSTEM.RESET.DAQ_PATH_RESET 1
+sleep 1
+
+#Enable DAQ LINK
+en_dlink_lite 1 1
+en_dlink_lite 2 1
+
+
+
+#enable the FEMB to align to idle and wait for convert
+write FEMB1.DAQ.ENABLE 0xf
+write FEMB2.DAQ.ENABLE 0xf
+write FEMB3.DAQ.ENABLE 0xf
+write FEMB4.DAQ.ENABLE 0xf
+
+#start sending characters from the FEMB
+start_sync_DTS 
+write FEMB_CNC.TIMESTAMP_RESET 1
+#write FEMB_CNC.FEMB_START 1
+write SYSTEM.RESET.FEMB_COUNTER_RESET 1
+
+#
+sleep 1
+#spy_daq_ev 1
+#spy_daq_ev 2

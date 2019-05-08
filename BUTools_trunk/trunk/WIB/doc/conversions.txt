@@ -1,0 +1,38 @@
+
+Value conversions are specified in the address table using the "sc_conv" tag:
+    sc_conv="name key1=value1 key2=value2"
+    Where
+        "name" is the name of one of the following conversions
+        "key=value" pairs are parameters
+
+The conversion "pass" is the default for all entries where "sc_conv" is
+  unspecified.
+
+The following value formatting conversions are currently supported:
+
+    "pass":
+        Copy the unsigned 32-bit integer unmodified.
+        Parameters:
+            None.
+
+    "linear":
+        Reinterpret the unsigned integer as a double floating value using a
+          linear function:  output = input*scale + offset
+        Parameters:
+            "scale":   As in formula given.  Accepts exponential 'e' notation.
+            "offset":  As in formula given.  Accepts exponential 'e' notation.
+
+    "enum":
+        Map numbers to strings.  The fixed string length is determined by the
+          longest of the possible strings to be sent.
+          If a number is not known, the following string will be used:
+            "???? 0x00000000" with the number used as the hexadecimal value.
+        Parameters: key=value pairs, where
+          "key" must be an integer in one of the formats:
+            starts with one of '1' through '9': Decimal
+            starts with '0x': Hexadecimal
+            starts with '0': Octal
+          and "value" is the string associated with this number.
+          Keys which cannot be interpreted as integers will be ignored and the
+            format for unknown numbers will be used where needed.
+

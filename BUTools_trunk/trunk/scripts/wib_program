@@ -1,0 +1,130 @@
+#!/bin/bash
+
+#ug`wib_program.description`
+# This simple tool just serves as a shortcut to the `quartus_pgm` command. It is preconfigured with the default JTAG chain definition used in a wib readout board. _
+# NOTE: Programming .rbf files is not yet supported.
+# updated with new qprogrammer root dir path
+
+JTAG_CABLE=""
+
+#ug`wib_program.synopsis`
+# *wib_program* [-c _jtagcable_] _file.sof_|_file.pof_
+
+function usage {
+  echo "wib_program -c jtagcable file.sof|file.pof" >&2
+}
+
+while getopts ":c:h" opt; do
+  case $opt in
+
+#ug`wib_program.options`jtagcable
+# *-c* _jtagcable_::
+# Use given JTAG cable interface. _jtagcable_ is an integer as printed by `quartus_pgm -l`. The default value is 1.
+    c) JTAG_CABLE=${OPTARG}
+      ;;
+    h)
+      usage
+      exit 1
+      ;;
+    \?)
+      echo "Invalid option: -${OPTARG}" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -${OPTARG} requires an argument" >&2
+      exit 1
+      ;;
+  esac
+done
+
+# Discard options
+shift $(($OPTIND - 1))
+
+if [ -z "$JTAG_CABLE" ]; then
+  echo "-c <jtag cable> is required"
+  usage
+  exit 1
+fi
+
+if [ -z "$1" ]; then
+  usage
+  exit 1
+fi
+IMAGE_PATH=$1
+
+if [ ! -e ${IMAGE_PATH} ]; then
+  echo "File does not exist: ${IMAGE_PATH}" >&2
+  exit 1
+fi
+
+IMAGE_DIRNAME=`dirname "${IMAGE_PATH}"`/
+IMAGE_BASENAME=`basename "${IMAGE_PATH}"`
+
+#ug`wib_program.env`
+# *QUARTUS_ROOTDIR*::
+# The path to the Quartus installation to use. If defined, the programmer binary must be located at `${QUARTUS_ROOTDIR}/bin/quartus_pgm`.
+QUARTUS_ROOTDIR=/nfs/sw/fpga/intelFPGA/16.1/qprogrammer
+
+QUARTUS_PGM=quartus_pgm
+if [ ! -z "${QUARTUS_ROOTDIR}" ]; then
+  QUARTUS_PGM=${QUARTUS_ROOTDIR}/bin/quartus_pgm
+fi
+
+case "${IMAGE_BASENAME##*.}" in
+
+#ug`wib_program.options`sof
+# _file.sof_::
+# The SRAM Object File file to program on the wib FPGA. _
+sof)
+  command="${QUARTUS_PGM} -c \"${JTAG_CABLE}\" -m jtag -o p;${IMAGE_PATH}"
+  echo "Running: "$command
+  $command
+  pgm_result=$?
+  #ug`wib_program.exit`
+  # After programming, the tool simply returns the exit status produced by the internal call to the `quartus_pgm` command.
+  exit $pgm_result
+  ;;
+#ug`wib_program.options`jic
+# _file.jic_::
+# The jic that writes through the FPGA to update the wib flash memory. _
+jic)
+  tmpcdf=`mktemp -t wib_program.XXXXXX.cdf`
+  cat << EOF > $tmpcdf
+JedecChain;
+	FileRevision(JESD32A);
+	DefaultMfr(6E);
+
+	P ActionCode(Cfg)
+		Device PartName(5AGTFD3H3F35) Path("/nfs/sw/fpga/firmwares/") File("WIB_SFL.sof") MfrSpec(OpMask(1) SEC_Device(EPCQ128A) Child_OpMask(1 3) SFLPath("${IMAGE_PATH}"));
+
+ChainEnd;
+
+AlteraBegin;
+	ChainType(JTAG);
+AlteraEnd;
+EOF
+
+  #cat $tmpcdf
+  command="${QUARTUS_PGM} -c \"${JTAG_CABLE}\" $tmpcdf"
+  echo "Running: "$command
+  $command
+  pgm_result=$?
+  rm $tmpcdf
+  #ug`wib_program.exit`
+  # After programming, the tool simply returns the exit status produced by the internal call to the `quartus_pgm` command.
+  exit $pgm_result
+  ;;
+rbf)
+  >&2 echo ".rbf files are not yet supported"
+  exit 1
+  ;;
+pof)
+  >&2 echo ".pof files are not yet supported"
+  exit 1
+  ;;
+*)
+  >&2 echo "Unknown file type: ${IMAGE_BASENAME}"
+  exit 1
+  ;;
+esac
+

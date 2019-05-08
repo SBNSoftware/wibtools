@@ -1,0 +1,42 @@
+#!/bin/bash
+
+function usage {
+  echo "wib_program_remote_apa <wib url>"
+}
+
+if [ -z "$1" ] ; then
+  usage
+  exit 1
+fi 
+
+cd /nfs/sw/wib/WIBSoftwareTrunk/
+source env.sh
+
+tmpscriptcheck=`mktemp -t wib_program_remote_check.XXXXXXX.script`
+cat << EOF > $tmpscriptcheck
+read FLASH.RECONFIG_BUSY
+quit
+EOF
+
+tmpscriptreset=`mktemp -t wib_program_remote_reset.XXXXXXX.script`
+cat << EOF > $tmpscriptreset
+write FLASH.RECONFIG 1
+quit
+EOF
+
+## now loop through the above array
+echo "Restarting ${1}..."
+ 
+tmplog=`mktemp -t wib_program_remote_check.XXXXXXX.log`
+BUTool.exe -w $1 -X $tmpscriptcheck >& $tmplog
+isgood=$(sed -nr '/FLASH.RECONFIG_BUSY: 0x00000000/p' $tmplog)
+rm $tmplog
+if [ -z "$isgood" ]; then
+   echo "Error: Flash reconfig is already busy, is another flash programming in progress for this WIB?"
+   echo "       Finish that up and then we can reset"
+else
+  BUTool.exe -w $1 -X $tmpscriptreset
+fi
+rm $tmpscriptcheck
+rm $tmpscriptreset
+

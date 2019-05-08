@@ -1,0 +1,8 @@
+
+# 0 for backplane timing, 1 for front panel
+resetWIBAndCfgDTS 0
+
+# set to 1 for each FEMB you want to be fake
+configWIBFakeData 1 1 1 1
+
+status 4 DTS

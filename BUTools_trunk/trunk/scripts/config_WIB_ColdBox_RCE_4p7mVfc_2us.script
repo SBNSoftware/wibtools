@@ -1,0 +1,106 @@
+echo Configuring Coldbox WIBs with RCE and default FEMB config
+echo =============================================
+echo ============== ColdBox WIB 1 ================
+echo =============================================
+add_device WIB np04-wib-001
+write SYSTEM.SLOW_CONTROL_DND 1
+checkedResetWIBAndCfgDTS 0 0 0 # second arg is timing partition
+configWIBFakeData 0 0 0 0
+#fpwr 1 1
+sleep 1
+#configFEMB 1 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+#fpwr 2 1
+sleep 1
+#configFEMB 2 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 3 1
+sleep 1
+configFEMB 3 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF 
+#fpwr 4 1
+sleep 1
+#configFEMB 4 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0
+echo =============================================
+echo ============== ColdBox WIB 2 ================
+echo =============================================
+add_device WIB np04-wib-002
+write SYSTEM.SLOW_CONTROL_DND 1
+checkedResetWIBAndCfgDTS 0 0 0 # second arg is timing partition
+configWIBFakeData 0 0 0 0
+#fpwr 1 1
+sleep 1
+#configFEMB 1 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 2 1
+sleep 1
+configFEMB 2 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 3 1
+sleep 1
+configFEMB 3 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 4 1
+sleep 1
+configFEMB 4 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0
+echo =============================================
+echo ============== ColdBox WIB 3 ================
+echo =============================================
+add_device WIB np04-wib-003
+write SYSTEM.SLOW_CONTROL_DND 1
+checkedResetWIBAndCfgDTS 0 0 0 # second arg is timing partition
+configWIBFakeData 0 0 0 0
+fpwr 1 1
+sleep 1
+configFEMB 1 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+#fpwr 2 1
+sleep 1
+#configFEMB 2 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 3 1
+sleep 1
+configFEMB 3 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 4 1
+sleep 1
+configFEMB 4 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0
+echo =============================================
+echo ============== ColdBox WIB 4 ================
+echo =============================================
+add_device WIB np04-wib-004
+write SYSTEM.SLOW_CONTROL_DND 1
+checkedResetWIBAndCfgDTS 0 0 0 # second arg is timing partition
+configWIBFakeData 0 0 0 0
+fpwr 1 1
+sleep 1
+configFEMB 1 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 2 1
+sleep 1
+configFEMB 2 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 3 1
+sleep 1
+configFEMB 3 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 4 1
+sleep 1
+configFEMB 4 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0
+echo =============================================
+echo ============== ColdBox WIB 5 ================
+echo =============================================
+add_device WIB np04-wib-005
+write SYSTEM.SLOW_CONTROL_DND 1
+checkedResetWIBAndCfgDTS 0 0 0 # second arg is timing partition
+configWIBFakeData 0 0 0 0
+fpwr 1 1
+sleep 1
+configFEMB 1 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 2 1
+sleep 1
+configFEMB 2 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 3 1
+sleep 1
+configFEMB 3 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+fpwr 4 1
+sleep 1
+configFEMB 4 0 2 2 1 0 0 0 1 0 0 0xFFFF 0xFDFF 0xEFEF 0xBFBF 0xBDFF
+startStreamToDAQ
+write SYSTEM.SLOW_CONTROL_DND 0

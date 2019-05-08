@@ -1,0 +1,36 @@
+File=Table
+Product=protodune_wibsoft
+
+#*************************************************
+# Starting Group definition
+Group:
+
+Flavor=ANY
+Qualifiers=e14:s50
+      _qualstr=e14_s50
+
+Flavor=ANY
+Qualifiers=e15:s64
+      _qualstr=e15_s64
+
+Common:
+   Action=DefineFQ
+      envSet (PROTODUNE_WIBSOFT_FQ_DIR, ${UPS_PROD_DIR}/${UPS_PROD_FLAVOR}-${_qualstr})
+
+   Action=setup
+      setupenv()
+      proddir()
+      ExeActionRequired(DefineFQ)
+      envSet(WIB_ADDRESS_TABLE_PATH, ${UPS_PROD_DIR}/tables)
+      envSet(WIB_CONFIG_PATH, ${UPS_PROD_DIR}/config)
+      envSet(PROTODUNE_WIBSOFT_VERSION, ${UPS_PROD_VERSION})
+      # add the lib directory to LD_LIBRARY_PATH
+      envSet(PROTODUNE_WIBSOFT_LIB, ${PROTODUNE_WIBSOFT_FQ_DIR}/lib)
+      envPrepend(LD_LIBRARY_PATH, ${PROTODUNE_WIBSOFT_LIB})
+      envSet(PROTODUNE_WIBSOFT_BIN, ${PROTODUNE_WIBSOFT_FQ_DIR}/bin)
+      envPrepend(PATH, ${PROTODUNE_WIBSOFT_BIN})
+      envSet(PROTODUNE_WIBSOFT_INC, ${PROTODUNE_WIBSOFT_DIR}/include)
+
+End:
+# End Group definition
+#*************************************************

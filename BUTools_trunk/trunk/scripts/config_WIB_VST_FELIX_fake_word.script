@@ -1,0 +1,23 @@
+echo Configuring WIB: VST FELIX with fake data -- fake word
+add_device WIB 192.168.200.5
+
+write SYSTEM.SLOW_CONTROL_DND 1
+
+# pdts timing, tgrp 1, 0 for backplane timing, 1 for front panel
+checkedResetWIBAndCfgDTS 0 0 0 # second arg is timing partition
+
+# set to 1 for each FEMB you want to be fake
+configWIBFakeData 1 1 0 0
+
+fpwr 3 1
+sleep 1
+configFEMBFakeData 3 1 0xFE3
+fpwr 4 1
+sleep 1
+configFEMBFakeData 4 1 0xFE4
+
+startStreamToDAQ
+
+status 4 DTS
+
+write SYSTEM.SLOW_CONTROL_DND 0

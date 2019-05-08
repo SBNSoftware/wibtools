@@ -1,0 +1,46 @@
+BUTool WIB Scripts
+==================
+
+Configuring WIBs
+----------------
+
+To configure a WIB, setup your environment (cd ../; source env.sh; cd -) and
+then run:
+
+BUTool.exe -X config_<your configuration>.script
+
+e.g.
+
+BUTool.exe -X config_WIB_VST_RCE_default.script
+
+to configure the VST RCE WIB with the default (real data) FEMB configuration.
+
+Other configs include:
+
+config_*_fake_WIB_data.script -- fake data generated on the WIB with the FEMBs powered off
+config_*_fake_word.script -- fake data generated on the FEMBs with all channels and samples the same: FEX
+config_*_fake_counter.script -- fake data generated on the FEMBs with all channels counting up
+config_*_fake_channelid.script -- fake data generated on the FEMBs with each sample 0xXYZ
+                                  with X the FEMB number, Y the chip number, and Z the channel number
+
+These configs just include files from the WIB and FEMB directory. The WIB
+config is split into _preFEMB and _postFEMB scripts because the FEMB config
+needs to happen in the middle of the WIB configuration steps.
+
+Dumping Debug Info for WIBs/FEMBs/RCEs/FELIX
+--------------------------------------------
+
+The dump_*.sh scripts should dump all information needed to debug a problem to
+stdout. For example use:
+
+./dump_vst_wib_rce.sh >& logVST_RCE
+
+to dump debug info about the VST RCE WIB, associated FEMBs, and RCE to
+logVST_RCE
+
+Creating New Files
+------------------
+
+Please don't create new files in this directory or the WIB or FEMB
+subdirectories unless they are generally useful. For testing or one-offs,
+please put files in a subdirectory and use relative paths to load things.

@@ -1,0 +1,3 @@
+# Assumes you have already run the _preFEMB.script
+#
+startStreamToDAQ

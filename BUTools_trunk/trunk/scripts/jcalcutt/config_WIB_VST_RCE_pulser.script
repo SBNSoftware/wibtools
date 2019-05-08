@@ -1,0 +1,46 @@
+echo Configuring WIB: VST RCE with default FEMB config
+add_device WIB 192.168.200.5
+
+# pdts timing, tgrp 1, 0 for backplane timing, 1 for front panel
+resetWIBAndCfgDTS 0 1 0                                         
+
+# set to 1 for each FEMB you want to be fake
+configWIBFakeData 1 1 0 0
+
+fpwr 3 1
+sleep 1
+# Start setting up pulser. 
+# In Order:
+# FEMB
+# Gain
+# Shape Time
+# BaseLine
+# Leakage current
+# x10 Leakage
+# AC coupling
+# buffer
+# test input
+# ext clock
+# clk cs
+# plscs
+# dac sel
+# fpga dac
+# asic dac
+# mon cs
+configFEMB 3 3 0 1 0 0 0 0 1 1 1 1 0 0 0 1
+
+#iFEMB = 3, dac_val = 3 
+#setupFPGAPulser 3 3
+
+# from BNL code: 
+# 'connect channel test input to external pin'
+#setupASICPulserBits 3
+
+
+fpwr 4 1
+sleep 1
+configFEMB 4 3 3 1 0 0 0 0 0 1 1 1 0 0 0 1
+
+startStreamToDAQ
+
+status 4 DTS
