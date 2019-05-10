@@ -5,7 +5,7 @@
 #include <sys/stat.h> //for stat
 #include <unistd.h> //for stat
 
-namespace BUTool{ 
+namespace WIBTool{ 
   CLI::CLI()
   {
     // the include command

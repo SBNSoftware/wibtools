@@ -1,5 +1,5 @@
 #include "dunets_device/dunets_device.hh"
-#include <BUException/ExceptionBase.hh>
+#include <WIBException/ExceptionBase.hh>
 #include <boost/regex.hpp>
 //For networking constants and structs                                                                          
 #include <sys/types.h>
@@ -8,7 +8,7 @@
 #include <arpa/inet.h> //for inet_ntoa        
 
 
-using namespace BUTool;
+using namespace WIBTool;
 
 #define FILE_ADDR_ARG 0
 #define ADDR_TABLE_PATH_ARG 1
@@ -21,7 +21,7 @@ void DUNETSDevice::Connect(std::vector<std::string> arg){
 
 
   if(0 == arg.size()){
-    BUException::DEVICE_CREATION_ERROR e;
+    WIBException::DEVICE_CREATION_ERROR e;
     e.Append("bad args: DTS IP path/to/top.xml\n");
     throw e;
   }
@@ -145,7 +145,7 @@ void DUNETSDevice::Connect(std::vector<std::string> arg){
 
 
   if( hw == NULL){
-    BUException::DEVICE_CREATION_ERROR e;
+    WIBException::DEVICE_CREATION_ERROR e;
     e.Append("Unable to create HWInterface\n");
     throw e;    
   }

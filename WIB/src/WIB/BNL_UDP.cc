@@ -102,7 +102,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
 
   //Check port_offset range
   if(port_offset > 128){
-    BUException::BNL_UDP_PORT_OUT_OF_RANGE e;
+    WIBException::BNL_UDP_PORT_OUT_OF_RANGE e;
     throw e;    
   }
 
@@ -145,7 +145,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
     }
     //try a second time assumin gthis is a crate.slot address, fail if this still doesn't work
     if(getaddrinfo(address.c_str(),NULL,NULL,&res)){
-      BUException::BAD_REMOTE_IP e;
+      WIBException::BAD_REMOTE_IP e;
       e.Append("Addr: ");
       e.Append(address.c_str());
       e.Append(" could not be resolved.\n");
@@ -157,12 +157,12 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
 
   //Generate the sockets for read and write
   if((readSocketFD = socket(AF_INET,SOCK_DGRAM,0)) < 0){
-    BUException::BAD_SOCKET e;
+    WIBException::BAD_SOCKET e;
     e.Append("read socket\n");    
     throw e;
   }      
   if((writeSocketFD = socket(AF_INET,SOCK_DGRAM,0)) < 0){
-    BUException::BAD_SOCKET e;
+    WIBException::BAD_SOCKET e;
     e.Append("write socket\n");
     throw e;
   }      
@@ -175,7 +175,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
   readAddr = *((struct sockaddr_in *) res->ai_addr);
   readAddr.sin_port = htons(readPort); 
   if(connect(readSocketFD,(struct sockaddr *) &readAddr,sizeof(readAddr)) < 0){
-    BUException::CONNECTION_FAILED e;
+    WIBException::CONNECTION_FAILED e;
     e.Append("read socket connect\n");
     e.Append(strerror(errno));
     throw e;
@@ -184,7 +184,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
   writeAddr = *((struct sockaddr_in *) res->ai_addr);
   writeAddr.sin_port = htons(writePort); 
   if(connect(writeSocketFD,(struct sockaddr *) &writeAddr,sizeof(writeAddr)) < 0){
-    BUException::CONNECTION_FAILED e;
+    WIBException::CONNECTION_FAILED e;
     e.Append("write socket connect\n");
     e.Append(strerror(errno));
     throw e;
@@ -202,7 +202,7 @@ void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_cou
       usleep(10);
       //if everything goes well, return
       return;
-    }catch(BUException::BAD_REPLY &e){
+    }catch(WIBException::BAD_REPLY &e){
       //eat the exception
     }
     total_retry_count++;
@@ -234,7 +234,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
   if( send_size != (sent_size = send(writeSocketFD,
 				     &packet,send_size,0))){
     //bad send
-    BUException::SEND_FAILED e;
+    WIBException::SEND_FAILED e;
     if(sent_size == -1){
       e.Append("BNL_UDP::Write(uint16_t,uint32_t)\n");
       e.Append("Errnum: ");
@@ -249,7 +249,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
 			      buffer,buffer_size,0);
 
     if(-1 == reply_size){
-      BUException::BAD_REPLY e;
+      WIBException::BAD_REPLY e;
       std::stringstream ss;
       e.Append("BNL_UDP::Write(uint16_t,uint32_t)\n");
       ss << "Errnum(" << errno << "): " << strerror(errno) << "\n";
@@ -257,7 +257,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
       e.Append(dump_packet((uint8_t*) &packet,send_size).c_str());
       throw e;
     }else if( reply_size < WIB_RPLY_PACKET_SIZE){
-      BUException::BAD_REPLY e;
+      WIBException::BAD_REPLY e;
       std::stringstream ss;
       ss << "Bad Size: " << reply_size << "\n";
       e.Append("BNL_UDP::Write(uint16_t,uint32_t)\n");
@@ -267,7 +267,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
     }
     uint16_t reply_address =  uint16_t(buffer[0] << 8 | buffer[1]);
     if( reply_address != address){
-      BUException::BAD_REPLY e;
+      WIBException::BAD_REPLY e;
       std::stringstream ss;
       ss << "Bad address: " << uint32_t(address) << " != " << uint32_t(reply_address) << "\n";
       e.Append("BNL_UDP::Write(uint16_t,uint32_t)\n");
@@ -320,7 +320,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t const * values, size_t word_count
 ////////  if( send_size != (sent_size = send(writeSocketFD,
 ////////				     buffer,send_size,0))){
 ////////    //bad send
-////////    BUException::SEND_FAILED e;
+////////    WIBException::SEND_FAILED e;
 ////////    if(sent_size == -1){
 ////////      e.Append("BNL_UDP::Write(uint16_t,uint32_t*,size_t)\n");
 ////////      e.Append("Errnum: ");
@@ -343,12 +343,12 @@ void BNL_UDP::Write(uint16_t address, uint32_t const * values, size_t word_count
 //////////	     buffer,buffer_size,0,
 //////////	     (struct sockaddr*)&writeAddr,&sockaddr_len);    
 ////////    if(-1 == reply_size){
-////////      BUException::BAD_REPLY e;
+////////      WIBException::BAD_REPLY e;
 ////////      e.Append("BNL_UDP::Write(uint16_t,uint32_t*,size_t)\n");
 ////////      e.Append(strerror(errno));
 ////////      throw e;
 ////////    }else if( reply_size < WIB_RPLY_PACKET_SIZE){
-////////      BUException::BAD_REPLY e;
+////////      WIBException::BAD_REPLY e;
 ////////      std::stringstream ss;
 ////////      ss << "Bad Size: " << reply_size << "\n";
 ////////      e.Append("BNL_UDP::Write(uint16_t,uint32_t*,size_t)\n");
@@ -358,7 +358,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t const * values, size_t word_count
 ////////    }
 //////////    uint16_t reply_address =  uint16_t(buffer[0] << 8 | buffer[1]);
 //////////    if( reply_address != address){
-//////////      BUException::BAD_REPLY e;
+//////////      WIBException::BAD_REPLY e;
 //////////      std::stringstream ss;
 //////////      ss << "Bad address: " << address << " != " << reply_address << "\n";
 //////////      e.Append(ss.str().c_str());
@@ -376,7 +376,7 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint8_t retry_count){
       usleep(10);
       //if everything goes well, return
       return val;
-    }catch(BUException::BAD_REPLY &e){
+    }catch(WIBException::BAD_REPLY &e){
       //eat the exception
     }
     usleep(10);
@@ -405,7 +405,7 @@ uint32_t BNL_UDP::Read(uint16_t address){
   if( send_size != (sent_size = send(readSocketFD,
 				     &packet,send_size,0))){
     //bad send
-    BUException::SEND_FAILED e;
+    WIBException::SEND_FAILED e;
     if(sent_size == -1){
       e.Append("BNL_UDP::Read(uint16_t)\n");
       e.Append("Errnum: ");
@@ -419,7 +419,7 @@ uint32_t BNL_UDP::Read(uint16_t address){
 			    buffer,buffer_size,0);
 			    
   if(ssize_t(-1) == reply_size){
-    BUException::BAD_REPLY e;
+    WIBException::BAD_REPLY e;
     std::stringstream ss;
     e.Append("BNL_UDP::Read(uint16_t)\n");
     ss << "Errnum(" << errno << "): " << strerror(errno) << "\n";
@@ -427,7 +427,7 @@ uint32_t BNL_UDP::Read(uint16_t address){
     e.Append(dump_packet((uint8_t *)&packet,send_size).c_str());
     throw e;
   }else if( reply_size < WIB_RPLY_PACKET_SIZE){
-    BUException::BAD_REPLY e;
+    WIBException::BAD_REPLY e;
     std::stringstream ss;
     ss << "Bad Size: " << reply_size << "\n";
     e.Append("BNL_UDP::Read(uint16_t)\n");
@@ -437,7 +437,7 @@ uint32_t BNL_UDP::Read(uint16_t address){
   }
   uint16_t reply_address =  uint16_t(buffer[0] << 8 | buffer[1]);
   if( reply_address != address){
-    BUException::BAD_REPLY e;
+    WIBException::BAD_REPLY e;
     std::stringstream ss;
     ss << "Bad address: " << uint32_t(address) << " != " << uint32_t(reply_address) << "\n";
     e.Append("BNL_UDP::Read(uint16_t)\n");

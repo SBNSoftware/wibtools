@@ -47,9 +47,9 @@ WIB_INCLUDES = $(wildcard ${WIB_PREFIX}/include/WIB/*)
 WIB_INCLUDES_FNS = $(notdir ${WIB_INCLUDES})
 WIB_INCLUDES_DEST = $(addprefix ${MAINDIR}/include/WIB/,${WIB_INCLUDES_FNS})
 
-EXCEPTION_INCLUDES = $(wildcard ${EXCEPTION_PREFIX}/include/BUException/*)
+EXCEPTION_INCLUDES = $(wildcard ${EXCEPTION_PREFIX}/include/WIBException/*)
 EXCEPTION_INCLUDES_FNS = $(notdir ${EXCEPTION_INCLUDES})
-EXCEPTION_INCLUDES_DEST = $(addprefix ${MAINDIR}/include/BUException/,${EXCEPTION_INCLUDES_FNS})
+EXCEPTION_INCLUDES_DEST = $(addprefix ${MAINDIR}/include/WIBException/,${EXCEPTION_INCLUDES_FNS})
 
 #$(info WIB_INCLUDES is ${WIB_INCLUDES})
 #$(info WIB_INCLUDES_DEST is ${WIB_INCLUDES_DEST})
@@ -123,7 +123,7 @@ ${WIB_INCLUDES_DEST}: ${WIB_INCLUDES} ${MAINDIR}
 	cp $(filter %$(subst ${MAINDIR},,${@}),${WIB_INCLUDES}) $@
 
 ${EXCEPTION_INCLUDES_DEST}: ${EXCEPTION_INCLUDES}
-	mkdir -p ${MAINDIR}/include/BUException/
+	mkdir -p ${MAINDIR}/include/WIBException/
 	cp $(filter %$(subst ${MAINDIR},,${@}),${EXCEPTION_INCLUDES}) $@
 
 # ------------------------------

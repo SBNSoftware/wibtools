@@ -11,13 +11,13 @@
 #include "tool/CommandReturn.hh"
 #include "tool/DeviceFactory.hh"
 
-#include <BUException/ExceptionBase.hh>
+#include <WIBException/ExceptionBase.hh>
 
 #include <readline/readline.h> //for rl_delete_text
 #include <signal.h> //signals                                                                                                                                                                                                 
-using namespace BUTool;                                                 
+using namespace WIBTool;                                                 
 
-#define DevFac BUTool::DeviceFactory::Instance()
+#define DevFac WIBTool::DeviceFactory::Instance()
 
 
 volatile bool running = true;
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
 	    }
 	  }
 	}
-      }catch (BUException::exBase & e){
+      }catch (WIBException::exBase & e){
 
 	uint32_t verbose_level = launcher.GetVerbosity();
 

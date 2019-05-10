@@ -2,7 +2,7 @@
 #include <boost/tokenizer.hpp>
 #include <stdio.h>  
 
-using namespace BUTool;
+using namespace WIBTool;
 
 void Launcher::LoadCommandList()
 {

@@ -39,7 +39,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
 
   if (iFEMB < 1 || iFEMB > 4)
   {
-     BUException::WIB_BAD_ARGS e;
+     WIBException::WIB_BAD_ARGS e;
      std::stringstream expstr;
      expstr << "ConfigFEMB: iFEMB should be between 1 and 4: "
             << int(iFEMB);
@@ -48,7 +48,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
   }
   if (pls_mode > 2)
   {
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     std::stringstream expstr;
     expstr << "ConfigFEMB: pls_dac_mode is allowed to be 0 (off), 1 (FPGA), 2 (internal), but is: "
            << int(pls_mode);
@@ -57,7 +57,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
   }
   if (start_frame_mode_sel > 1 || start_frame_swap > 1)
   {
-     BUException::WIB_BAD_ARGS e;
+     WIBException::WIB_BAD_ARGS e;
      std::stringstream expstr;
      expstr << "ConfigFEMB: start_frame_mode_sel and start_frame_swap must be 0 or 1";
      e.Append(expstr.str().c_str());
@@ -66,7 +66,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
 
   if(fe_config.size() != 8){
 
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     std::stringstream expstr;
     expstr << "Error: Expecting 9 Front End configuration options:" << std::endl <<
     "\t0: Gain" << std::endl << 
@@ -103,7 +103,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
       std::cout << "Error: Can't read registers from FEMB " << int(iFEMB) << std::endl;
       return;
     }
-    BUException::FEMB_REG_READ_ERROR e;
+    WIBException::FEMB_REG_READ_ERROR e;
     std::stringstream expstr;
     expstr << " for FEMB: " << int(iFEMB);
     e.Append(expstr.str().c_str());
@@ -163,7 +163,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
   {
     if (pls_dac_val >= 63)
     {
-      BUException::WIB_BAD_ARGS e;
+      WIBException::WIB_BAD_ARGS e;
       std::stringstream expstr;
       expstr << "ConfigFEMB: pls_dac_val is 6 bits for internal DAC, must be 0-63, but is: "
              << int(pls_dac_val);
@@ -177,7 +177,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
   {
     if (pls_dac_val >= 32)
     {
-      BUException::WIB_BAD_ARGS e;
+      WIBException::WIB_BAD_ARGS e;
       std::stringstream expstr;
       expstr << "ConfigFEMB: pls_dac_val is 5 bits for FPGA DAC, must be 0-31, but is: "
              << int(pls_dac_val);
@@ -205,7 +205,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
         }
         else {
           uint16_t adc_fifo_sync = ( ReadFEMB(iFEMB, 6) & 0xFFFF0000) >> 16;
-          BUException::FEMB_ADC_SYNC_ERROR e;
+          WIBException::FEMB_ADC_SYNC_ERROR e;
           std::stringstream expstr;
           expstr << " after hunting. ";
           expstr << " FEMB: " << int(iFEMB);
@@ -221,7 +221,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
     else // ContinueIfListOfFEMBClockPhasesDontSync
     {
       uint16_t adc_fifo_sync = ( ReadFEMB(iFEMB, 6) & 0xFFFF0000) >> 16;
-      BUException::FEMB_ADC_SYNC_ERROR e;
+      WIBException::FEMB_ADC_SYNC_ERROR e;
       std::stringstream expstr;
       expstr << " after trying all in list. ";
       expstr << " FEMB: " << int(iFEMB);
@@ -277,7 +277,7 @@ void WIB::ConfigFEMBFakeData(uint8_t iFEMB, uint8_t fake_mode, uint32_t fake_wor
 
   if (iFEMB < 1 || iFEMB > 4)
   {
-     BUException::WIB_BAD_ARGS e;
+     WIBException::WIB_BAD_ARGS e;
      std::stringstream expstr;
      expstr << "ConfigFEMBFakeData: iFEMB should be between 1 and 4: "
             << int(iFEMB);
@@ -286,7 +286,7 @@ void WIB::ConfigFEMBFakeData(uint8_t iFEMB, uint8_t fake_mode, uint32_t fake_wor
   }
   if (start_frame_mode_sel > 1 || start_frame_swap > 1)
   {
-     BUException::WIB_BAD_ARGS e;
+     WIBException::WIB_BAD_ARGS e;
      std::stringstream expstr;
      expstr << "ConfigFEMBFakeData: start_frame_mode_sel and start_frame_swap must be 0 or 1";
      e.Append(expstr.str().c_str());
@@ -294,7 +294,7 @@ void WIB::ConfigFEMBFakeData(uint8_t iFEMB, uint8_t fake_mode, uint32_t fake_wor
   }
   if (fake_mode == 1 && fake_word > 0xFFF)
   {
-     BUException::WIB_BAD_ARGS e;
+     WIBException::WIB_BAD_ARGS e;
      std::stringstream expstr;
      expstr << "ConfigFEMBFakeData: fake_word must be only 12 bits i.e. <= 4095, is: "
             << fake_word;
@@ -303,7 +303,7 @@ void WIB::ConfigFEMBFakeData(uint8_t iFEMB, uint8_t fake_mode, uint32_t fake_wor
   }
   if (fake_mode == 2 && fake_samples.size() != 256)
   {
-     BUException::WIB_BAD_ARGS e;
+     WIBException::WIB_BAD_ARGS e;
      std::stringstream expstr;
      expstr << "ConfigFEMBFakeData: femb_samples must be 255 long, is: "
             << fake_samples.size();
@@ -312,7 +312,7 @@ void WIB::ConfigFEMBFakeData(uint8_t iFEMB, uint8_t fake_mode, uint32_t fake_wor
   }
   if (fake_mode == 3 && femb_number > 0xF)
   {
-     BUException::WIB_BAD_ARGS e;
+     WIBException::WIB_BAD_ARGS e;
      std::stringstream expstr;
      expstr << "ConfigFEMBFakeData: femb_number must be only 4 bits i.e. <= 15, is: "
             << int(femb_number);
@@ -554,7 +554,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, std::vector<uint32_t> registerList){
   
   if (registerList.size() != NREGS)
   {
-    BUException::FEMB_FIRMWARE_VERSION_MISMATCH e;
+    WIBException::FEMB_FIRMWARE_VERSION_MISMATCH e;
     std::stringstream expstr;
     expstr << "SetupFEMBASICs expects : "
            << NREGS
@@ -626,7 +626,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
 
   if (gain > 3) 
   {
-       BUException::WIB_BAD_ARGS e;
+       WIBException::WIB_BAD_ARGS e;
        std::stringstream expstr;
        expstr << "gain should be between 0 and 3, but is: "
               << int(gain);
@@ -635,7 +635,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
   }
   if (shape > 3) 
   {
-       BUException::WIB_BAD_ARGS e;
+       WIBException::WIB_BAD_ARGS e;
        std::stringstream expstr;
        expstr << "shape should be between 0 and 3, but is: "
               << int(shape);
@@ -782,7 +782,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
         }
         else
         {
-          BUException::FEMB_SPI_READBACK_MISMATCH e;
+          WIBException::FEMB_SPI_READBACK_MISMATCH e;
           std::stringstream expstr;
           expstr << " for FEMB: " << int(iFEMB);
           e.Append(expstr.str().c_str());
@@ -888,7 +888,7 @@ uint16_t WIB::SetupASICPulserBits(uint8_t iFEMB){
       } // for iSPIRead
       if(spi_mismatch)
       {
-         BUException::WIB_ERROR e;
+         WIBException::WIB_ERROR e;
          e.Append("SPI programming failure");
          throw e;
       } // if spi_mismatch

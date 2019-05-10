@@ -1,9 +1,9 @@
 #ifndef __ADDRESSTABLEEXCEPTION_HH__
 #define __ADDRESSTABLEEXCEPTION_HH__ 1
 
-#include <BUException/ExceptionBase.hh>
+#include <WIBException/ExceptionBase.hh>
 
-namespace BUException{       
+namespace WIBException{       
   //Exceptions for WIB
   ExceptionClassGenerator(BAD_FILE,"Bad File\n")
   ExceptionClassGenerator(INVALID_NAME,"Invalid name\n")

@@ -44,7 +44,7 @@ std::vector<std::string> AddressTable::GetNames(std::string const &regex){
   try{
     re = boost::regex(rx);
   }catch(std::exception &e){
-    BUException::BAD_REGEX e2;
+    WIBException::BAD_REGEX e2;
     e2.Append("In GetNames: (");
     e2.Append(rx.c_str());
     e2.Append(") ");
@@ -103,7 +103,7 @@ std::vector<std::string> AddressTable::GetTables(std::string const &regex){
   try{
     re = boost::regex(rx);
   }catch(std::exception &e){
-    BUException::BAD_REGEX e2;
+    WIBException::BAD_REGEX e2;
     e2.Append("In GetTables: (");
     e2.Append(rx.c_str());
     e2.Append(") ");

@@ -1,9 +1,9 @@
 #ifndef __BNL_UDP_EXCEPTION_HH__
 #define __BNL_UDP_EXCEPTION_HH__ 1
 
-#include <BUException/ExceptionBase.hh>
+#include <WIBException/ExceptionBase.hh>
 
-namespace BUException{       
+namespace WIBException{       
   //Exceptions for WIB
   ExceptionClassGenerator(BNL_UDP_PORT_OUT_OF_RANGE,"WIB Port offset too large\n")
   ExceptionClassGenerator(BAD_REMOTE_IP,"Invalid remote IP address\n")

@@ -14,7 +14,7 @@
 #include <tool/ToolException.hh>
 
 
-namespace BUTool{
+namespace WIBTool{
 
   using boost::algorithm::iequals;
 
@@ -64,7 +64,7 @@ namespace BUTool{
 
   const StatusDisplayCell* StatusDisplayMatrix::GetCell(const std::string & row, const std::string & col) const {
     if (rowColMap.find(row) == rowColMap.end() || colRowMap.find(col) == colRowMap.end()) {
-      BUException::BAD_VALUE e;
+      WIBException::BAD_VALUE e;
       char buffer[50];
       snprintf(buffer,49,"No cell in (\"%s\",\"%s\") position\n",row.c_str(),col.c_str());
       e.Append(buffer);
@@ -77,7 +77,7 @@ namespace BUTool{
   {
     boost::unordered_map<std::string,std::string>::const_iterator itTable= parameters.find("Table");
     if(itTable == parameters.end()){
-      BUException::BAD_VALUE e;
+      WIBException::BAD_VALUE e;
       char tmp[256];
       snprintf(tmp, 255, "Missing Table value for %s \n",address.c_str());
       e.Append( tmp);
@@ -178,7 +178,7 @@ namespace BUTool{
   {
     //Check that this name isn't empty
     if(newTableName.empty()){
-      BUException::BAD_VALUE e;
+      WIBException::BAD_VALUE e;
       std::string error("Bad table name \""); error+=newTableName ;error+="\"\n";
       e.Append(error);
       throw e;
@@ -205,7 +205,7 @@ namespace BUTool{
     if(name.empty()){
       name = modName;
     }else if(!iequals(modName,name)){
-      BUException::BAD_VALUE e;
+      WIBException::BAD_VALUE e;
       std::string error("Tried adding entry of table \"");
       error += modName + " to table " + name;
       e.Append(error.c_str());
@@ -267,7 +267,7 @@ namespace BUTool{
 	for(size_t iToken = 0; iToken < tokensForName.size();iToken++){		  	 
 	    //Check that this is a valid value 
 	    if(tokensForName[iToken] >= tokenNames.size()){
-	      BUException::BAD_VALUE e;	    
+	      WIBException::BAD_VALUE e;	    
 	      std::string error("Bad row for ");
 	      error += addressBase + " with token " + rowName->second;
 	      e.Append(error.c_str());
@@ -283,7 +283,7 @@ namespace BUTool{
       } 
     }else{
       //Missing row
-      BUException::BAD_VALUE e;
+      WIBException::BAD_VALUE e;
       std::string error("Missing row for ");
       error += addressBase;
       e.Append(error.c_str());
@@ -323,7 +323,7 @@ namespace BUTool{
 
 	for(size_t iToken = 0; iToken < tokensForName.size();iToken++){		  	 
 	    if(tokensForName[iToken] >= tokenNames.size()){
-	      BUException::BAD_VALUE e;	    
+	      WIBException::BAD_VALUE e;	    
 	      std::string error("Bad col for ");
 	      error += addressBase + " with token " + colName->second;
 	      e.Append(error.c_str());
@@ -339,7 +339,7 @@ namespace BUTool{
       } 
     }else{
       //Missing col
-      BUException::BAD_VALUE e;
+      WIBException::BAD_VALUE e;
       std::string error("Missing col for ");
       error += addressBase;
       e.Append(error.c_str());

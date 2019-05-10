@@ -3,7 +3,7 @@
 #include <fstream>
 #include <time.h> //time
 
-CommandReturn::status BUTool::WIBDevice::DumpAddressTable(std::vector<std::string> strArg,std::vector<uint64_t> /*intArg*/){
+CommandReturn::status WIBTool::WIBDevice::DumpAddressTable(std::vector<std::string> strArg,std::vector<uint64_t> /*intArg*/){
 
   bool dumpToStdOut = false;
   if (strArg.size() > 0) {
@@ -48,7 +48,7 @@ CommandReturn::status BUTool::WIBDevice::DumpAddressTable(std::vector<std::strin
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::DumpFEMBAddressTable(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::DumpFEMBAddressTable(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
 
   if (intArg.size() < 1)
   {
@@ -115,7 +115,7 @@ static bool IsNumberHelper(const std::string & str){
   return levelIsNumber;
 }
 
-CommandReturn::status BUTool::WIBDevice::StatusDisplay(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::StatusDisplay(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   //Create status display object
   WIBStatus * stat = new WIBStatus(wib);
   std::ostream& stream = std::cout;
@@ -142,7 +142,7 @@ CommandReturn::status BUTool::WIBDevice::StatusDisplay(std::vector<std::string> 
   return CommandReturn::OK;    
 }
 
-CommandReturn::status BUTool::WIBDevice::StatusDisplayHTML(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::StatusDisplayHTML(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   //Create status display object
   WIBStatus * stat = new WIBStatus(wib);
   stat->SetHTML();
@@ -168,7 +168,7 @@ CommandReturn::status BUTool::WIBDevice::StatusDisplayHTML(std::vector<std::stri
   return CommandReturn::OK;    
 }
 
-CommandReturn::status BUTool::WIBDevice::StatusDisplayFILE(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::StatusDisplayFILE(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   //Create status display object
   WIBStatus * stat = new WIBStatus(wib);
   time_t currentTime = time(NULL);

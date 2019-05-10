@@ -52,7 +52,7 @@ void WIB::EnableDAQLink(uint8_t iDAQLink){
   //CHeck if we know how to dael with this firmware
   if(!((DAQMode == RCE)||(DAQMode == FELIX))){
     //Not RCE or FELIX firmware, return
-    BUException::WIB_FEATURE_NOT_SUPPORTED e;
+    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
     e.Append("Automatic DAQLink configuration not supported with this firmware.\n");    
     throw e;
   }
@@ -78,7 +78,7 @@ void WIB::EnableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
   //CHeck if we know how to dael with this firmware
   if(!((DAQMode == RCE)||(DAQMode == FELIX))){
     //Not RCE or FELIX firmware, return
-    BUException::WIB_FEATURE_NOT_SUPPORTED e;
+    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
     e.Append("Automatic DAQLink configuration not supported with this firmware.\n");    
     throw e;
   }
@@ -102,7 +102,7 @@ void WIB::EnableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
   //CHeck if we know how to dael with this firmware
   if(!((DAQMode == RCE)||(DAQMode == FELIX))){
     //Not RCE or FELIX firmware, return
-    BUException::WIB_FEATURE_NOT_SUPPORTED e;
+    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
     e.Append("Automatic DAQLink configuration not supported with this firmware.\n");    
     throw e;
   }
@@ -141,7 +141,7 @@ void WIB::ResetWIB(bool reset_udp){
     //Resetting the UDP will stop the reply packet which will cause an error. 
     try{
       Write("SYSTEM.RESET.UDP_RESET",1);
-    }catch(BUException::BAD_REPLY & e){
+    }catch(WIBException::BAD_REPLY & e){
       //do nothing
     }
     //Since we don't know this happened since we lack a udp response, do it again.
@@ -149,7 +149,7 @@ void WIB::ResetWIB(bool reset_udp){
     usleep(10000);
     try{
       Write("SYSTEM.RESET.UDP_RESET",1);
-    }catch(BUException::BAD_REPLY & e){
+    }catch(WIBException::BAD_REPLY & e){
       //do nothing
     }
     usleep(10000);
@@ -196,21 +196,21 @@ void WIB::ResetWIB(bool reset_udp){
 
 void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSsource, uint32_t PDTSAlignment_timeout){
   if(DAQMode == UNKNOWN){
-    BUException::WIB_DAQMODE_UNKNOWN e;
+    WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
   }
   if(localClock > 1){
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     e.Append("localClock > 1; must be 0 (for DTS) or 1 (for local clock)\n");
     throw e;    
   }
   if(PDTSsource > 1){
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     e.Append("PDTSsource > 1; must be 0 (for backplane) or 1 (for front panel)\n");
     throw e;    
   }
   if(16 <= PDTS_TGRP){
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     e.Append("PDTS TGRP > 15; must be 0 to 15\n");
     throw e;    
   }
@@ -271,21 +271,21 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
 
 void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSsource,  uint32_t PDTSAlignment_timeout){
   if(DAQMode == UNKNOWN){
-    BUException::WIB_DAQMODE_UNKNOWN e;
+    WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
   }
   if(localClock > 1){
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     e.Append("localClock > 1; must be 0 (for DTS) or 1 (for local clock)\n");
     throw e;    
   }
   if(PDTSsource > 1){
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     e.Append("PDTSsource > 1; must be 0 (for backplane) or 1 (for front panel)\n");
     throw e;    
   }
   if(16 <= PDTS_TGRP){
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     e.Append("PDTS TGRP > 15; must be 0 to 15\n");
     throw e;    
   }
@@ -410,7 +410,7 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
 
 void WIB::StartStreamToDAQ(){
   if(DAQMode == UNKNOWN){
-    BUException::WIB_DAQMODE_UNKNOWN e;
+    WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
   }
   WriteWithRetry("DTS.CONVERT_CONTROL.HALT",1);
@@ -507,7 +507,7 @@ void WIB::DisableFEMBCNC(){
 
 bool WIB::CheckDAQLinkInRange(uint8_t iDAQLink){
   if(!((iDAQLink > 0) && (iDAQLink <= DAQLinkCount))){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("DAQ Link\n");
     throw e;    
   } 
@@ -533,7 +533,7 @@ char WIB::GetDAQLinkChar(uint8_t iDAQLink){
     c = '4';
     break;
   default:
-    BUException::WIB_INDEX_OUT_OF_RANGE e;    
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;    
     e.Append("DAQ Link\n");
     char estr[] = "0";
     estr[0] = c;
@@ -545,7 +545,7 @@ char WIB::GetDAQLinkChar(uint8_t iDAQLink){
 
 bool WIB::CheckFEMBInRange(uint8_t iFEMB){
   if(!((iFEMB > 0) && (iFEMB <= FEMBCount))){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("FEMB\n");
     throw e;    
   } 
@@ -571,7 +571,7 @@ char WIB::GetFEMBChar(uint8_t iFEMB){
     c = '4';
     break;
   default:
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("FEMB\n");
     char estr[] = "0";
     estr[0] = c;
@@ -583,7 +583,7 @@ char WIB::GetFEMBChar(uint8_t iFEMB){
 
 bool WIB::CheckFEMBStreamInRange(uint8_t iStream){
   if(!((iStream > 0) && (iStream <= FEMBStreamCount))){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("FEMB Stream");
     throw e;    
   } 
@@ -592,7 +592,7 @@ bool WIB::CheckFEMBStreamInRange(uint8_t iStream){
 
 bool WIB::CheckFEMBCDInRange(uint8_t iCDA){
   if(!((iCDA > 0) && (iCDA <= FEMBCDACount))){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("FEMB CDA");
     throw e;    
   } 
@@ -612,7 +612,7 @@ char WIB::GetFEMBCDChar(uint8_t iCD){
     c = '2';
     break;
   default:
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("FEMB CDA\n");
     char estr[] = "0";
     estr[0] = c;

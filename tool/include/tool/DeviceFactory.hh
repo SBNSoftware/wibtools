@@ -11,7 +11,7 @@
 #define RegisterDevice(ClassName,ClassNickName,ClassHelp,CLIFlag,CLIFullFlag,CLIDescription) \
   namespace {								\
     /*make creator function*/						\
-    BUTool::CommandListBase * creator_function(std::vector<std::string> args){ \
+    WIBTool::CommandListBase * creator_function(std::vector<std::string> args){ \
       return new ClassName(args);					\
     }									\
     /*Register the device with the DeviceFactory*/			\
@@ -21,7 +21,7 @@
     const char CLI_flag[] = CLIFlag;					\
     const char CLI_full_flag[] = CLIFullFlag;				\
     const char CLI_description[] = CLIDescription;			\
-    const volatile bool registered = BUTool::DeviceFactory::Instance()->Register(type, \
+    const volatile bool registered = WIBTool::DeviceFactory::Instance()->Register(type, \
 									name, \
 									&creator_function, \
 									help, \
@@ -30,7 +30,7 @@
 									CLI_description); \
   }
 
-namespace BUTool{
+namespace WIBTool{
   class DeviceFactory{
   public:
     //Singleton stuff

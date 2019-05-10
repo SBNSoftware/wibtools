@@ -3,7 +3,7 @@
 #include <inttypes.h> // for PRI macros
 
 
-CommandReturn::status BUTool::WIBDevice::Read_DTS_SI5344_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Read_DTS_SI5344_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused args
   if((intArg.size() == 0) || (intArg.size() > 2)){
     return CommandReturn::BAD_ARGS;
@@ -32,7 +32,7 @@ CommandReturn::status BUTool::WIBDevice::Read_DTS_SI5344_I2C(std::vector<std::st
 }
 
 
-CommandReturn::status BUTool::WIBDevice::Write_DTS_SI5344_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Write_DTS_SI5344_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused args
   if((intArg.size() < 2) || (intArg.size() > 3)){
     return CommandReturn::BAD_ARGS;
@@ -72,7 +72,7 @@ CommandReturn::status BUTool::WIBDevice::Write_DTS_SI5344_I2C(std::vector<std::s
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::Write_DTS_SI5344_Config(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Write_DTS_SI5344_Config(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) intArg; // to make compiler not complain about unused args
   if(strArg.size() == 0){
     wib->LoadConfigDTS_SI5344("default");
@@ -83,7 +83,7 @@ CommandReturn::status BUTool::WIBDevice::Write_DTS_SI5344_Config(std::vector<std
 }
 
 
-CommandReturn::status BUTool::WIBDevice::Write_DTS_SI5344_Page(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Write_DTS_SI5344_Page(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused args
   if(intArg.size() == 0){
     return CommandReturn::BAD_ARGS;    
@@ -91,17 +91,17 @@ CommandReturn::status BUTool::WIBDevice::Write_DTS_SI5344_Page(std::vector<std::
   wib->SetDTS_SI5344Page(intArg[0]);
   return CommandReturn::OK;
 }
-CommandReturn::status BUTool::WIBDevice::Read_DTS_SI5344_Page(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
+CommandReturn::status WIBTool::WIBDevice::Read_DTS_SI5344_Page(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
   printf("SI5344 page: %u\n",wib->GetDTS_SI5344Page());
   return CommandReturn::OK;
 }	   
 
-CommandReturn::status BUTool::WIBDevice::ResetSI5344(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
+CommandReturn::status WIBTool::WIBDevice::ResetSI5344(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
   wib->ResetSi5344();
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::SelectSI5344(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::SelectSI5344(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
 
   if(intArg.size() != 2) return CommandReturn::BAD_ARGS;
   if(intArg[0] > 3) return CommandReturn::BAD_ARGS;

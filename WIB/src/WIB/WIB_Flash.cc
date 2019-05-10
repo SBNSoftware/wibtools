@@ -11,26 +11,26 @@
 
 static void ParseIHexLine(std::string line, std::vector <uint8_t> &data, uint32_t &upperAddr){
   if(line.empty()){         
-    BUException::WIB_FLASH_IHEX_ERROR e;
+    WIBException::WIB_FLASH_IHEX_ERROR e;
     e.Append("line is empty");
     throw e;
   }else if(line[0] != ':'){         
-    BUException::WIB_FLASH_IHEX_ERROR e;
+    WIBException::WIB_FLASH_IHEX_ERROR e;
     e.Append("BAD Line in file - does not start with ':'");
     throw e;
   }else{
     line.erase(0,1);
   }      
   if(line.size()<MIN_LINE_LENGTH){         
-    BUException::WIB_FLASH_IHEX_ERROR e;
+    WIBException::WIB_FLASH_IHEX_ERROR e;
     e.Append("BAD Line in file - incomplete intel hex format\n");
     throw e;
   }else if(line.size()>MAX_LINE_LENGTH){
-    BUException::WIB_FLASH_IHEX_ERROR e;         
+    WIBException::WIB_FLASH_IHEX_ERROR e;         
     e.Append("BAD Line in file - intel hex format not supported, contains too many characters\n");
     throw e;
   }else if (line.size()&1){         
-    BUException::WIB_FLASH_IHEX_ERROR e;
+    WIBException::WIB_FLASH_IHEX_ERROR e;
     e.Append("BAD Line in file - uneven number of characters\n");
     throw e;
   }else {
@@ -47,7 +47,7 @@ static void ParseIHexLine(std::string line, std::vector <uint8_t> &data, uint32_
 
     if(0xFF&line_sum){
       line_sum = 0xFF & line_sum;
-      BUException::WIB_FLASH_IHEX_ERROR e;            
+      WIBException::WIB_FLASH_IHEX_ERROR e;            
       e.Append("BAD Line in file - content inconsistent with checksum.\n");
       throw e;
     } else{
@@ -83,7 +83,7 @@ static void ParseIHexLine(std::string line, std::vector <uint8_t> &data, uint32_
        ParseIHexLine(line, data, upperAddr);
      }
    } else{
-     BUException::WIB_FLASH_IHEX_ERROR e;      
+     WIBException::WIB_FLASH_IHEX_ERROR e;      
      e.Append("Unable to open file ");
      e.Append(file);
      throw e;
@@ -100,11 +100,11 @@ static std::vector<uint32_t> firmwareFromIntelHexFile(std::string const & iHexFi
   //For now we'll just die so we don't have to deal with the issue. 
   //Make sure this is called before we erase the flash :-p
   if((rawData.size()&0x3) != 0x0){
-    BUException::WIB_FLASH_IHEX_ERROR e;      
+    WIBException::WIB_FLASH_IHEX_ERROR e;      
     e.Append("Flash data is not a multiple of 32bit words");
     throw e;
   }else if(0 == rawData.size()){
-    BUException::WIB_FLASH_IHEX_ERROR e;      
+    WIBException::WIB_FLASH_IHEX_ERROR e;      
     e.Append("Flash data is empty");
     throw e;
   }
@@ -133,7 +133,7 @@ void WIB::ReadFlash(std::string const & fileName,uint8_t update_percentage){
 
   FILE * outFile = fopen(fileName.c_str(),"w");
   if(outFile == NULL){
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     e.Append("Failed to create: ");
     e.Append(fileName);
     throw e;
@@ -198,7 +198,7 @@ void WIB::EraseFlash(bool print_updates){
     usleep(100000);
   }
   if(iTimeout == 0){
-    BUException::WIB_FLASH_TIMEOUT e;
+    WIBException::WIB_FLASH_TIMEOUT e;
       //throw an exception
       e.Append("Program (erase): FLASH.BUSY");
       throw e;
@@ -332,7 +332,7 @@ void WIB::CheckFlash(std::vector<uint32_t> flashData,uint8_t update_percentage){
       uint32_t dataRead;
       if((dataRead = ReadWithRetry(blockRegMapAddress + iBlockWord)) !=
 	 flashData[currentBlockStartIndex + iBlockWord]){
-	BUException::WIB_FLASH_ERROR e;	
+	WIBException::WIB_FLASH_ERROR e;	
 	char errorbuffer[] = "Error on index 0xXXXXXXXX: 0xXXXXXXXX != 0xXXXXXXXX";
 	snprintf(errorbuffer,
 		 strlen(errorbuffer),
@@ -366,7 +366,7 @@ void WIB::FlashCheckBusy(){
     usleep(10000);
   }
   if(iTimeout == 0){
-    BUException::WIB_FLASH_TIMEOUT e;
+    WIBException::WIB_FLASH_TIMEOUT e;
     //throw an exception
     e.Append("Read: FLASH.BUSY");
     throw e;

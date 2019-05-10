@@ -1,7 +1,7 @@
 PackagePath = $(shell pwd)
 
 LIBRARY_EXCEPTION = lib/libToolException.so
-LIBRARY_EXCEPTION_SOURCES  = $(wildcard src/BUException/*.cc)
+LIBRARY_EXCEPTION_SOURCES  = $(wildcard src/WIBException/*.cc)
 LIBRARY_EXCEPTION_OBJECT_FILES = $(patsubst src/%.cc,obj/%.o,${LIBRARY_EXCEPTION_SOURCES})
 
 

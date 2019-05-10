@@ -4,7 +4,7 @@
 #include <inttypes.h> // for PRI macros
 #include <WIB/BNL_UDP_Exception.hh>
 
-CommandReturn::status BUTool::WIBDevice::WriteLocalFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::WriteLocalFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused arguments
   if(2 == intArg.size()){
     wib->WriteLocalFlash(intArg[0],intArg[1]);
@@ -12,7 +12,7 @@ CommandReturn::status BUTool::WIBDevice::WriteLocalFlash(std::vector<std::string
   }  
   return CommandReturn::BAD_ARGS;
 }
-CommandReturn::status  BUTool::WIBDevice::ReadLocalFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status  WIBTool::WIBDevice::ReadLocalFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused arguments
   if(1 == intArg.size()){
     printf("0x%04X: 0x%08X\n",(uint32_t) intArg[0], (uint32_t) wib->ReadLocalFlash(intArg[0]));
@@ -22,7 +22,7 @@ CommandReturn::status  BUTool::WIBDevice::ReadLocalFlash(std::vector<std::string
 }
 
 
-CommandReturn::status BUTool::WIBDevice::TestUDP
+CommandReturn::status WIBTool::WIBDevice::TestUDP
     (std::vector<std::string> strArg, std::vector<uint64_t> intArg) {
   (void) strArg; // to make compiler not complain about unused arguments
   if(intArg.size() == 0){
@@ -37,13 +37,13 @@ CommandReturn::status BUTool::WIBDevice::TestUDP
       if(reply != i){
 	printf("Error: 0x%08X != 0x%08X\n",reply,i);
       }
-    }catch(BUException::BAD_REPLY & e){
+    }catch(WIBException::BAD_REPLY & e){
       printf("Failed after %u(%u) read/writes\n",i,reply);
     }
   }
   return CommandReturn::OK;
 }
-CommandReturn::status BUTool::WIBDevice::ReadDAQLinkSpyBufferEvents
+CommandReturn::status WIBTool::WIBDevice::ReadDAQLinkSpyBufferEvents
     (std::vector<std::string> strArg, std::vector<uint64_t> intArg) {
   uint8_t trigger_mode = 0;
   uint8_t iDAQLink = 0;
@@ -96,7 +96,7 @@ CommandReturn::status BUTool::WIBDevice::ReadDAQLinkSpyBufferEvents
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::ReadCDLinkSpyBuffer(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::ReadCDLinkSpyBuffer(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   FILE* outFile = NULL;
   switch (strArg.size()){
   case 2:
@@ -140,7 +140,7 @@ CommandReturn::status BUTool::WIBDevice::ReadCDLinkSpyBuffer(std::vector<std::st
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::ReadDAQLinkSpyBuffer(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::ReadDAQLinkSpyBuffer(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   uint8_t trigger_mode = 0;
   uint8_t iDAQLink = 0; 
   std::string fileName;
@@ -209,7 +209,7 @@ static bool ok_to_continue( const char *message) {
     return false;
 }
 
-CommandReturn::status BUTool::WIBDevice::WriteFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::WriteFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   if(1 == intArg.size()){
     if( !ok_to_continue("EXPERT ONLY! This may result in a non-functioning WIB\n" \
 			"Once the flash is erased the WIB will not power up \n"\
@@ -228,7 +228,7 @@ CommandReturn::status BUTool::WIBDevice::WriteFlash(std::vector<std::string> str
   return CommandReturn::BAD_ARGS;
 }
 
-CommandReturn::status BUTool::WIBDevice::ReadFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::ReadFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   if(1 == intArg.size()){
     wib->ReadFlash(strArg[0],2);
     return CommandReturn::OK;
@@ -237,7 +237,7 @@ CommandReturn::status BUTool::WIBDevice::ReadFlash(std::vector<std::string> strA
 }
 
 
-CommandReturn::status BUTool::WIBDevice::Read(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Read(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   if(1 == intArg.size()){
     //Check if the argument is a numerical address or string
     if(isdigit(strArg[0][0])){
@@ -291,7 +291,7 @@ CommandReturn::status BUTool::WIBDevice::Read(std::vector<std::string> strArg,st
 }
 
 	   
-CommandReturn::status BUTool::WIBDevice::Write(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Write(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   if(intArg.size() == 2){
     //Check if the argument is a numerical address or string
     if(isdigit(strArg[0][0])){      
@@ -330,7 +330,7 @@ CommandReturn::status BUTool::WIBDevice::Write(std::vector<std::string> strArg,s
 }
 
 
-void BUTool::WIBDevice::PrintNames(std::vector<std::string> const & names,bool isWIB){
+void WIBTool::WIBDevice::PrintNames(std::vector<std::string> const & names,bool isWIB){
   printf("Found %zd names\n",names.size());
   printf("  Name                                                        address         mask              mode\n");
   for(std::vector<std::string>::const_iterator name = names.begin();
@@ -367,7 +367,7 @@ void BUTool::WIBDevice::PrintNames(std::vector<std::string> const & names,bool i
   }
 }
 
-CommandReturn::status BUTool::WIBDevice::Names(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Names(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) intArg; // to make compiler not complain about unused args
   if(strArg.size() > 0){
     PrintNames(wib->GetNames(strArg[0]));
@@ -380,7 +380,7 @@ CommandReturn::status BUTool::WIBDevice::Names(std::vector<std::string> strArg,s
 
 
 
-std::string BUTool::WIBDevice::autoComplete_WIBAddressTable(std::vector<std::string> const & line,std::string const & currentToken ,int state){
+std::string WIBTool::WIBDevice::autoComplete_WIBAddressTable(std::vector<std::string> const & line,std::string const & currentToken ,int state){
   if(line.size() > 0){
     if((line.size() > 1) && (currentToken.size() == 0)){
       return std::string("");
@@ -409,7 +409,7 @@ std::string BUTool::WIBDevice::autoComplete_WIBAddressTable(std::vector<std::str
   return std::string("");
 }
 
-CommandReturn::status BUTool::WIBDevice::FEMBRead(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::FEMBRead(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   if(intArg.size() == 2){
     //check for FEMB 
     if((0 >= intArg[0]) && (4 < intArg[0])){
@@ -431,7 +431,7 @@ CommandReturn::status BUTool::WIBDevice::FEMBRead(std::vector<std::string> strAr
   return CommandReturn::BAD_ARGS;
 }
 
-CommandReturn::status BUTool::WIBDevice::FEMBWrite(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::FEMBWrite(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   if(intArg.size() == 3){
     //check for FEMB 
     if((0 >= intArg[0]) && (4 < intArg[0])){
@@ -454,7 +454,7 @@ CommandReturn::status BUTool::WIBDevice::FEMBWrite(std::vector<std::string> strA
   return CommandReturn::BAD_ARGS;
 }
 
-CommandReturn::status BUTool::WIBDevice::FEMBNames(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::FEMBNames(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) intArg; // to make compiler not complain about unused args
   if(strArg.size() > 0){
     PrintNames(wib->GetFEMBNames(strArg[0]),false);
@@ -463,7 +463,7 @@ CommandReturn::status BUTool::WIBDevice::FEMBNames(std::vector<std::string> strA
   return CommandReturn::BAD_ARGS;
 }
 
-CommandReturn::status BUTool::WIBDevice::Addresses(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Addresses(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused args
   CommandReturn::status ret;
   switch (intArg.size()){
@@ -487,7 +487,7 @@ CommandReturn::status BUTool::WIBDevice::Addresses(std::vector<std::string> strA
   return ret;
 }
 
-CommandReturn::status BUTool::WIBDevice::FEMBAddresses(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::FEMBAddresses(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused args
   CommandReturn::status ret;
   switch (intArg.size()){
@@ -512,7 +512,7 @@ CommandReturn::status BUTool::WIBDevice::FEMBAddresses(std::vector<std::string> 
 }
 
 
-std::string BUTool::WIBDevice::autoComplete_FEMBNumber_FEMBAddressTable(std::vector<std::string> const & line,std::string const & currentToken ,int state){
+std::string WIBTool::WIBDevice::autoComplete_FEMBNumber_FEMBAddressTable(std::vector<std::string> const & line,std::string const & currentToken ,int state){
   if(1 == line.size()){
     //Parse the FEMB number
     if(0 == currentToken.size()){
@@ -568,7 +568,7 @@ std::string BUTool::WIBDevice::autoComplete_FEMBNumber_FEMBAddressTable(std::vec
   return std::string("");
 }
 
-std::string BUTool::WIBDevice::autoComplete_FEMBAddressTable(std::vector<std::string> const & line,std::string const & currentToken ,int state){
+std::string WIBTool::WIBDevice::autoComplete_FEMBAddressTable(std::vector<std::string> const & line,std::string const & currentToken ,int state){
   if(1 >= line.size()){
     static std::vector<std::string> registerName;
     static size_t iRegister;
@@ -595,7 +595,7 @@ std::string BUTool::WIBDevice::autoComplete_FEMBAddressTable(std::vector<std::st
 
 
 
-std::string BUTool::WIBDevice::autoComplete_WIBTables(std::vector<std::string> const & line,std::string const & currentToken ,int state){
+std::string WIBTool::WIBDevice::autoComplete_WIBTables(std::vector<std::string> const & line,std::string const & currentToken ,int state){
   if(1 == line.size()){
     //Parse the status number
     if(0 == currentToken.size()){
@@ -630,7 +630,7 @@ std::string BUTool::WIBDevice::autoComplete_WIBTables(std::vector<std::string> c
 }
 
 
-CommandReturn::status BUTool::WIBDevice::Read_QSFP_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Read_QSFP_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused args
   if((intArg.size() == 0) || (intArg.size() > 2)){
     return CommandReturn::BAD_ARGS;
@@ -659,7 +659,7 @@ CommandReturn::status BUTool::WIBDevice::Read_QSFP_I2C(std::vector<std::string> 
 }
 
 
-CommandReturn::status BUTool::WIBDevice::Write_QSFP_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Write_QSFP_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused args
   if((intArg.size() < 2) || (intArg.size() > 3)){
     return CommandReturn::BAD_ARGS;

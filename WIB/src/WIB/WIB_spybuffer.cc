@@ -3,7 +3,7 @@
 
 std::vector<data_8b10b_t> WIB::ReadOutCDLinkSpyBuffer(){
   if(Read("FEMB_SPY.FIFO_EMPTY")){
-    BUException::WIB_ERROR e;
+    WIBException::WIB_ERROR e;
     e.Append("CD Spy fifo is empty!");
     throw e;      
   }
@@ -21,11 +21,11 @@ std::vector<data_8b10b_t> WIB::ReadDAQLinkSpyBuffer(uint8_t iDAQLink,uint8_t tri
   //TODO read DAQ link count
   std::string base("DAQ_LINK_");
   base.push_back(GetDAQLinkChar(iDAQLink));
-  base.append(".SPY_BUFFER.");
+  base.append(".SPY_WIBFFER.");
 
   //Check if there is an active capture
   if(ReadWithRetry(base+"CAPTURING_DATA")){
-    BUException::WIB_BUSY e;
+    WIBException::WIB_BUSY e;
     e.Append(base);
     e.Append(" is busy\n");
     throw e;

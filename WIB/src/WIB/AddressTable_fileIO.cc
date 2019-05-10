@@ -24,7 +24,7 @@ void AddressTable::LoadFile(std::string const & fileName,
       inFile.open(envBasedFileName.c_str());
     }    
     if (!inFile.is_open()){
-      BUException::BAD_FILE e;
+      WIBException::BAD_FILE e;
       e.Append("File not found: ");
       e.Append(envBasedFileName.c_str());
       throw e;        
@@ -77,7 +77,7 @@ void AddressTable::ProcessLine(std::string const & line,size_t lineNumber,
 
 	if(name.size() == 0){
 	  //We have an emtpy name, this is bad and we should throw
-	  BUException::INVALID_NAME e;
+	  WIBException::INVALID_NAME e;
 	  e.Append("Empty name");
 	  throw e;    	  
 	}
@@ -111,7 +111,7 @@ void AddressTable::ProcessLine(std::string const & line,size_t lineNumber,
 	if(fileLevel <= MAX_FILE_LEVEL){
 	  LoadFile(filename,item->name,item->address);		  
 	}else{
-	  BUException::MAX_INCLUDE_FILE_DEPTH e;
+	  WIBException::MAX_INCLUDE_FILE_DEPTH e;
 	  e.Append("File: ");
 	  e.Append(filename);
 	  e.Append(" at prefix ");
@@ -187,7 +187,7 @@ void AddressTable::ProcessLine(std::string const & line,size_t lineNumber,
 	//make sure there isn't a """ before the =
 	if(itToken->find('"') != std::string::npos){
 	  if(itToken->find('"') < equalSignPos){
-	    BUException::BAD_TOKEN e;
+	    WIBException::BAD_TOKEN e;
 	    e.Append("Malformed token : ");
 	    e.Append(itToken->c_str());
 	    e.Append(" on line ");	    
@@ -204,7 +204,7 @@ void AddressTable::ProcessLine(std::string const & line,size_t lineNumber,
 	std::string name = itToken->substr(0,equalSignPos);
 	//Parse the rest of the user value if there is more size
 	if(itToken->size()-1 == equalSignPos){
-	    BUException::BAD_TOKEN e;
+	    WIBException::BAD_TOKEN e;
 	    e.Append("Malformed token : ");
 	    e.Append(itToken->c_str());
 	    e.Append(" on line ");	    

@@ -1,9 +1,9 @@
-#include <BUException/ExceptionBase.hh>
+#include <WIBException/ExceptionBase.hh>
 
 //Error string for bad allocation of description
 static const char descriptionError[] = "Description allocation failed.\n";
 
-BUException::exBase::exBase() throw() : descriptionSize(255),
+WIBException::exBase::exBase() throw() : descriptionSize(255),
 				      stackSize(1024), 
 				      PID(-1)
 {
@@ -38,7 +38,7 @@ BUException::exBase::exBase() throw() : descriptionSize(255),
   GenerateStackTrace();
 }
   
-BUException::exBase::~exBase() throw()
+WIBException::exBase::~exBase() throw()
 {
   if(stackBuffer != NULL)
     free(stackBuffer);
@@ -46,7 +46,7 @@ BUException::exBase::~exBase() throw()
     free(descriptionBuffer);
 }
   
-void BUException::exBase::Copy(const exBase & rh) throw()
+void WIBException::exBase::Copy(const exBase & rh) throw()
 {
   //Copy description buffer
   this->descriptionUsed = 0;
@@ -91,7 +91,7 @@ void BUException::exBase::Copy(const exBase & rh) throw()
   this->PID = rh.PID;
 }
   
-void BUException::exBase::Append(const char * buffer) throw()
+void WIBException::exBase::Append(const char * buffer) throw()
 {
   //Compute the appended buffer's size
   size_t appendedSize = strlen(buffer);
@@ -117,7 +117,7 @@ void BUException::exBase::Append(const char * buffer) throw()
     descriptionBuffer[descriptionUsed] = '\0';
 }
   
-const char * BUException::exBase::Description() const throw() 
+const char * WIBException::exBase::Description() const throw() 
 {
   if(descriptionBuffer == NULL) //If there was a bad alloc, return an error string
     return descriptionError;

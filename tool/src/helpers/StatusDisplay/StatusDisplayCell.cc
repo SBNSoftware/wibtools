@@ -14,7 +14,7 @@
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
-namespace BUTool{
+namespace WIBTool{
 
   using boost::algorithm::iequals;
 
@@ -172,7 +172,7 @@ namespace BUTool{
 	  ++itTok){
 	//check if this token contains a space
 //	if(itTok->find(' ') == std::string::npos){
-//	  BUException::BAD_VALUE e;
+//	  WIBException::BAD_VALUE e;
 //	  std::string error("Bad format option: ");
 //	  error += format;
 //	  e.Append(error.c_str());
@@ -242,7 +242,7 @@ namespace BUTool{
     if(thing1.size() == 0){
       thing1 = thing2;
     } else if(!iequals(thing1,thing2)) {
-      BUException::BAD_VALUE e;
+      WIBException::BAD_VALUE e;
       e.Append(name);
       e.Append(" mismatch: "); 
       e.Append(thing1); e.Append(" != ");e.Append(thing2);

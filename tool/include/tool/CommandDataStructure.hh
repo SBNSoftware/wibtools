@@ -36,12 +36,12 @@ public:
   =============================================================================*/
   CommandReturn::status operator()(T * objPtr,std::vector<std::string> s,std::vector<uint64_t> i){
     if( objPtr == NULL){
-      BUException::COMMAND_LIST_ERROR e;
+      WIBException::COMMAND_LIST_ERROR e;
       e.Append("NULL Object pointer used with command function pointer\n");
       throw e;
     }
     if( FcnPtr == NULL){
-      BUException::COMMAND_LIST_ERROR e;
+      WIBException::COMMAND_LIST_ERROR e;
       e.Append("NULL function pointer called for command\n");
       throw e;
     }
@@ -71,7 +71,7 @@ public:
   std::string autoComplete(T* objPtr,std::vector<std::string> const & line,std::string const & currentToken,int state){
     //Make sure the objPtr is valid
     if(objPtr == NULL){
-      BUException::COMMAND_LIST_ERROR e;
+      WIBException::COMMAND_LIST_ERROR e;
       e.Append("NULL Object pointer used with command auto-complete function pointer\n");
       throw e;
     }

@@ -1,6 +1,6 @@
 #include <wib_device/WIBDevice.hh>
 
-CommandReturn::status BUTool::WIBDevice::EnableDAQLink(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::EnableDAQLink(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused arguments
 
   uint8_t iDAQLink = 0; 
@@ -15,7 +15,7 @@ CommandReturn::status BUTool::WIBDevice::EnableDAQLink(std::vector<std::string> 
   return CommandReturn::OK;    
 }
 
-CommandReturn::status BUTool::WIBDevice::EnableDAQLink_Lite(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::EnableDAQLink_Lite(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused arguments
 
   uint8_t iDAQLink = 0; 

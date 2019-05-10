@@ -8,7 +8,7 @@ void WIB::ConfigWIBFakeData(bool enableFakeFEMB1, bool enableFakeFEMB2,
   if(DAQMode == FELIX){
     //Don't allow fake mode on only half of a FELIX link
     if ((enableFakeFEMB1 ^ enableFakeFEMB2) || (enableFakeFEMB3 ^ enableFakeFEMB4)) {
-      BUException::WIB_FAKE_DATA_ON_HALF_FELIX_LINK e;
+      WIBException::WIB_FAKE_DATA_ON_HALF_FELIX_LINK e;
       throw e;
     }
   }

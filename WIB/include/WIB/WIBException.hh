@@ -1,9 +1,9 @@
 #ifndef __WIB_EXCEPTION_HH__
 #define __WIB_EXCEPTION_HH__ 1
 
-#include <BUException/ExceptionBase.hh>
+#include <WIBException/ExceptionBase.hh>
 
-namespace BUException{       
+namespace WIBException{       
   //Exceptions for WIB
   ExceptionClassGenerator(WIB_INDEX_OUT_OF_RANGE,"Index out of range\n")
   //  ExceptionClassGenerator(WIB_FEMB_RANGE,"WIB FEMB out of range\n")

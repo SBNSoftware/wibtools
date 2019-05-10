@@ -2,14 +2,14 @@
 #include <boost/algorithm/string/case_conv.hpp>
 
 //Singleton
-BUTool::DeviceFactory * BUTool::DeviceFactory::DeviceFactory::pInstance = NULL;
+WIBTool::DeviceFactory * WIBTool::DeviceFactory::DeviceFactory::pInstance = NULL;
 
 
 static bool CLIArgsValid(std::string const & flag,std::string const & full_flag){
   return (!flag.empty() && !full_flag.empty());
 }
 
-bool BUTool::DeviceFactory::Register(std::string type, 
+bool WIBTool::DeviceFactory::Register(std::string type, 
 				     std::string name, 
 				     CommandListBase * (*fPtr)(std::vector<std::string>),
 				     std::string help,
@@ -60,7 +60,7 @@ bool BUTool::DeviceFactory::Register(std::string type,
     if(0 != it->second.type.compare(type)){
       //This is trying to register a device with the same name, but different type.
       //This is very bad and we are going to explode.
-      BUException::CREATOR_UNREGISTERED e;
+      WIBException::CREATOR_UNREGISTERED e;
       e.Append("Conflicting registration of name ");
       e.Append(name);
       e.Append("\nExisting type ");
@@ -78,7 +78,7 @@ bool BUTool::DeviceFactory::Register(std::string type,
   return true;
 }
 
-void BUTool::DeviceFactory::UnRegister(std::string name){
+void WIBTool::DeviceFactory::UnRegister(std::string name){
   boost::algorithm::to_upper(name);
   std::map<std::string,device>::iterator it = deviceMap.find(name);
   if(it != deviceMap.end()){
@@ -86,11 +86,11 @@ void BUTool::DeviceFactory::UnRegister(std::string name){
   }
 }
 
-BUTool::CommandListBase * BUTool::DeviceFactory::Create(std::string name ,std::vector<std::string> args){
+WIBTool::CommandListBase * WIBTool::DeviceFactory::Create(std::string name ,std::vector<std::string> args){
   boost::algorithm::to_upper(name);
   std::map<std::string,device>::iterator it = deviceMap.find(name);
   if(it == deviceMap.end()){
-    BUException::CREATOR_UNREGISTERED e;
+    WIBException::CREATOR_UNREGISTERED e;
     e.Append("Name: ");
     e.Append(name);
     throw e;
@@ -103,7 +103,7 @@ BUTool::CommandListBase * BUTool::DeviceFactory::Create(std::string name ,std::v
 }
 
 
-std::vector<std::string> BUTool::DeviceFactory::GetDeviceNames(){
+std::vector<std::string> WIBTool::DeviceFactory::GetDeviceNames(){
   std::vector<std::string> names;
   for(std::map<std::string,device>::iterator it = deviceMap.begin();
       it != deviceMap.end();
@@ -113,7 +113,7 @@ std::vector<std::string> BUTool::DeviceFactory::GetDeviceNames(){
   return names;
 }
 
-std::string BUTool::DeviceFactory::Help(std::string name){
+std::string WIBTool::DeviceFactory::Help(std::string name){
   boost::algorithm::to_upper(name);
   std::map<std::string,device>::iterator it = deviceMap.find(name);
   if(it != deviceMap.end()){
@@ -122,7 +122,7 @@ std::string BUTool::DeviceFactory::Help(std::string name){
   return std::string("");
 }
 
-bool BUTool::DeviceFactory::Exists(std::string name){
+bool WIBTool::DeviceFactory::Exists(std::string name){
   boost::algorithm::to_upper(name);
   std::map<std::string,device>::iterator it = deviceMap.find(name);
   if(it == deviceMap.end()){
@@ -131,7 +131,7 @@ bool BUTool::DeviceFactory::Exists(std::string name){
   return true;
 }
 
-bool BUTool::DeviceFactory::CLIArgs(std::string const & name,std::string & flag, std::string & full_flag, std::string &description){
+bool WIBTool::DeviceFactory::CLIArgs(std::string const & name,std::string & flag, std::string & full_flag, std::string &description){
   //CHeck that name exists
   if(!Exists(name)){
     return false;

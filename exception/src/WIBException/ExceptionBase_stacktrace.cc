@@ -1,16 +1,16 @@
-#include <BUException/ExceptionBase.hh>
+#include <WIBException/ExceptionBase.hh>
   
 //Error string for stack string allocation error
 static const char stackError[] = "Stack allocation failed.\n";
   
-const char * BUException::exBase::StackTrace() const throw() 
+const char * WIBException::exBase::StackTrace() const throw() 
 {
   if(stackBuffer == NULL)
     return stackError;
   return stackBuffer;
 }
   
-void BUException::exBase::AppendStackLine(const char * line) throw()
+void WIBException::exBase::AppendStackLine(const char * line) throw()
 {
   //Check for NULL line
   if(line == NULL)
@@ -37,7 +37,7 @@ void BUException::exBase::AppendStackLine(const char * line) throw()
     }
 }
   
-void BUException::exBase::GenerateStackTrace() throw()
+void WIBException::exBase::GenerateStackTrace() throw()
 {
   //Get the thread/process ID for this stack trace
   PID = syscall(SYS_gettid);  

@@ -6,7 +6,7 @@
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h> //for PRI
 
-void BUTool::RegisterHelper::ReCase(std::string & name){
+void WIBTool::RegisterHelper::ReCase(std::string & name){
   switch(regCase){
   case LOWER:
     boost::algorithm::to_lower(name);    
@@ -21,7 +21,7 @@ void BUTool::RegisterHelper::ReCase(std::string & name){
   }
 }
 
-CommandReturn::status BUTool::RegisterHelper::Read(std::vector<std::string> strArg,
+CommandReturn::status WIBTool::RegisterHelper::Read(std::vector<std::string> strArg,
 						   std::vector<uint64_t> intArg){
   // sort out arguments                                                                                       
   size_t readCount = 1;
@@ -117,7 +117,7 @@ CommandReturn::status BUTool::RegisterHelper::Read(std::vector<std::string> strA
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::RegisterHelper::Write(std::vector<std::string> strArg,
+CommandReturn::status WIBTool::RegisterHelper::Write(std::vector<std::string> strArg,
 						    std::vector<uint64_t> intArg) {
 
   if (strArg.size() ==0){
@@ -159,7 +159,7 @@ static void ReplaceStringInPlace(std::string& subject, std::string const& search
   }
 }
 
-std::vector<std::string> BUTool::RegisterHelper::RegNameRegexSearch(std::string regex)
+std::vector<std::string> WIBTool::RegisterHelper::RegNameRegexSearch(std::string regex)
 {
   // return a list of nodes matching regular expression
 
@@ -180,7 +180,7 @@ std::vector<std::string> BUTool::RegisterHelper::RegNameRegexSearch(std::string 
 }
 
 
-CommandReturn::status BUTool::RegisterHelper::ListRegs(std::vector<std::string> strArg,
+CommandReturn::status WIBTool::RegisterHelper::ListRegs(std::vector<std::string> strArg,
 						       std::vector<uint64_t> intArg){
   (void) intArg; // keeps compiler from complaining about unused args
   std::vector<std::string> regNames;
@@ -255,7 +255,7 @@ CommandReturn::status BUTool::RegisterHelper::ListRegs(std::vector<std::string> 
 }
 
 
-std::string BUTool::RegisterHelper::RegisterAutoComplete(std::vector<std::string> const & line , std::string const & currentToken,int state){
+std::string WIBTool::RegisterHelper::RegisterAutoComplete(std::vector<std::string> const & line , std::string const & currentToken,int state){
   (void) line; // casting to void to keep comiler from complaining about unused param
   static size_t pos;
   static std::vector<std::string> completionList;

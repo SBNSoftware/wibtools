@@ -27,7 +27,7 @@ static Char32 bin(int bits, uint16_t num) {
   return string;
 }
 
-void BUTool::WIBDevice::Event_Print (FILE *f, WIBEvent_t *d) {
+void WIBTool::WIBDevice::Event_Print (FILE *f, WIBEvent_t *d) {
   int l = 2;
   int COLblocks = d->COLDATA_count;
   FPRINTIND(f,l, "StartOfFrame: 0x%02x\n",   d->StartOfFrame);
@@ -105,7 +105,7 @@ static void WIBEvent_COLDATA_read (WIBEvent_COLDATA_t *d, const uint8_t *buf) {
 #include "Event_decode.h"
 #undef FELIX
 
-bool BUTool::WIBDevice::Event_Extract (WIBEvent_t *event, size_t event_size,
+bool WIBTool::WIBDevice::Event_Extract (WIBEvent_t *event, size_t event_size,
     std::vector<data_8b10b_t> data, WIB::WIB_DAQ_t DAQMode, size_t *startp) {
 
   int COLblocks = -1;

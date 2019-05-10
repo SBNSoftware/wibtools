@@ -1,7 +1,7 @@
 #include <wib_device/WIBDevice.hh>
 
 
-CommandReturn::status BUTool::WIBDevice::ResetPDTS(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
+CommandReturn::status WIBTool::WIBDevice::ResetPDTS(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
   //hold the PDTS in reset
   wib->Write("DTS.PDTS_ENABLE",0);
   //Reset the reset request counters
@@ -12,14 +12,14 @@ CommandReturn::status BUTool::WIBDevice::ResetPDTS(std::vector<std::string> /*st
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::DTSStartSync(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
+CommandReturn::status WIBTool::WIBDevice::DTSStartSync(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
   wib->StartSyncDTS();
 
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::PrintPDTSERRHistory(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
-  std::vector<uint32_t> data = wib->CaptureHistory("DTS.PDTS_HISTORY_DEBUG");
+CommandReturn::status WIBTool::WIBDevice::PrintPDTSERRHistory(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
+  std::vector<uint32_t> data = wib->CaptureHistory("DTS.PDTS_HISTORY_DEWIBG");
   char header[] = "type sfp_los_ok cdr_ok rxph_locked_i rx_err_i rdy_i state  cntr\n";
   char pdata[]  = "%u    %u          %u        %u           %u        %u     0x%X    0x%04X\n";
 
@@ -44,7 +44,7 @@ CommandReturn::status BUTool::WIBDevice::PrintPDTSERRHistory(std::vector<std::st
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::PDTSInRunningState(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
+CommandReturn::status WIBTool::WIBDevice::PDTSInRunningState(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
   wib->PDTSInRunningState();
   return CommandReturn::OK;
 }

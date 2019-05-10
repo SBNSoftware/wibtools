@@ -2,7 +2,7 @@
 
 
 
-void BUTool::WIBStatus::ProcessFEMB(uint8_t iFEMB,std::string const & singleTable){  
+void WIBTool::WIBStatus::ProcessFEMB(uint8_t iFEMB,std::string const & singleTable){  
   //Append this FEMB to the name
   std::string FEMBName("FEMB");        
   FEMBName.append(1,'0' +iFEMB);
@@ -49,7 +49,7 @@ void BUTool::WIBStatus::ProcessFEMB(uint8_t iFEMB,std::string const & singleTabl
 
 
 
-void BUTool::WIBStatus::Process(std::string const & singleTable){  
+void WIBTool::WIBStatus::Process(std::string const & singleTable){  
   //Build WIB tables
   std::vector<std::string> WIBNames = wib->GetNames("*");  
   //process all the nodes and build table structure

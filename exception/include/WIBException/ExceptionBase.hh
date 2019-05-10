@@ -22,15 +22,15 @@
 //abi demangling
 #include <cxxabi.h>
 
-namespace BUException{
+namespace WIBException{
         
   //Macro for derived exception classes
 #define ExceptionClassGenerator( ClassName , ClassDescription )	\
-  class ClassName : public BUException::exBase {		\
+  class ClassName : public WIBException::exBase {		\
   public:							\
   ClassName() throw() {Init();}					\
   ClassName(const ClassName & rh) throw() : 			\
-	BUException::exBase(rh) {Init();Copy(rh);}		\
+	WIBException::exBase(rh) {Init();Copy(rh);}		\
   ClassName & operator=(const ClassName & rh) throw()		\
     {Init();Copy(rh);return *this;}				\
   ~ClassName() throw() {}					\

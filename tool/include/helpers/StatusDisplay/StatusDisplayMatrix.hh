@@ -15,7 +15,7 @@
 #define STATUS_DISPLAY_PARAMETER_PARSE_TOKEN '_'
 
 
-namespace BUTool{
+namespace WIBTool{
 
   enum StatusMode {
     TEXT,

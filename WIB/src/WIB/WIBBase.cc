@@ -58,7 +58,7 @@ uint32_t WIBBase::ReadI2C(std::string const & base_address ,uint16_t address, ui
     WriteWithRetry(base_address+".RESET",1);    
     char trans_info[] = "rd @ 0xFFFF";
     sprintf(trans_info,"rd @ 0x%04X",address&0xFFFF);
-    BUException::WIB_ERROR e;
+    WIBException::WIB_ERROR e;
     e.Append("I2C Error on ");
     e.Append(base_address.c_str());
     e.Append(trans_info);
@@ -91,7 +91,7 @@ void     WIBBase::WriteI2C(std::string const & base_address,uint16_t address, ui
     WriteWithRetry(base_address+".RESET",1);    
     char trans_info[] = "wr 0xFFFFFFFF @ 0xFFFF";
     sprintf(trans_info,"wr 0x%08X @ 0x%04X",data,address&0xFFFF);
-    BUException::WIB_ERROR e;
+    WIBException::WIB_ERROR e;
     e.Append("I2C Error on ");
     e.Append(base_address.c_str());
     e.Append(trans_info);
@@ -106,7 +106,7 @@ Item const * WIBBase::GetItem(std::string const & str){
 
 Item const * WIBBase::GetFEMBItem(int iFEMB,std::string const & str){
   if((iFEMB > 4) || (iFEMB <1)){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("In WIBBase::ReadFEMB\n");
     throw e;
   }
@@ -154,7 +154,7 @@ void WIBBase::Write(std::string const & address,uint32_t const * values,size_t w
 
 uint32_t WIBBase::ReadFEMB(int iFEMB,uint16_t address){
   if((iFEMB > 4) || (iFEMB <1)){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("In WIBBase::ReadFEMB\n");
     throw e;
   }
@@ -163,7 +163,7 @@ uint32_t WIBBase::ReadFEMB(int iFEMB,uint16_t address){
 }
 uint32_t WIBBase::ReadFEMB(int iFEMB,std::string const & address){
   if((iFEMB > 4) || (iFEMB <1)){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("In WIBBase::ReadFEMB\n");
     throw e;
   }
@@ -173,7 +173,7 @@ uint32_t WIBBase::ReadFEMB(int iFEMB,std::string const & address){
 
 void WIBBase::WriteFEMB(int iFEMB,uint16_t address,uint32_t value){
   if((iFEMB > 4) || (iFEMB <1)){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("In WIBBase::WriteFEMB\n");
     throw e;
   }
@@ -182,7 +182,7 @@ void WIBBase::WriteFEMB(int iFEMB,uint16_t address,uint32_t value){
 }
 void WIBBase::WriteFEMB(int iFEMB,std::string const & address,uint32_t value){
   if((iFEMB > 4) || (iFEMB <1)){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("In WIBBase::WriteFEMB\n");
     throw e;
   }
@@ -192,7 +192,7 @@ void WIBBase::WriteFEMB(int iFEMB,std::string const & address,uint32_t value){
 
 void WIBBase::WriteFEMBBits(int iFEMB, uint16_t address, uint32_t pos, uint32_t mask, uint32_t value){
   if((iFEMB > 4) || (iFEMB <1)){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("In WIBBase::WriteFEMB\n");
     throw e;
   }
@@ -208,7 +208,7 @@ void WIBBase::WriteFEMBBits(int iFEMB, uint16_t address, uint32_t pos, uint32_t 
 
 void WIBBase::EnableADC(uint64_t iFEMB, uint64_t enable){
   if(iFEMB > 4 || iFEMB < 1){
-    BUException::WIB_INDEX_OUT_OF_RANGE e;
+    WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("In WIBBase::Enable_ADC");
     throw e;
   }

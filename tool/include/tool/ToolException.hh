@@ -1,9 +1,9 @@
 #ifndef __TOOLEXCEPTION_HH__
 #define __TOOLEXCEPTION_HH__ 1
 
-#include <BUException/ExceptionBase.hh>
+#include <WIBException/ExceptionBase.hh>
 
-namespace BUException{           
+namespace WIBException{           
   //Exceptions for Tool
   ExceptionClassGenerator(COMMAND_LIST_ERROR,"Error in Command Data Structure class\n")
   ExceptionClassGenerator(DEVICE_CREATION_ERROR,"Error in device constructor\n")

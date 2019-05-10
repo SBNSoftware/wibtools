@@ -8,7 +8,7 @@
 #include <stdint.h>
 
 
-namespace BUTool{  
+namespace WIBTool{  
   class RegisterHelper{  
   protected:
     enum RegisterNameCase {UPPER,LOWER,CASE_SENSITIVE};

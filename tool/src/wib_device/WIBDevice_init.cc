@@ -1,6 +1,6 @@
 #include <wib_device/WIBDevice.hh>
 
-CommandReturn::status BUTool::WIBDevice::InitializeDTS(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::InitializeDTS(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
   if(intArg.size() >= 3){
     wib->InitializeDTS(intArg[0],intArg[1],intArg[2]);
   }else if(intArg.size() >= 2){
@@ -13,7 +13,7 @@ CommandReturn::status BUTool::WIBDevice::InitializeDTS(std::vector<std::string> 
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::ResetWIB(std::vector<std::string> /*strArg*/, std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::ResetWIB(std::vector<std::string> /*strArg*/, std::vector<uint64_t> intArg){
   
   if(intArg.size() > 1){
     return CommandReturn::BAD_ARGS;
@@ -27,7 +27,7 @@ CommandReturn::status BUTool::WIBDevice::ResetWIB(std::vector<std::string> /*str
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::ResetWIBAndCfgDTS(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::ResetWIBAndCfgDTS(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
 
   CommandReturn::status ret = CommandReturn::BAD_ARGS;
   if(intArg.size() != 0){
@@ -54,7 +54,7 @@ CommandReturn::status BUTool::WIBDevice::ResetWIBAndCfgDTS(std::vector<std::stri
   return ret;
 }
 
-CommandReturn::status BUTool::WIBDevice::CheckedResetWIBAndCfgDTS(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::CheckedResetWIBAndCfgDTS(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
 
   CommandReturn::status ret = CommandReturn::BAD_ARGS;
   if(intArg.size() != 0){
@@ -81,7 +81,7 @@ CommandReturn::status BUTool::WIBDevice::CheckedResetWIBAndCfgDTS(std::vector<st
   return ret;
 }
 
-CommandReturn::status BUTool::WIBDevice::StartStreamToDAQ(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
+CommandReturn::status WIBTool::WIBDevice::StartStreamToDAQ(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
   
   wib->StartStreamToDAQ();
   return CommandReturn::OK;

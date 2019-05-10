@@ -13,7 +13,7 @@
 #include <helpers/StatusDisplay/StatusDisplayCell.hh>
 
 
-namespace BUTool{
+namespace WIBTool{
 
 
   

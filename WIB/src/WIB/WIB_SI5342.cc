@@ -34,7 +34,7 @@ uint8_t WIB::GetDAQ_SI5342AddressPage(uint16_t address){
 
 void WIB::LoadConfigDAQ_SI5342(std::string const & fileName){
   std::ifstream confFile(fileName.c_str());
-  BUException::WIB_BAD_ARGS badFile;
+  WIBException::WIB_BAD_ARGS badFile;
 
   if(confFile.fail()){
     //Failed to topen filename, add it to the exception
@@ -119,7 +119,7 @@ void WIB::LoadConfigDAQ_SI5342(std::string const & fileName){
     for(size_t iTries = 10; iTries > 0;iTries--){
       try{
 	WriteDAQ_SI5342(address ,data,iData);
-      }catch (BUException::WIB_ERROR & e){	
+      }catch (WIBException::WIB_ERROR & e){	
 	//Reset the I2C firmware
 	Write("DAQ.SI5342.I2C.RESET",1);
 	if(iTries == 1){

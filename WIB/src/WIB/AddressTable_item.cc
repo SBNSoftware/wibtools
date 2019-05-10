@@ -11,7 +11,7 @@ static const char *SC_key_conv = "sc_conv";
 Item const * AddressTable::GetItem(std::string const & registerName){
   std::map<std::string,Item *>::iterator itNameItem = nameItemMap.find(registerName);
   if(itNameItem == nameItemMap.end()){
-    BUException::INVALID_NAME e;
+    WIBException::INVALID_NAME e;
     e.Append("Can't find item with name \"");
     e.Append(registerName.c_str());
     e.Append("\"");
@@ -24,14 +24,14 @@ Item const * AddressTable::GetItem(std::string const & registerName){
 void AddressTable::AddEntry(Item * item){
   //Check for null item
   if(item == NULL){
-    BUException::NULL_POINTER e;
+    WIBException::NULL_POINTER e;
     e.Append("Null Item pointer passed to AddEntry\n");
     throw e;
   }
   //Check for invalid Mode
   if((item->mode & Item::WRITE) &&
      (item->mode & Item::ACTION)){    
-    BUException::BAD_MODE e;
+    WIBException::BAD_MODE e;
     e.Append("AddEntry called with both WRITE and ACTION modes\n");
     throw e;
   }
@@ -61,7 +61,7 @@ void AddressTable::AddEntry(Item * item){
 	//in other words, that they are the same up until the end of the shorter one
 //	if( (addressItems[iItem]->name.find(item->name) != 0) &&
 //	    (item->name.find(addressItems[iItem]->name) != 0) ) {
-//	  BUException::BAD_MODE e;
+//	  WIBException::BAD_MODE e;
 //	  e.Append("Entry: ");
 //	  e.Append(item->name.c_str());
 //	  e.Append(" conflicts with entry ");
@@ -91,7 +91,7 @@ void AddressTable::AddEntry(Item * item){
       }
     }
     // throw exception about collission
-    BUException::NAME_COLLISION e;
+    WIBException::NAME_COLLISION e;
     e.Append("Item ");
     e.Append(item->name.c_str());
     e.Append(" already existed\n");

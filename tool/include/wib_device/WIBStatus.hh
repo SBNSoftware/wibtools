@@ -5,12 +5,12 @@
 #include <WIB/WIBException.hh>
 #include <helpers/StatusDisplay/StatusDisplay.hh>
 
-namespace BUTool{
+namespace WIBTool{
   class WIBStatus: public StatusDisplay {
   public:
     WIBStatus(WIB *_wib):wib(NULL){
       if(_wib == NULL){
-	BUException::WIB_BAD_ARGS e;
+	WIBException::WIB_BAD_ARGS e;
 	e.Append("Bad pointer for WIB status table\n");
 	throw e;
       }

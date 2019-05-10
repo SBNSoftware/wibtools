@@ -11,7 +11,7 @@
 //Devices
 //#include <devices/WIB/WIBDevice.hpp>
 
-namespace BUTool{
+namespace WIBTool{
 
   class Launcher : public CommandList<Launcher> {
   public:

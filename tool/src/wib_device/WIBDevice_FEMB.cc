@@ -7,7 +7,7 @@
 //#include <WIB/ADC_ASIC_reg_mapping.hh>
 //#include <WIB/ASIC_reg_mapping.hh>
 
-CommandReturn::status BUTool::WIBDevice::PowerFEMB(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::PowerFEMB(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   if(2 != intArg.size()){
     return CommandReturn::BAD_ARGS;
   }
@@ -23,7 +23,7 @@ CommandReturn::status BUTool::WIBDevice::PowerFEMB(std::vector<std::string> strA
 }
 
 
-CommandReturn::status BUTool::WIBDevice::ConfigWIBFakeData(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::ConfigWIBFakeData(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
 
   if (intArg.size() < 4 || intArg.size() > 5){
     return CommandReturn::BAD_ARGS;
@@ -43,7 +43,7 @@ CommandReturn::status BUTool::WIBDevice::ConfigWIBFakeData(std::vector<std::stri
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::SetFEMBFakeData(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::SetFEMBFakeData(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) intArg; // to make compiler not complain about unused arguments
 
   if(strArg.size() != 3){
@@ -74,7 +74,7 @@ CommandReturn::status BUTool::WIBDevice::SetFEMBFakeData(std::vector<std::string
 
   return CommandReturn::OK;
 }
-CommandReturn::status BUTool::WIBDevice::SetFEMBStreamSource(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::SetFEMBStreamSource(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) intArg; // to make compiler not complain about unused arguments
 
   if(strArg.size() != 3){
@@ -106,7 +106,7 @@ CommandReturn::status BUTool::WIBDevice::SetFEMBStreamSource(std::vector<std::st
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::EnableADC(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::EnableADC(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg;
 
   if (intArg.size() != 2) return CommandReturn::BAD_ARGS;
@@ -122,7 +122,7 @@ CommandReturn::status BUTool::WIBDevice::EnableADC(std::vector<std::string> strA
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::FEMBSource(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::FEMBSource(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) intArg;
   //Get Links to process
   if(strArg.size() != 2) return CommandReturn::BAD_ARGS;
@@ -150,7 +150,7 @@ CommandReturn::status BUTool::WIBDevice::FEMBSource(std::vector<std::string> str
 }
 
 
-CommandReturn::status BUTool::WIBDevice::ConfigFEMB(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
+CommandReturn::status WIBTool::WIBDevice::ConfigFEMB(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
 {
   (void) strArg;
   const size_t nArgs = intArg.size();
@@ -226,7 +226,7 @@ CommandReturn::status BUTool::WIBDevice::ConfigFEMB(std::vector<std::string> str
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::ConfigFEMBFakeData(std::vector<std::string> /*strArg*/, std::vector<uint64_t> intArg)
+CommandReturn::status WIBTool::WIBDevice::ConfigFEMBFakeData(std::vector<std::string> /*strArg*/, std::vector<uint64_t> intArg)
 {
    if(intArg.size() > 3 || intArg.size() < 2){return CommandReturn::BAD_ARGS;}
    uint64_t iFEMB = intArg.at(0);
@@ -246,7 +246,7 @@ CommandReturn::status BUTool::WIBDevice::ConfigFEMBFakeData(std::vector<std::str
    return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::ConfigFEMBMode(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
+CommandReturn::status WIBTool::WIBDevice::ConfigFEMBMode(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
 {
    (void) strArg;
    if(intArg.size() != 6){return CommandReturn::BAD_ARGS;}
@@ -261,7 +261,7 @@ CommandReturn::status BUTool::WIBDevice::ConfigFEMBMode(std::vector<std::string>
    return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::SetupFEMBExtClock(std::vector<std::string> strArg,std::vector<uint64_t> intArg)
+CommandReturn::status WIBTool::WIBDevice::SetupFEMBExtClock(std::vector<std::string> strArg,std::vector<uint64_t> intArg)
 {
   if(1 != strArg.size()){
     return CommandReturn::BAD_ARGS;
@@ -275,7 +275,7 @@ CommandReturn::status BUTool::WIBDevice::SetupFEMBExtClock(std::vector<std::stri
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::SetupFPGAPulser(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::SetupFPGAPulser(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
   (void) strArg;
 
   if(intArg.size() != 2){return CommandReturn::BAD_ARGS;}
@@ -286,7 +286,7 @@ CommandReturn::status BUTool::WIBDevice::SetupFPGAPulser(std::vector<std::string
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::SetupASICPulserBits(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::SetupASICPulserBits(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
   (void) strArg;
 
   if(intArg.size() != 1){return CommandReturn::BAD_ARGS;}
@@ -296,7 +296,7 @@ CommandReturn::status BUTool::WIBDevice::SetupASICPulserBits(std::vector<std::st
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::SetupFEMBASICs(std::vector<std::string> strArg,std::vector<uint64_t> intArg)
+CommandReturn::status WIBTool::WIBDevice::SetupFEMBASICs(std::vector<std::string> strArg,std::vector<uint64_t> intArg)
 {
   (void) strArg; // to make compiler not complain about unused arguments
 

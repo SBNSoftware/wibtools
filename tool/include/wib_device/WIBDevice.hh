@@ -8,7 +8,7 @@
 #include <WIB/WIB.hh>
 #include <WIB/WIBEvent.h>
 
-namespace BUTool{
+namespace WIBTool{
 
 class WIBDevice: public CommandList<WIBDevice>{
 public:

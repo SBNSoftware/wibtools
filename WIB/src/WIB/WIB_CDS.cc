@@ -23,7 +23,7 @@ uint32_t WIB::ReadDTS_CDS(uint16_t address,uint8_t byte_count){
 
 float WIB::ConfigureDTSCDS(uint8_t source){
   if(source > 1){
-    BUException::WIB_BAD_ARGS e;
+    WIBException::WIB_BAD_ARGS e;
     e.Append("Bad DTS CDS clock source");
     throw e;
   }

@@ -9,16 +9,16 @@ EXCEPTION_INCLUDE_PATH=${EXCEPTION_BASE_PREFIX}/include/
 EXCEPTION_LIB_PATH=${EXCEPTION_BASE_PREFIX}/lib
 
 
-LIBRARY_TOOL = lib/libBUTool.so
+LIBRARY_TOOL = lib/libWIBTool.so
 LIBRARY_TOOL_SOURCES  = $(wildcard src/tool/*.cc)
 LIBRARY_TOOL_OBJECT_FILES = $(patsubst src/%.cc,obj/%.o,${LIBRARY_TOOL_SOURCES})
 
-LIBRARY_HELPERS = lib/libBUTool_Helpers.so
+LIBRARY_HELPERS = lib/libWIBTool_Helpers.so
 LIBRARY_HELPERS_SOURCES  = $(wildcard src/helpers/*.cc)
 LIBRARY_HELPERS_SOURCES += $(wildcard src/helpers/StatusDisplay/*.cc)
 LIBRARY_HELPERS_OBJECT_FILES = $(patsubst src/%.cc,obj/%.o,${LIBRARY_HELPERS_SOURCES})
 
-LIBRARY_WIBDEVICE = lib/libBUTool_WIBDevice.so
+LIBRARY_WIBDEVICE = lib/libWIBTool_WIBDevice.so
 LIBRARY_WIBDEVICE_SOURCES = $(wildcard src/wib_device/*.cc)
 #LIBRARY_WIBDEVICE_SOURCES += $(wildcard src/helpers/StatusDisplay*.cc)
 LIBRARY_WIBDEVICE_OBJECT_FILES = $(patsubst src/%.cc,obj/%.o,${LIBRARY_WIBDEVICE_SOURCES})
@@ -27,12 +27,12 @@ WIB_LIBRARY_PATH=${WIB_PREFIX}/lib
 
 ifdef CACTUS_ROOT
 # UHal devices
-LIBRARY_DUNETSDEVICE = lib/libcactus_BUTool_DUNETSDevice.so
+LIBRARY_DUNETSDEVICE = lib/libcactus_WIBTool_DUNETSDevice.so
 LIBRARY_DUNETSDEVICE_SOURCES  = $(wildcard src/dunets_device/*.cc)
 LIBRARY_DUNETSDEVICE_SOURCES += $(wildcard src/uhal_helpers/*.cc)
 LIBRARY_DUNETSDEVICE_OBJECT_FILES = $(patsubst src/%.cc,obj/%.o,${LIBRARY_DUNETSDEVICE_SOURCES})
 
-LIBRARY_NGFECDEVICE = lib/libcactus_BUTool_NGFECDevice.so
+LIBRARY_NGFECDEVICE = lib/libcactus_WIBTool_NGFECDevice.so
 LIBRARY_NGFECDEVICE_SOURCES  = $(wildcard src/ngfec_device/*.cc)
 LIBRARY_NGFECDEVICE_SOURCES += $(wildcard src/uhal_helpers/*.cc)
 LIBRARY_NGFECDEVICE_OBJECT_FILES = $(patsubst src/%.cc,obj/%.o,${LIBRARY_NGFECDEVICE_SOURCES})
@@ -164,7 +164,7 @@ ${LIBRARY_HELPERS_OBJECT_FILES}: obj/%.o : src/%.cc
 # ------------------------
 ${LIBRARY_WIBDEVICE}: ${LIBRARY_WIBDEVICE_OBJECT_FILES} ${LIBRARY_HELPERS}
 	mkdir -p $(dir $@)
-	g++ ${LIBRARY_WIBDEVICE_OBJECT_FILES} -lWIB -lBUTool_Helpers -o $@ ${LINK_LIBRARY_FLAGS}
+	g++ ${LIBRARY_WIBDEVICE_OBJECT_FILES} -lWIB -lWIBTool_Helpers -o $@ ${LINK_LIBRARY_FLAGS}
 
 ${LIBRARY_WIBDEVICE_OBJECT_FILES}: obj/%.o : src/%.cc 
 	mkdir -p $(dir $@)
@@ -175,7 +175,7 @@ ${LIBRARY_WIBDEVICE_OBJECT_FILES}: obj/%.o : src/%.cc
 # ------------------------
 ifdef CACTUS_ROOT
 ${LIBRARY_DUNETSDEVICE}: ${LIBRARY_DUNETSDEVICE_OBJECT_FILES} ${LIBRARY_HELPERS}
-	g++ -o $@ ${LIBRARY_DUNETSDEVICE_OBJECT_FILES} ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} -lBUTool_Helpers
+	g++ -o $@ ${LIBRARY_DUNETSDEVICE_OBJECT_FILES} ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} -lWIBTool_Helpers
 
 ${LIBRARY_DUNETSDEVICE_OBJECT_FILES}: obj/%.o : src/%.cc 
 	mkdir -p $(dir $@)
@@ -188,7 +188,7 @@ endif
 # ------------------------
 ifdef CACTUS_ROOT
 ${LIBRARY_NGFECDEVICE}: ${LIBRARY_NGFECDEVICE_OBJECT_FILES} ${LIBRARY_HELPERS}
-	g++ -o $@ ${LIBRARY_NGFECDEVICE_OBJECT_FILES} ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} -lBUTool_Helpers
+	g++ -o $@ ${LIBRARY_NGFECDEVICE_OBJECT_FILES} ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} -lWIBTool_Helpers
 
 ${LIBRARY_NGFECDEVICE_OBJECT_FILES}: obj/%.o : src/%.cc 
 	mkdir -p $(dir $@)

@@ -8,7 +8,7 @@
 #include <boost/tokenizer.hpp>
 #include "tool/ToolException.hh"
 
-namespace BUTool{
+namespace WIBTool{
 
   class CommandListBase{
   public:
@@ -104,7 +104,7 @@ namespace BUTool{
 		    std::string help, 
 		    std::string (T::* acPtr)(std::vector<std::string> const &,std::string const &,int)=NULL){
       if(name.size() == 0){
-	BUException::COMMAND_LIST_ERROR e;
+	WIBException::COMMAND_LIST_ERROR e;
 	e.Append("Trying to set command with empty name\n");
 	throw e;
       }

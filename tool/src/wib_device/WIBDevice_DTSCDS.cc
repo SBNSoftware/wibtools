@@ -3,7 +3,7 @@
 #include <inttypes.h> // for PRI macros
 
 
-CommandReturn::status BUTool::WIBDevice::Read_DTS_CDS_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Read_DTS_CDS_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused arguments
 
   if((intArg.size() == 0) || (intArg.size() > 2)){
@@ -31,7 +31,7 @@ CommandReturn::status BUTool::WIBDevice::Read_DTS_CDS_I2C(std::vector<std::strin
   printf("I2C:%"PRIX16": 0x%0*X\n",address,2*byte_count,val);      
   return CommandReturn::OK;
 }
-CommandReturn::status BUTool::WIBDevice::Write_DTS_CDS_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::WIBDevice::Write_DTS_CDS_I2C(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused arguments
 
   if((intArg.size() < 2) || (intArg.size() > 3)){
@@ -72,7 +72,7 @@ CommandReturn::status BUTool::WIBDevice::Write_DTS_CDS_I2C(std::vector<std::stri
   return CommandReturn::OK;
 }
 
-CommandReturn::status BUTool::WIBDevice::ConfigureDTSCDS(std::vector<std::string> strArg,std::vector<uint64_t> intArg) {   
+CommandReturn::status WIBTool::WIBDevice::ConfigureDTSCDS(std::vector<std::string> strArg,std::vector<uint64_t> intArg) {   
   (void) strArg; // to make compiler not complain about unused arguments
 
   float dataRateHz = -1;

@@ -15,7 +15,7 @@
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
-namespace BUTool{
+namespace WIBTool{
 
   using boost::algorithm::iequals;
 
@@ -173,7 +173,7 @@ namespace BUTool{
 
   const StatusDisplayMatrix* StatusDisplay::GetTable(const std::string & table) const {
     if (tables.find(table) == tables.end()) {
-      BUException::BAD_VALUE e;
+      WIBException::BAD_VALUE e;
       char buffer[50];
       snprintf(buffer,49,"Table %s not found\n",table.c_str());
       e.Append(buffer);

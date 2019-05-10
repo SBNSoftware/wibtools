@@ -16,7 +16,7 @@
 //helper for auto-complete
 #include "tool/CLIHelper.hh"
 
-namespace BUTool {
+namespace WIBTool {
   
   class CLI
   {

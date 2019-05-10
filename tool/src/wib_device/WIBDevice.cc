@@ -1,11 +1,11 @@
 #include <wib_device/WIBDevice.hh>
 
-BUTool::WIBDevice::WIBDevice(std::vector<std::string> arg)
+WIBTool::WIBDevice::WIBDevice(std::vector<std::string> arg)
     : CommandList<WIBDevice>("WIB"),
       wib(NULL){    
     LoadCommandList();
     if (arg.size() < 1){
-      BUException::DEVICE_CREATION_ERROR e;
+      WIBException::DEVICE_CREATION_ERROR e;
       e.Append("Bad argument count");
       throw e;
     }
@@ -34,14 +34,14 @@ BUTool::WIBDevice::WIBDevice(std::vector<std::string> arg)
     SetInfo(wib->GetAddress().c_str());
   }
 
-BUTool::WIBDevice::~WIBDevice(){
+WIBTool::WIBDevice::~WIBDevice(){
     if(wib != NULL){
       delete wib;
     }
   }
 
 
-void BUTool::WIBDevice::LoadCommandList(){
+void WIBTool::WIBDevice::LoadCommandList(){
   AddCommand("udptest",&WIBDevice::TestUDP,
 	     "Test udp link\n"			\
 	     "  Usage:\n"			\

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <cassert>
 
-using namespace BUTool;
+using namespace WIBTool;
 
 Launcher::Launcher():CommandList<Launcher>("Launcher")
 {

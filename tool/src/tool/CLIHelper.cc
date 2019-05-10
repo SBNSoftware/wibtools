@@ -5,7 +5,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-namespace BUTool{
+namespace WIBTool{
 
   //Auto-completing state variables
   static Launcher * launcher;

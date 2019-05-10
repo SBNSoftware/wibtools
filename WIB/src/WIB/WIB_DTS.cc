@@ -25,7 +25,7 @@ void WIB::InitializeDTS(uint8_t PDTSsource,uint8_t clockSource, uint32_t PDTSAli
     float frequency = 0;
     try{
       frequency = ConfigureDTSCDS(PDTSsource);
-    }catch(BUException::exBase & e){
+    }catch(WIBException::exBase & e){
       frequency = 0;
       e.Append("Failed to communicate with the DTS CDS via I2C\n");
       throw;
@@ -38,7 +38,7 @@ void WIB::InitializeDTS(uint8_t PDTSsource,uint8_t clockSource, uint32_t PDTSAli
     //Check for the correct frequency, not in LOS, and not in LOL
     //    if( (2.4136e+08 == frequency) && 
     if(LOL || LOS){
-      BUException::WIB_DTS_ERROR e;
+      WIBException::WIB_DTS_ERROR e;
       e.Append("Failed to configure CDS chip\n");
       throw e;
     }
@@ -56,7 +56,7 @@ void WIB::InitializeDTS(uint8_t PDTSsource,uint8_t clockSource, uint32_t PDTSAli
   //Do the I2C configuration
   try{
     LoadConfigDTS_SI5344(""); 
-  }catch(BUException::exBase & e){
+  }catch(WIBException::exBase & e){
     //Disable SI5344 outputs
     WriteWithRetry("DTS.SI5344.ENABLE",0);
     //Disable SI5344
@@ -77,7 +77,7 @@ void WIB::InitializeDTS(uint8_t PDTSsource,uint8_t clockSource, uint32_t PDTSAli
     WriteWithRetry("DTS.SI5344.RESET",1);	
     
     //Throw
-    BUException::WIB_DTS_ERROR e;
+    WIBException::WIB_DTS_ERROR e;
     e.Append("Failed to configure the SI5344 chip correctly\n");
     throw e;
   }
@@ -149,7 +149,7 @@ void WIB::InitializeDTS(uint8_t PDTSsource,uint8_t clockSource, uint32_t PDTSAli
 		//We are DONE, fail.
 		WriteWithRetry("DTS.PDTS_ENABLE",0);
 		//Throw
-		BUException::WIB_DTS_ERROR e;
+		WIBException::WIB_DTS_ERROR e;
 		e.Append("Failed to configure the PDTS correctly\n");
 		throw e;	  
 	      }
@@ -169,7 +169,7 @@ void WIB::InitializeDTS(uint8_t PDTSsource,uint8_t clockSource, uint32_t PDTSAli
 	      if(1 == PDTSAlignment_timeout){
 		printf("Timeout in PDTS wait.   PDTS state: %s (0x%01X)\n",PDTSStates[pdts_state&0xF],pdts_state);	  
 		//Throw
-		BUException::WIB_DTS_ERROR e;
+		WIBException::WIB_DTS_ERROR e;
 		e.Append("Timeout in the PDTS phase adjustment wait\n");
 		throw e;	  	      
 	      }else if(PDTSAlignment_timeout > 1){
@@ -185,7 +185,7 @@ void WIB::InitializeDTS(uint8_t PDTSsource,uint8_t clockSource, uint32_t PDTSAli
 	  //We are DONE, fail.
 	  WriteWithRetry("DTS.PDTS_ENABLE",0);
 	  //Throw
-	  BUException::WIB_DTS_ERROR e;
+	  WIBException::WIB_DTS_ERROR e;
 	  e.Append("Failed to configure the PDTS correctly\n");
 	  throw e;	  
 	}
@@ -213,7 +213,7 @@ void WIB::StartSyncDTS(){
 
 void WIB::PDTSInRunningState(){
   if(Read("DTS.PDTS_STATE") != 0x8){
-    BUException::WIB_DTS_ERROR e;
+    WIBException::WIB_DTS_ERROR e;
     e.Append("WIB is not in PDTS state RUN(0x8)\n");
     throw e;
   }

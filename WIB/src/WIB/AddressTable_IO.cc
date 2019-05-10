@@ -33,7 +33,7 @@ void AddressTable::Write(uint16_t address,uint32_t const * values, size_t word_c
 uint32_t AddressTable::Read(std::string registerName){
   std::map<std::string,Item *>::iterator itNameItem = nameItemMap.find(registerName);
   if(itNameItem == nameItemMap.end()){
-    BUException::INVALID_NAME e;
+    WIBException::INVALID_NAME e;
     e.Append("Can't find item with name \"");
     e.Append(registerName.c_str());
     e.Append("\"");
@@ -50,7 +50,7 @@ uint32_t AddressTable::Read(std::string registerName){
 uint32_t AddressTable::ReadWithRetry(std::string registerName){
   std::map<std::string,Item *>::iterator itNameItem = nameItemMap.find(registerName);
   if(itNameItem == nameItemMap.end()){
-    BUException::INVALID_NAME e;
+    WIBException::INVALID_NAME e;
     e.Append("Can't find item with name \"");
     e.Append(registerName.c_str());
     e.Append("\"");
@@ -67,7 +67,7 @@ uint32_t AddressTable::ReadWithRetry(std::string registerName){
 void AddressTable::Write(std::string registerName,uint32_t val){
   std::map<std::string,Item *>::iterator itNameItem = nameItemMap.find(registerName);
   if(itNameItem == nameItemMap.end()){
-    BUException::INVALID_NAME e;
+    WIBException::INVALID_NAME e;
     e.Append("Can't find item with name \"");
     e.Append(registerName.c_str());
     e.Append("\"");
@@ -88,7 +88,7 @@ void AddressTable::Write(std::string registerName,uint32_t val){
 void AddressTable::WriteWithRetry(std::string registerName,uint32_t val){
   std::map<std::string,Item *>::iterator itNameItem = nameItemMap.find(registerName);
   if(itNameItem == nameItemMap.end()){
-    BUException::INVALID_NAME e;
+    WIBException::INVALID_NAME e;
     e.Append("Can't find item with name \"");
     e.Append(registerName.c_str());
     e.Append("\"");
@@ -113,7 +113,7 @@ void AddressTable::Write(std::string registerName,std::vector<uint32_t> const & 
 void AddressTable::Write(std::string registerName,uint32_t const * values, size_t word_count){
   std::map<std::string,Item *>::iterator itNameItem = nameItemMap.find(registerName);
   if(itNameItem == nameItemMap.end()){
-    BUException::INVALID_NAME e;
+    WIBException::INVALID_NAME e;
     e.Append("Can't find item with name \"");
     e.Append(registerName.c_str());
     e.Append("\"");
@@ -122,7 +122,7 @@ void AddressTable::Write(std::string registerName,uint32_t const * values, size_
   Item * item = itNameItem->second;
   //Check if this entry controls all the bits 
   if(item->mask != 0xFFFFFFFF){
-    BUException::BAD_BLOCK_WRITE e;
+    WIBException::BAD_BLOCK_WRITE e;
     e.Append("Mask is not 0xFFFFFFFF\n");
     throw e;
   }

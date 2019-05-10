@@ -19,7 +19,7 @@
 #include "uhal_helpers/I2CuHal.hh"
 #include "dunets_device/Isi5344.hh"
 
-namespace BUTool{
+namespace WIBTool{
   
   class DUNETSDevice: public CommandList<DUNETSDevice>, public RegisterHelper{
   public:

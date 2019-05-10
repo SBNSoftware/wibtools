@@ -2,7 +2,7 @@
 //#include "amc13_device/amc13_device.hh"
 #include "tool/DeviceFactory.hh"
 
-using namespace BUTool;
+using namespace WIBTool;
 
 #include <dlfcn.h>
 
@@ -41,16 +41,16 @@ CommandReturn::status Launcher::AddDevice(std::vector<std::string> strArg,std::v
 
 
     try{
-      newDevice = BUTool::DeviceFactory::Instance()->Create(strArg[0],args);
-    }catch(BUException::exBase & e){
+      newDevice = WIBTool::DeviceFactory::Instance()->Create(strArg[0],args);
+    }catch(WIBException::exBase & e){
       //Something went wrong above
       printf("Exception: %s\n%s\n",e.what(),e.Description());
       //Check if the name is in the list
-      if(BUTool::DeviceFactory::Instance()->Exists(strArg[0])){
+      if(WIBTool::DeviceFactory::Instance()->Exists(strArg[0])){
 	//The name was on the list, but something still went wrong.
-	if(BUTool::DeviceFactory::Instance()->Help(strArg[0]).size() > 0){
+	if(WIBTool::DeviceFactory::Instance()->Help(strArg[0]).size() > 0){
 	  //Print the help if there is any
-	  printf("Usage: %s %s\n",strArg[0].c_str(),BUTool::DeviceFactory::Instance()->Help(strArg[0]).c_str());
+	  printf("Usage: %s %s\n",strArg[0].c_str(),WIBTool::DeviceFactory::Instance()->Help(strArg[0]).c_str());
 	}	
       }
       newDevice = NULL;
@@ -82,7 +82,7 @@ std::string Launcher::autoComplete_AddDevice(std::vector<std::string> const & li
 
     //Reload lists if we are just starting out at state == 0
     if(state == 0){
-      commandName = BUTool::DeviceFactory::Instance()->GetDeviceNames();
+      commandName = WIBTool::DeviceFactory::Instance()->GetDeviceNames();
       iCommand = 0;
     }else{
       iCommand++;

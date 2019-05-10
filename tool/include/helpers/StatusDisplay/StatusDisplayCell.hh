@@ -10,7 +10,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/tokenizer.hpp> //for tokenizer
 
-namespace BUTool{
+namespace WIBTool{
 
   /*! \brief One cell in a status display.
    *
