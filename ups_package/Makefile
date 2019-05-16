@@ -4,7 +4,7 @@ ifdef QUALIFIER
 QUAL := $(subst :,_,${QUALIFIER})
 FLAVOR := $(shell ups flavor -4)
 FLAVOR := $(strip ${FLAVOR})
-VERSION := $(shell svn info | sed -n 's/Revision: \([0-9]*\)/\1/p')
+#VERSION := $(shell svn info | sed -n 's/Revision: \([0-9]*\)/\1/p')
 VERSION := $(strip ${VERSION})
 
 MAINDIR := $(strip wibtools/v${VERSION})
