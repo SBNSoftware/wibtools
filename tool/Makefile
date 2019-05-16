@@ -74,7 +74,7 @@ EXECUTABLE_LINKED_LIBRARY_FLAGS = $(patsubst lib%,-l%,$(patsubst %.so,%,$(notdir
 EXECUTABLE_LIBRARIES = ${LIBRARIES} ${EXECUTABLE_LINKED_LIBRARY_FLAGS}
 
 
-CPP_FLAGS = -std=c++11 -g -O3 -rdynamic -Wall -MMD -MP -fPIC ${INCLUDE_PATH} -Werror -Wno-literal-suffix -Wno-error=unused-variable -Wno-error=unused-function
+CPP_FLAGS = -std=c++17 -g -O3 -rdynamic -Wall -MMD -MP -fPIC ${INCLUDE_PATH} -Wimplicit-fallthrough=0 -Werror -Wno-literal-suffix -Wno-error=unused-variable -Wno-error=unused-function
 
 ## To compile more like artDAQ
 #CPP_FLAGS +=-fno-omit-frame-pointer -pedantic -std=c++14 -Wno-ignored-qualifiers -Werror=return-type -Wextra -Wno-long-long -Winit-self -Wno-unused-local-typedefs  -Woverloaded-virtual

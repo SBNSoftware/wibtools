@@ -1,5 +1,5 @@
 FILE = version
-PRODUCT = protodune_wibsoft
+PRODUCT = wibtools
 VERSION = xVERSIONx
 
 #*************************************************
@@ -10,6 +10,6 @@ QUALIFIERS = "xQUALIFIERx"
   DECLARED = xDATEx
   MODIFIER = xUSERx
   MODIFIED = xDATEx
-  PROD_DIR = protodune_wibsoft/xVERSIONx
+  PROD_DIR = wibtools/xVERSIONx
   UPS_DIR = ups
-  TABLE_FILE = protodune_wibsoft.table
+  TABLE_FILE = wibtools.table

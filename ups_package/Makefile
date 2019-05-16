@@ -7,9 +7,9 @@ FLAVOR := $(strip ${FLAVOR})
 VERSION := $(shell svn info | sed -n 's/Revision: \([0-9]*\)/\1/p')
 VERSION := $(strip ${VERSION})
 
-MAINDIR := $(strip protodune_wibsoft/v${VERSION})
+MAINDIR := $(strip wibtools/v${VERSION})
 QUALDIR := $(strip ${MAINDIR}/${FLAVOR}-${QUAL})
-VERSIONDIR := $(strip protodune_wibsoft/v${VERSION}.version)
+VERSIONDIR := $(strip wibtools/v${VERSION}.version)
 VERSIONFILE := $(strip ${VERSIONDIR}/${FLAVOR}-${QUAL})
 
 #$(info FLAVOR is ${FLAVOR})
@@ -84,7 +84,7 @@ _cleanall:
 all: _all
 build: _all
 buildall: _all
-_all: ${EXECUTABLES_DEST} ${LIBS_DEST} ${WIB_INCLUDES_DEST} ${EXCEPTION_INCLUDES_DEST} ${TABLES_DEST} ${CONFIGS_DEST} ${MAINDIR}/ups/protodune_wibsoft.table ${VERSIONFILE}
+_all: ${EXECUTABLES_DEST} ${LIBS_DEST} ${WIB_INCLUDES_DEST} ${EXCEPTION_INCLUDES_DEST} ${TABLES_DEST} ${CONFIGS_DEST} ${MAINDIR}/ups/wibtools.table ${VERSIONFILE}
 
 # ------------------------
 # Directory
@@ -93,9 +93,9 @@ _all: ${EXECUTABLES_DEST} ${LIBS_DEST} ${WIB_INCLUDES_DEST} ${EXCEPTION_INCLUDES
 ${QUALDIR} ${MAINDIR}:
 	mkdir -p ${QUALDIR}
 
-${MAINDIR}/ups/protodune_wibsoft.table: ${MAINDIR}
+${MAINDIR}/ups/wibtools.table: ${MAINDIR}
 	mkdir -p ${MAINDIR}/ups
-	cp ups/protodune_wibsoft.table ${MAINDIR}/ups/.
+	cp ups/wibtools.table ${MAINDIR}/ups/.
 
 ${VERSIONFILE}: ${MAINDIR}
 	mkdir -p ${VERSIONDIR}
