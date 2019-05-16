@@ -6,11 +6,7 @@ Product=wibtools
 Group:
 
 Flavor=ANY
-Qualifiers=e14
-      _qualstr=e14
-
-Flavor=ANY
-Qualifiers=e15:s64
+Qualifiers=e15
       _qualstr=e15
 
 Flavor=ANY
