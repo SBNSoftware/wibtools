@@ -336,7 +336,7 @@ void WIB::CheckFlash(std::vector<uint32_t> flashData,uint8_t update_percentage){
 	char errorbuffer[] = "Error on index 0xXXXXXXXX: 0xXXXXXXXX != 0xXXXXXXXX";
 	snprintf(errorbuffer,
 		 strlen(errorbuffer),
-		 "Error on index 0x%08X: 0x%08X != 0x%08X",
+		 "Error on index 0x%08X:0x%08X != 0x%08X",
 		 flashAddress,
 		 dataRead,
 		 flashData[currentBlockStartIndex + iBlockWord]);
