@@ -21,7 +21,8 @@ void WIBException::exBase::AppendStackLine(const char * line) throw()
   if(lineSize >= (stackSize - stackUsed))
     lineSize = stackSize - stackUsed;
   //copy string
-  strncpy(stackBuffer+stackUsed,line,lineSize);
+  //strncpy(stackBuffer+stackUsed,line,lineSize);
+  memcpy(stackBuffer+stackUsed,line,lineSize); // Fix for gcc 8
   //update size
   stackUsed += lineSize;
   //Add eol

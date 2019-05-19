@@ -103,7 +103,10 @@ void WIBException::exBase::Append(const char * buffer) throw()
     }
     
   //Append the new string (n keeps us safe from buffer overflow)
-  strncpy(descriptionBuffer+descriptionUsed,
+  //strncpy(descriptionBuffer+descriptionUsed,
+  //	  buffer,
+  //	  appendedSize);
+  memcpy(descriptionBuffer+descriptionUsed, // Fix for gcc 8
 	  buffer,
 	  appendedSize);
     
