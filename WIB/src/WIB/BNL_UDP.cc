@@ -1,11 +1,11 @@
 #include <WIB/BNL_UDP.hh>
 #include <WIB/BNL_UDP_Exception.hh>
 #include <sys/socket.h>
-#include <string.h> //memset, strerror
+#include <string.h> //memset, strerro
 #include <errno.h>
 #include <string>
 #include <fcntl.h> //fcntl
-
+#include <iostream>
 #include <sstream>
 #include <iomanip>
 
@@ -14,9 +14,9 @@
 #include <errno.h>
 #include <algorithm> //STD::COUNT
 
-#define WIB_WR_BASE_PORT 32000
-#define WIB_RD_BASE_PORT 32001
-#define WIB_RPLY_BASE_PORT 32002
+//#define GIGE_REGISTER_WRITE_TX_PORT 0x7D00
+//#define GIGE_REGISTER_READ_TX_PORT  0x7D01
+//#define GIGE_REGISTER_RX_PORT       0x7D02
 
 #define WIB_PACKET_KEY 0xDEADBEEF
 //#define WIB_REQUEST_PACKET_SIZE (4+2+4+2)
@@ -33,6 +33,127 @@ struct WIB_packet_t{
   uint32_t data_LSW : 16;
   uint32_t trailer  : 16;
 };
+
+gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
+{
+    std::cout<<"We're in Jack's function: read port is "<<readPort<<"\n";
+    int rc = 0;
+ //   struct sockaddr_in *iface_addr;
+    gige_reg_t *ret;
+    ret = (gige_reg_t*)malloc(sizeof(gige_reg_t));
+    if (ret == NULL)
+        return NULL;
+  
+    std::cout<<"sock_read = "<<ret->sock_read<<"\n";
+   
+    // IP Address based off of ID
+ //   sprintf(ret->client_ip_addr, "%s", GIGE_CLIENT_IP);
+    
+    sprintf(ret->client_ip_addr, "%s", IP_address);
+   
+    // Recv socket
+    ret->sock_recv = socket(AF_INET, SOCK_DGRAM, 0);
+
+    int  flags;
+    if((flags = fcntl(ret->sock_recv,F_GETFL,0)) < 0)
+    {
+        printf("error fcntl");
+    }
+
+
+    if(fcntl(ret->sock_recv,F_SETFL,flags | O_NONBLOCK) < 0)
+    {
+        printf("fcntl_set");
+    }
+
+    if (ret->sock_recv == -1) {
+        perror(__func__);
+        return NULL;
+    }
+    
+    // Recv Port Setup
+    bzero(&ret->si_recv, sizeof(ret->si_recv));
+    ret->si_recv.sin_family = AF_INET;
+    ret->si_recv.sin_addr.s_addr = htonl(INADDR_ANY);
+//    ret->si_recv.sin_port = htons(GIGE_REGISTER_RX_PORT);
+    ret->si_recv.sin_port = htons(replyPort);
+ 
+    // Bind to Register RX Port
+    printf("Binding to register RX port...\n");
+    rc = bind(ret->sock_recv, (struct sockaddr *)&ret->si_recv,sizeof(ret->si_recv));
+    if (rc < 0) {
+        printf("Binding failed!\n");
+        perror(__func__);
+        return NULL;
+    }
+   
+
+    // Setup client READ TX
+ 
+    printf("Binding to read TX...\n");
+    std::cout<<ret->sock_read<<"\n";
+    ret->sock_read = socket(AF_INET, SOCK_DGRAM, 0);
+    if (ret->sock_read == -1) {
+        printf("Failed!\n");;
+        perror(__func__);
+        return NULL;
+    }
+
+    bzero(&ret->si_read, sizeof(ret->si_read));
+    ret->si_read.sin_family = AF_INET;
+ //   ret->si_read.sin_addr.s_addr = htonl(INADDR_ANY);
+//    ret->si_read.sin_port = htons(GIGE_REGISTER_READ_TX_PORT);
+    ret->si_read.sin_port = htons(readPort);
+ 
+    if (inet_aton(ret->client_ip_addr , &ret->si_read.sin_addr) == 0) {
+        fprintf(stderr, "inet_aton() failed\n");
+    }
+
+    // Bind to Register READ TX Port
+    rc = connect(ret->sock_read, (struct sockaddr *)&ret->si_read,sizeof(ret->si_read));
+    if (rc < 0) {
+        perror(__func__);
+        return NULL;
+    }
+
+  
+    ret->si_lenr = sizeof(ret->si_read);
+ 
+
+   
+    // Setup client WRITE TX
+
+    ret->sock_write =  socket(AF_INET, SOCK_DGRAM, 0);
+    if (ret->sock_write == -1) {
+        perror(__func__);
+        return NULL;
+    }
+ 
+    bzero(&ret->si_write, sizeof(ret->si_write));
+    ret->si_write.sin_family = AF_INET;
+    //ret->si_write.sin_port = htons(GIGE_REGISTER_WRITE_TX_PORT);
+    ret->si_write.sin_port = htons(writePort);
+//    ret->si_write.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (inet_aton(ret->client_ip_addr , &ret->si_write.sin_addr) == 0) {
+        fprintf(stderr, "inet_aton() failed\n");
+    }
+
+   
+    // Bind to  Write TX Port
+    rc = connect(ret->sock_write ,(struct sockaddr *)&ret->si_write,sizeof(ret->si_write));
+    if (rc < 0) {
+        perror(__func__);
+        return NULL;
+    }
+
+
+ 
+    ret->si_lenw = sizeof(ret->si_write);
+    
+    return ret;
+}
+
 
 static std::string dump_packet(uint8_t * data, size_t size){
   //  printf("Err: %p %zu\n",data,size);
@@ -62,6 +183,16 @@ void BNL_UDP::FlushSocket(int sock){
   
 void BNL_UDP::Clear(){
   //close sockets
+  /*
+  if(readSocketFD != -1){
+    close(readSocketFD);
+    readSocketFD = -1;
+  }
+  if(writeSocketFD != -1){
+    close(writeSocketFD);
+    writeSocketFD = -1;
+  }
+  */
   if(readSocketFD != -1){
     close(readSocketFD);
     readSocketFD = -1;
@@ -94,8 +225,11 @@ void BNL_UDP::Clear(){
 //}
 
 void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
+  std::cout<<"BNL_UDP Setup, port offset = "<<std::hex<<port_offset<<std::dec<<"\n";
   //Reset the network structures
   Clear();
+
+ 
 
   //Allocate the recv buffer
   ResizeBuffer();
@@ -109,7 +243,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
   //Set the ports for this device (FEMBs are iFEMB*0x10 above the base)
   readPort  = WIB_RD_BASE_PORT   + port_offset;
   writePort = WIB_WR_BASE_PORT   + port_offset;
-  //  replyPort = WIB_RPLY_BASE_PORT + port_offset;
+  replyPort = WIB_RPLY_BASE_PORT + port_offset;
 
   remoteAddress = address;
   //Get the sockaddr for the address
@@ -155,6 +289,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
   //  readAddr = *((struct sockaddr_in *) res->ai_addr);
   //  printaddress(&readAddr);
 
+    /*
   //Generate the sockets for read and write
   if((readSocketFD = socket(AF_INET,SOCK_DGRAM,0)) < 0){
     WIBException::BAD_SOCKET e;
@@ -170,8 +305,10 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
   struct timeval tv; tv.tv_sec=TIMEOUT_SECONDS; tv.tv_usec=TIMEOUT_MICROSECONDS;
   setsockopt(readSocketFD, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv,sizeof(struct timeval));
   setsockopt(writeSocketFD, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv,sizeof(struct timeval));
-
+    */
+    
   //connect the read socket
+  /*
   readAddr = *((struct sockaddr_in *) res->ai_addr);
   readAddr.sin_port = htons(readPort); 
   if(connect(readSocketFD,(struct sockaddr *) &readAddr,sizeof(readAddr)) < 0){
@@ -189,12 +326,17 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
     e.Append(strerror(errno));
     throw e;
   }
+  */
+
+  reg = gige_reg_init(address.c_str(), NULL );
+
 
   //Allocate the receive buffer to default size
   ResizeBuffer();
 }
 
 void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_count){
+  std::cout<<"Write, address is "<<address<<"\n";
   while(retry_count > 1){
     try{
       //Do the write
@@ -217,7 +359,7 @@ void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_cou
 void BNL_UDP::Write(uint16_t address, uint32_t value){
 
   //Flush this socket
-  FlushSocket(writeSocketFD);
+  FlushSocket(reg->sock_write);
 
   //Build the packet to send
   //build the send packet
@@ -231,8 +373,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
   //send the packet
   ssize_t send_size = sizeof(packet);
   ssize_t sent_size = 0;
-  if( send_size != (sent_size = send(writeSocketFD,
-				     &packet,send_size,0))){
+  if( send_size != (sent_size = sendto( reg->sock_read, &packet,send_size,0,(struct sockaddr *) &reg->si_read, sizeof(reg->si_read))==-1)){
     //bad send
     WIBException::SEND_FAILED e;
     if(sent_size == -1){
@@ -275,7 +416,8 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
       e.Append(dump_packet(buffer,reply_size).c_str());
       throw e;    
     }    
-  }  
+  }
+  std::cout<<"Write successful\n";  
 }
 void BNL_UDP::Write(uint16_t address, std::vector<uint32_t> const & values){
   Write(address,values.data(),values.size());
@@ -389,6 +531,9 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint8_t retry_count){
   return val;
 }
 uint32_t BNL_UDP::Read(uint16_t address){
+
+  std::cout<<"Read, address is "<<address<<"\n";
+
   //Flush the socket
   FlushSocket(readSocketFD);
 
@@ -402,12 +547,13 @@ uint32_t BNL_UDP::Read(uint16_t address){
   //send the packet
   ssize_t send_size = sizeof(packet);
   ssize_t sent_size = 0;
-  if( send_size != (sent_size = send(readSocketFD,
-				     &packet,send_size,0))){
+//  if( send_size != (sent_size = send(readSocketFD,
+//				     &packet,send_size,0))){
+  if( send_size != (sent_size = sendto( reg->sock_read, &packet , send_size, 0 ,(struct sockaddr *) &reg->si_read, sizeof(reg->si_read))==-1)) {
     //bad send
     WIBException::SEND_FAILED e;
     if(sent_size == -1){
-      e.Append("BNL_UDP::Read(uint16_t)\n");
+      e.Append("BNL_UDP::Read(uint16_t) send\n");
       e.Append("Errnum: ");
       e.Append(strerror(errno));
     } 
@@ -415,13 +561,16 @@ uint32_t BNL_UDP::Read(uint16_t address){
   }
 
   //Get the reply packet with the register data in it.   
-  ssize_t reply_size = recv(readSocketFD,
-			    buffer,buffer_size,0);
+  //ssize_t reply_size = recv(readSocketFD,
+  //			    buffer,buffer_size,0);
+  struct sockaddr_in si_other;
+  socklen_t len;
+  ssize_t reply_size = recvfrom( reg->sock_recv, buffer, buffer_size, 0, (struct sockaddr *)&si_other, &len);
 			    
   if(ssize_t(-1) == reply_size){
     WIBException::BAD_REPLY e;
     std::stringstream ss;
-    e.Append("BNL_UDP::Read(uint16_t)\n");
+    e.Append("BNL_UDP::Read(uint16_t) receive 1\n");
     ss << "Errnum(" << errno << "): " << strerror(errno) << "\n";
     e.Append(ss.str().c_str());
     e.Append(dump_packet((uint8_t *)&packet,send_size).c_str());
@@ -430,7 +579,7 @@ uint32_t BNL_UDP::Read(uint16_t address){
     WIBException::BAD_REPLY e;
     std::stringstream ss;
     ss << "Bad Size: " << reply_size << "\n";
-    e.Append("BNL_UDP::Read(uint16_t)\n");
+    e.Append("BNL_UDP::Read(uint16_t) receive 2\n");
     e.Append(ss.str().c_str());
     e.Append(dump_packet(buffer,reply_size).c_str());
     throw e;
@@ -452,6 +601,8 @@ uint32_t BNL_UDP::Read(uint16_t address){
 		   (uint32_t(buffer[3]) << 16) | 
 		   (uint32_t(buffer[4]) <<  8) | 
 		   (uint32_t(buffer[5]) <<  0));
+
+  std::cout<<"Read successful\n";
   return ret;
 }
 
@@ -474,3 +625,4 @@ void BNL_UDP::ResizeBuffer(size_t size){
   }
   //  printf("after %p %zu %zd\n",buffer,buffer_size,buffer_size);
 }
+
