@@ -2,18 +2,39 @@
 #define __BNL_UDP_HH__
 
 #include <string>
+#include <string.h>
+#include <strings.h>
 #include <vector>
 
 #include <stdint.h>
 #include <sys/socket.h>
 #include <netinet/ip.h>
-
+#include <arpa/inet.h>
+#include <fcntl.h>
 
 #define WIB_RESPONSE_PACKET_BUFFER_SIZE 4048
+#define WIB_WR_BASE_PORT 32000
+#define WIB_RD_BASE_PORT 32001
+#define WIB_RPLY_BASE_PORT 32002
+
+
+// Struct copied from FW_PRGM (gige.h)
+typedef struct {
+  int sock_recv;
+  int sock_write;
+  int sock_read;
+  char client_ip_addr[512];
+  struct sockaddr_in si_recv;
+  struct sockaddr_in si_write;
+  socklen_t          si_lenw;
+  struct sockaddr_in si_read;
+  socklen_t          si_lenr;
+} gige_reg_t;
 
 class BNL_UDP {
 public:
-  BNL_UDP():readSocketFD(-1),writeSocketFD(-1),buffer_size(0),buffer(NULL),total_retry_count(0) {Clear();};
+//  BNL_UDP():readSocketFD(-1),writeSocketFD(-1),buffer_size(0),buffer(NULL),total_retry_count(0) {Clear();};
+  BNL_UDP():reg(NULL),readSocketFD(-1),writeSocketFD(-1),buffer_size(0),buffer(NULL),total_retry_count(0) {};
   ~BNL_UDP();
 
   void Setup(std::string const & address, uint16_t port_offset = 0); 
@@ -33,6 +54,8 @@ public:
 
   uint64_t GetRetryCount(){return total_retry_count;};
 
+  gige_reg_t* gige_reg_init(const char *IP_address, char *iface);
+
 private:  
   // Prevent copying of BNL_UDP objects
   BNL_UDP( const BNL_UDP& other) ; // prevents construction-copy
@@ -46,6 +69,8 @@ private:
   void ResizeBuffer(size_t size  = WIB_RESPONSE_PACKET_BUFFER_SIZE);
   
   bool writeAck;
+ 
+  gige_reg_t* reg;
   
   //Network addresses
   std::string remoteAddress;  
@@ -65,4 +90,6 @@ private:
   uint8_t *buffer;
   uint64_t total_retry_count;
 };
+
+
 #endif
