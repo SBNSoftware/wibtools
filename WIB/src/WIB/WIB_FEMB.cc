@@ -192,7 +192,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
   std::cout << "FEMB " << int(iFEMB) << " Successful SPI config" << std::endl;
 
   // Try to sync ADCs
-  if (clk_phases.size() == 0)
+  /*  if (clk_phases.size() == 0)
   {
     clk_phases.push_back(0xFFFF);
   }
@@ -242,10 +242,94 @@ void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector
                     << std::hex << std::setfill ('0') << std::setw(2) << ReadFEMB(iFEMB,"ADC_ASIC_CLK_PHASE_SELECT")
                     << std::hex << std::setfill ('0') << std::setw(2) << ReadFEMB(iFEMB,"ADC_ASIC_CLK_PHASE_SELECT_2")
                     << std::endl;
+  */
 
-  //time stamp reset
-  WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
-  WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
+
+  //Initializing the shift and phase variables
+  uint8_t fe1_sft_RT = 0x00000000;
+  uint8_t fe2_sft_RT = 0x00000000;
+  uint8_t fe3_sft_RT = 0x00000000;
+  uint8_t fe4_sft_RT = 0x00000000;
+  uint8_t fe5_sft_RT = 0x00000000;
+  uint8_t fe6_sft_RT = 0x00000000;
+  uint8_t fe7_sft_RT = 0x00000000;
+  uint8_t fe8_sft_RT = 0x00000000;
+
+  uint8_t fe1_sft_CT = 0x00000000;
+  uint8_t fe2_sft_CT = 0x00000000;
+  uint8_t fe3_sft_CT = 0x00000000;
+  uint8_t fe4_sft_CT = 0x00000000;
+  uint8_t fe5_sft_CT = 0x00000000;
+  uint8_t fe6_sft_CT = 0x00000000;
+  uint8_t fe7_sft_CT = 0x00000000;
+  uint8_t fe8_sft_CT = 0x00000000;
+
+  uint8_t fe1_pha_RT = 0x00000000;
+  uint8_t fe2_pha_RT = 0x00000000;
+  uint8_t fe3_pha_RT = 0x00000000;
+  uint8_t fe4_pha_RT = 0x00000000;
+  uint8_t fe5_pha_RT = 0x00000000;
+  uint8_t fe6_pha_RT = 0x00000000;
+  uint8_t fe7_pha_RT = 0x00000000;
+  uint8_t fe8_pha_RT = 0x00000000;
+
+  uint8_t fe1_pha_CT = 0x00000000;
+  uint8_t fe2_pha_CT = 0x00000000;
+  uint8_t fe3_pha_CT = 0x00000000;
+  uint8_t fe4_pha_CT = 0x00000000;
+  uint8_t fe5_pha_CT = 0x00000000;
+  uint8_t fe6_pha_CT = 0x00000000;
+  uint8_t fe7_pha_CT = 0x00000000;
+  uint8_t fe8_pha_CT = 0x00000000;
+
+  //writing on FEMB
+  
+  
+  //how does the board know whether its at RT or CT? can we ask for it from the user?
+
+  bool RT=false;
+  // printf("enter 0 for RoomTemp OR 1 for ColdTemp:");
+  // scanf("%d",&RT)
+   
+  if(RT)
+    {
+      WriteFEMB(iFEMB, 21, fe1_sft_RT);
+      WriteFEMB(iFEMB, 29, fe1_pha_RT);
+      WriteFEMB(iFEMB, 22, fe2_sft_RT);
+      WriteFEMB(iFEMB, 30, fe2_pha_RT);
+      WriteFEMB(iFEMB, 23, fe3_sft_RT);
+      WriteFEMB(iFEMB, 31, fe3_pha_RT);
+      WriteFEMB(iFEMB, 24, fe4_sft_RT);
+      WriteFEMB(iFEMB, 32, fe4_pha_RT);
+      WriteFEMB(iFEMB, 25, fe5_sft_RT);
+      WriteFEMB(iFEMB, 33, fe5_pha_RT);
+      WriteFEMB(iFEMB, 26, fe6_sft_RT);
+      WriteFEMB(iFEMB, 34, fe6_pha_RT);
+      WriteFEMB(iFEMB, 27, fe7_sft_RT);
+      WriteFEMB(iFEMB, 35, fe7_pha_RT);
+      WriteFEMB(iFEMB, 28, fe8_sft_RT);
+      WriteFEMB(iFEMB, 36, fe8_pha_RT);
+    }
+
+  else
+   {
+     WriteFEMB(iFEMB, 21, fe1_sft_CT);
+     WriteFEMB(iFEMB, 29, fe1_pha_CT);
+     WriteFEMB(iFEMB, 22, fe2_sft_CT);
+     WriteFEMB(iFEMB, 30, fe2_pha_CT);
+     WriteFEMB(iFEMB, 23, fe3_sft_CT);
+     WriteFEMB(iFEMB, 31, fe3_pha_CT);
+     WriteFEMB(iFEMB, 24, fe4_sft_CT);
+     WriteFEMB(iFEMB, 32, fe4_pha_CT);
+     WriteFEMB(iFEMB, 25, fe5_sft_CT);
+     WriteFEMB(iFEMB, 33, fe5_pha_CT);
+     WriteFEMB(iFEMB, 26, fe6_sft_CT);
+     WriteFEMB(iFEMB, 34, fe6_pha_CT);
+     WriteFEMB(iFEMB, 27, fe7_sft_CT);
+     WriteFEMB(iFEMB, 35, fe7_pha_CT);
+     WriteFEMB(iFEMB, 28, fe8_sft_CT);
+     WriteFEMB(iFEMB, 36, fe8_pha_CT);
+   }
 
   // These are all Jack's WIB addresses, need to figure out Dan's addresses for functionality
   ////Sync Time stamp /WIB
@@ -674,7 +758,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
                       leakagex10,acCoupling,internalDACControl,internalDACValue
                   );
     // Now just set collection channels to low baseline
-    fe_map.set_collection_baseline(1);
+    fe_map.set_collection_baseline(1);   // in FE_ASIC_reg_mapping.cc
   }
   else
   {
