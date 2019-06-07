@@ -14,9 +14,12 @@ WIB::WIB(std::string const & address, std::string const & WIBAddressTable, std::
 
   if(fullStart){
     //Figure out what kind of WIB firmware we are dealing with
-    FEMBCount = Read("SYSTEM.FEMB_COUNT");
-    DAQLinkCount = Read("SYSTEM.DAQ_LINK_COUNT");
+    //FEMBCount = Read("SYSTEM.FEMB_COUNT");
+    //DAQLinkCount = Read("SYSTEM.DAQ_LINK_COUNT");
     //Hardcoded lookup for RCE and FELIX
+    // Not readable in SBND
+    FEMBCount = 4;
+    DAQLinkCount = 4;
     if((FEMBCount == 4) && (DAQLinkCount == 4)){
       DAQMode = RCE;
     }else if((FEMBCount == 4) && (DAQLinkCount == 2)){
@@ -24,7 +27,7 @@ WIB::WIB(std::string const & address, std::string const & WIBAddressTable, std::
     }
     //TODO check FEMBStreamCount and FEMCDACount from registers on the WIB
     //TODO create those registers
-    Write("POWER.ENABLE.MASTER_BIAS",1);
+    //Write("POWER.ENABLE.MASTER_BIAS",1);
     started = true;
   }
 }
@@ -34,9 +37,12 @@ WIB::~WIB(){
 
 void WIB::FullStart(){
   //Figure out what kind of WIB firmware we are dealing with
-  FEMBCount = Read("SYSTEM.FEMB_COUNT");
-  DAQLinkCount = Read("SYSTEM.DAQ_LINK_COUNT");
+  //FEMBCount = Read("SYSTEM.FEMB_COUNT");
+  //DAQLinkCount = Read("SYSTEM.DAQ_LINK_COUNT");
   //Hardcoded lookup for RCE and FELIX
+  // SBND has fixed mode, not readable in firmware (wfb)
+  FEMBCount = 4;
+  DAQLinkCount = 4;
   if((FEMBCount == 4) && (DAQLinkCount == 4)){
     DAQMode = RCE;
   }else if((FEMBCount == 4) && (DAQLinkCount == 2)){
@@ -44,7 +50,7 @@ void WIB::FullStart(){
   }
   //TODO check FEMBStreamCount and FEMCDACount from registers on the WIB
   //TODO create those registers
-  Write("POWER.ENABLE.MASTER_BIAS",1);   
+  //Write("POWER.ENABLE.MASTER_BIAS",1);   
   started = true;
 }
 
