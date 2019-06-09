@@ -1,0 +1,4 @@
+
+setup gcc v7_3_0 
+setup boost v1_69_0 -q e17:prof
+source ./env.sh
