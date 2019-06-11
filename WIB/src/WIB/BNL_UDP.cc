@@ -37,9 +37,9 @@ struct WIB_packet_t{
 gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 {
 
-  std::cout<<"We're in Jack's function: write port is "<<std::hex<<writePort<<std::hex<<"\n";
-  std::cout<<"We're in Jack's function: read port is  "<<std::hex<<readPort<<std::hex<<"\n";
-  std::cout<<"We're in Jack's function: reply port is "<<std::hex<<replyPort<<std::hex<<"\n";
+  std::cout<<"We're in Jack's function: write port is "<<std::hex<<writePort<<std::dec<<"\n";
+  std::cout<<"We're in Jack's function: read port is  "<<std::hex<<readPort<<std::dec<<"\n";
+  std::cout<<"We're in Jack's function: reply port is "<<std::hex<<replyPort<<std::dec<<"\n";
   std::cout<<"IP address is " << IP_address << std::endl;
   int rc = 0;
  //   struct sockaddr_in *iface_addr;
@@ -171,7 +171,7 @@ static std::string dump_packet(uint8_t * data, size_t size){
     if(iWord < size){
       ss << std::hex << std::setfill('0') << std::setw(2) << int(data[iWord]);
     }
-    ss << std::endl;
+    ss << std::dec << std::endl;
   }
   //  printf("%s",ss.str().c_str());
   return ss.str();
