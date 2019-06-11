@@ -78,7 +78,7 @@ void WIBTool::WIBDevice::LoadCommandList(){
   AddCommand("femb_power",&WIBDevice::PowerFEMB,
 	     "Power on/off FEMB"\
 	     "  Usage:\n"\
-	     "  femb_power_on <iFEMB> <on>\n"
+	     "  femb_power <iFEMB> <on|off>\n"
 	     );
   AddCommandAlias("fpwr","femb_power");
 
