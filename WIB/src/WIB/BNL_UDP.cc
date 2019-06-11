@@ -36,6 +36,7 @@ struct WIB_packet_t{
 
 gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 {
+
   std::cout<<"We're in Jack's function: write port is "<<std::hex<<writePort<<std::hex<<"\n";
   std::cout<<"We're in Jack's function: read port is  "<<std::hex<<readPort<<std::hex<<"\n";
   std::cout<<"We're in Jack's function: reply port is "<<std::hex<<replyPort<<std::hex<<"\n";
@@ -138,7 +139,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
     //ret->si_write.sin_port = htons(GIGE_REGISTER_WRITE_TX_PORT);
     //    ret->si_write.sin_port = htons(writePort);
     ret->si_write.sin_port = htons(writePort);
-//    ret->si_write.sin_addr.s_addr = htonl(INADDR_ANY);
+    ret->si_write.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (inet_aton(ret->client_ip_addr , &ret->si_write.sin_addr) == 0) {
         fprintf(stderr, "inet_aton() failed\n");
@@ -357,7 +358,6 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
   FlushSocket(reg->sock_write);
 
   //Build the packet to send
-  //build the send packet
   WIB_packet_t packet;
   packet.key = htonl(WIB_PACKET_KEY);
   packet.reg_addr = htons(address);
@@ -373,7 +373,6 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
   std::cout<<"send_size "<<send_size<<", sent_size "<<sent_size<<"\n";
   //if( send_size != (sent_size = sendto( reg->sock_read, &packet,send_size,0,(struct sockaddr *) &reg->si_read, sizeof(reg->si_read))==-1)){
   if( send_size != sent_size ){
-    std::cout<<"FAILED\n";
     //bad send
     WIBException::SEND_FAILED e;
     if(sent_size == -1){
