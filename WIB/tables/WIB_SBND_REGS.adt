@@ -100,3 +100,4 @@ Mon_ADC_output0                                                                 
 Mon_ADC_output1                                                                         0x26        0xFFFF      R   description="Monitor ADC for WIB SLOT1 (FEMB1) --> TODO: fix overlap with Start_MON_ADC"
 Mon_ADC_output2                                                                         0x27        0xFFFF0000  R   description="Monitor ADC for WIB SLOT2 (FEMB2)"
 Mon_ADC_output3                                                                         0x27        0xFFFF      R   description="Monitor ADC for WIB SLOT3 (FEMB3)"
+FW_VERSION										0xFF	    0xFFF	R   description="Firmware Version"

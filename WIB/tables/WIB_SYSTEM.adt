@@ -14,10 +14,9 @@ EB_locked                               0x0      0x40       r  description="EB l
 DTS_locked                              0x0      0x200      r  description="DTS locked" Table="Status" Row="_2" Column="locked" Status="1"
 FW_TYPE                                 0x0      0x0F000000 r  description="compiled in DAQ link count" Table="FW" Row="_2" Column="" Status="1" Format="T 4 RCE,2 FELIX" slowcontrol sc_conv="enum 2=FELIX 4=RCE"
 FW_VERSION                              0x1      0xffffffff r  description="fw version word" Table="FW" Row="_2" Column="" Status="1" slowcontrol
-FW_VERSION.rev                          0x1      0xff       r  description="rev (1-99) Manually updated" Table="FW" Row="_2" Column="_3" Status="1"
-FW_VERSION.day                          0x1      0xff00     r  description="day (1-31) Manually updated" Table="FW" Row="_2" Column="_3" Status="1"
-FW_VERSION.month                        0x1      0xff0000   r  description="month (1-12) Manually updated" Table="FW" Row="_2" Column="_3" Status="1"
-FW_VERSION.year                         0x1      0xff000000 r  description="year (20XX) Manually updated" Table="FW" Row="_2" Column="_3" Status="1"
+FW_VERSION.day                          0x1      0xff	    r  description="day (1-31) Manually updated" Table="FW" Row="_2" Column="_3" Status="1"
+FW_VERSION.month                        0x1      0xff00	    r  description="month (1-12) Manually updated" Table="FW" Row="_2" Column="_3" Status="1"
+FW_VERSION.year                         0x1      0xffff0000 r  description="year (20XX) Manually updated" Table="FW" Row="_2" Column="_3" Status="1"
 SYNTH_DATE.day                          0x2      0xff       r  description="day (1-31) automatically updated" Table="FW" Row="_2" Column="_3" Status="1"
 SYNTH_DATE.month                        0x2      0xff00     r  description="month (1-12) automatically updated" Table="FW" Row="_2" Column="_3" Status="1"
 SYNTH_DATE.year                         0x2      0xff0000   r  description="year (00-99) automatically updated" Table="FW" Row="_2" Column="_3" Status="1"
