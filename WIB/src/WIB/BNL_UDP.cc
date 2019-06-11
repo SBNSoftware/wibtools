@@ -188,16 +188,6 @@ void BNL_UDP::FlushSocket(int sock){
   
 void BNL_UDP::Clear(){
   //close sockets
-  /*
-  if(readSocketFD != -1){
-    close(readSocketFD);
-    readSocketFD = -1;
-  }
-  if(writeSocketFD != -1){
-    close(writeSocketFD);
-    writeSocketFD = -1;
-  }
-  */
   if(readSocketFD != -1){
     close(readSocketFD);
     readSocketFD = -1;
@@ -376,9 +366,14 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
   packet.trailer = htons(WIB_REQUEST_PACKET_TRAILER);
 
   //send the packet
+  std::cout<<"Getting ready to send the packet...\n";
   ssize_t send_size = sizeof(packet);
-  ssize_t sent_size = 0;
-  if( send_size != (sent_size = sendto( reg->sock_read, &packet,send_size,0,(struct sockaddr *) &reg->si_read, sizeof(reg->si_read))==-1)){
+ // ssize_t sent_size = 0;
+  ssize_t sent_size = sendto( reg->sock_write, &packet,send_size,0,(struct sockaddr *) &reg->si_write, sizeof(reg->si_write));
+  std::cout<<"send_size "<<send_size<<", sent_size "<<sent_size<<"\n";
+  //if( send_size != (sent_size = sendto( reg->sock_read, &packet,send_size,0,(struct sockaddr *) &reg->si_read, sizeof(reg->si_read))==-1)){
+  if( send_size != sent_size ){
+    std::cout<<"FAILED\n";
     //bad send
     WIBException::SEND_FAILED e;
     if(sent_size == -1){
@@ -390,11 +385,21 @@ void BNL_UDP::Write(uint16_t address, uint32_t value){
   }
 
   //If configured, capture confirmation packet
+  std::cout<<"Capturing the confirmation packet\n";
   if(writeAck ){
-    ssize_t reply_size = recv(writeSocketFD,
-			      buffer,buffer_size,0);
+    //ssize_t reply_size = recvfrom(reg->sock_write,
+		//	      buffer,buffer_size,0);
+    //ssize_t reply_size = recvfrom(reg->sock_recv, buffer, buffer_size, 0,(struct sockaddr *)&si_other, &len);
+    size_t reply_size = 0;
+    //struct sockaddr_in si_other;
+    socklen_t len = sizeof(struct sockaddr_in);
+    //ssize_t reply_size = recvfrom(reg->sock_recv, buffer, buffer_size, 0, (struct sockaddr *)&reg->si_recv, &len);
+    std::cout<<"   reg->sock_recv "<<reg->sock_recv<<"\n";
+    reply_size = recvfrom(reg->sock_recv, buffer, buffer_size, 0, (struct sockaddr *)&reg->si_recv, &len);
 
-    if(-1 == reply_size){
+    std::cout<<"reply_size "<<reply_size<<"\n";
+
+    if(-1 == (int)reply_size){
       WIBException::BAD_REPLY e;
       std::stringstream ss;
       e.Append("BNL_UDP::Write(uint16_t,uint32_t)\n");
