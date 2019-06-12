@@ -68,14 +68,15 @@ public:
   Item const * GetFEMBItem(int iFEMB,std::string const &);
 
   int GetSVNVersion(){return Version;}
+
+  AddressTable * wib;
+  AddressTable * FEMB[FEMB_COUNT];
 private:  
   WIBBase(); //disallow the default constructor
   // Prevent copying of WIB objects
   WIBBase( const WIBBase& other) ; // prevents construction-copy
   WIBBase& operator=( const WIBBase&) ; // prevents copying
   
-  AddressTable * wib;
-  AddressTable * FEMB[FEMB_COUNT];
   static const int Version; //SVN version
   const float FEMBReadSleepTime;
   const float FEMBWriteSleepTime;

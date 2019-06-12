@@ -19,7 +19,8 @@
 
 
 // Struct copied from FW_PRGM (gige.h)
-typedef struct {
+typedef struct 
+{
   int sock_recv;
   int sock_write;
   int sock_read;
@@ -31,7 +32,8 @@ typedef struct {
   socklen_t          si_lenr;
 } gige_reg_t;
 
-class BNL_UDP {
+class BNL_UDP 
+{
 public:
 //  BNL_UDP():readSocketFD(-1),writeSocketFD(-1),buffer_size(0),buffer(NULL),total_retry_count(0) {Clear();};
   BNL_UDP():reg(NULL),readSocketFD(-1),writeSocketFD(-1),buffer_size(0),buffer(NULL),total_retry_count(0) {};
