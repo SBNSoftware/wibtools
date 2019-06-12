@@ -5,8 +5,8 @@
 #include "tool/CommandList.hh"
 
 #include "tool/DeviceFactory.hh"
-#include <WIB/WIB.hh>
-#include <WIB/WIBEvent.h>
+#include <WIB.hh>
+#include <WIBEvent.h>
 
 namespace WIBTool{
 

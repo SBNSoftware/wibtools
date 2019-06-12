@@ -2,7 +2,7 @@
 #include <readline/readline.h> //for rl_insert_text
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h> // for PRI macros
-#include <WIB/BNL_UDP_Exception.hh>
+#include <BNL_UDP_Exception.hh>
 
 CommandReturn::status WIBTool::WIBDevice::WriteLocalFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused arguments

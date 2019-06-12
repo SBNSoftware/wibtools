@@ -19,8 +19,8 @@ LIB_PATH=./lib
 #WIB CLass
 WIB_LIB=${LIB_PATH}/libWIB.so
 WIB_INCLUDE_PATH=${INCLUDE_PATH}
-WIB_SRC_PATH=${SRC_PATH}/WIB
-WIB_BUILD_PATH=${BUILD_PATH}/WIB
+WIB_SRC_PATH=${SRC_PATH}
+WIB_BUILD_PATH=${BUILD_PATH}
 CXXFLAGS +=-I${WIB_INCLUDE_PATH}
 LDFLAGS +=-lboost_regex
 WIB_SRC=$(notdir $(wildcard ${WIB_SRC_PATH}/*.cc))
@@ -46,7 +46,7 @@ ${WIB_LIB}	: ${WIB_OBJ}
 	@#Build version source file for the WIBBase class
 	@echo ${VERSION_SRC}
 	@mkdir -p ${BUILD_PATH}
-	@echo "#include <WIB/WIBBase.hh>" > ${VERSION_SRC}
+	@echo "#include <WIBBase.hh>" > ${VERSION_SRC}
 	@svn -R info | awk 'BEGIN{version=0}{if($$3 == "Rev:"){if($$4 > version){version = $$4}}}END{print "const int WIBBase::Version(" version ");"}' >> ${VERSION_SRC}
 	${CXX} ${CXXFLAGS} -c ${VERSION_SRC} -o ${VERSION_OBJ} ; rm ${VERSION_SRC} 	
 	${CXX} -o $@ $^ ${VERSION_OBJ} ${LDFLAGS}

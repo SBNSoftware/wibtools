@@ -6,7 +6,7 @@
 //   for creating conversions
 
 
-#include <WIB/ItemConversion.hh>
+#include <ItemConversion.hh>
 
 #include <stdio.h> // sscanf
 #include <boost/foreach.hpp>

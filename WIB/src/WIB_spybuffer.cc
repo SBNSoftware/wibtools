@@ -1,5 +1,5 @@
-#include <WIB/WIB.hh>
-#include <WIB/WIBException.hh>
+#include <WIB.hh>
+#include <WIBException.hh>
 
 std::vector<data_8b10b_t> WIB::ReadOutCDLinkSpyBuffer(){
   if(Read("FEMB_SPY.FIFO_EMPTY")){

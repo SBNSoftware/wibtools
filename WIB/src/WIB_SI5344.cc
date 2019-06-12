@@ -1,51 +1,51 @@
-#include <WIB/WIB.hh>
-#include <WIB/WIBException.hh>
+#include <WIB.hh>
+#include <WIBException.hh>
 #include <fstream>
 #include <unistd.h> //usleep
 
 #define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
-#define SI5342_CONFIG_FILENAME "FELIX_SI5342.txt"
+#define SI5344_CONFIG_FILENAME "PDTS_SI5344.txt"
 
-void WIB::WriteDAQ_SI5342(uint16_t address,uint32_t value,uint8_t byte_count){
-  WriteI2C("DAQ.SI5342.I2C",address,value,byte_count);
+void WIB::WriteDTS_SI5344(uint16_t address,uint32_t value,uint8_t byte_count){
+  WriteI2C("DTS.SI5344.I2C",address,value,byte_count);
 }
-uint32_t WIB::ReadDAQ_SI5342(uint16_t address,uint8_t byte_count){
-  return ReadI2C("DAQ.SI5342.I2C",address,byte_count);
+uint32_t WIB::ReadDTS_SI5344(uint16_t address,uint8_t byte_count){
+  return ReadI2C("DTS.SI5344.I2C",address,byte_count);
 }
 
 
-void WIB::ResetSi5342(){
-  Write("DAQ.SI5342.RESET",0x1);
-  Write("DAQ.SI5342.RESET",0x0);
+void WIB::ResetSi5344(){
+  Write("DTS.SI5344.RESET",0x1);
+  Write("DTS.SI5344.RESET",0x0);
   usleep(100000);
 }
 
-void WIB::SetDAQ_SI5342Page(uint8_t page){
-  WriteDAQ_SI5342(0x1,page,1);
+void WIB::SetDTS_SI5344Page(uint8_t page){
+  WriteDTS_SI5344(0x1,page,1);
 }
 
-uint8_t WIB::GetDAQ_SI5342Page(){
-  return uint8_t(ReadDAQ_SI5342(0x1,1)&0xFF);
+uint8_t WIB::GetDTS_SI5344Page(){
+  return uint8_t(ReadDTS_SI5344(0x1,1)&0xFF);
 }
 
-uint8_t WIB::GetDAQ_SI5342AddressPage(uint16_t address){
+uint8_t WIB::GetDTS_SI5344AddressPage(uint16_t address){
   return uint8_t((address >> 8)&0xFF); 
 }
 
-void WIB::LoadConfigDAQ_SI5342(std::string const & fileName){
+void WIB::LoadConfigDTS_SI5344(std::string const & fileName){
   std::ifstream confFile(fileName.c_str());
   WIBException::WIB_BAD_ARGS badFile;
 
   if(confFile.fail()){
     //Failed to topen filename, add it to the exception
-    badFile.Append("Bad SI5342 config file name:");
+    badFile.Append("Bad SI5344 config file name:");
     badFile.Append(fileName.c_str());
 
     //Try the default
     if(getenv(WIB_CONFIG_PATH) != NULL){      
       std::string envBasedFileName=getenv(WIB_CONFIG_PATH);
       envBasedFileName+="/";
-      envBasedFileName+=SI5342_CONFIG_FILENAME;
+      envBasedFileName+=SI5344_CONFIG_FILENAME;
       confFile.open(envBasedFileName.c_str());
       if(confFile.fail()){
 	badFile.Append("Bad env based filename:");
@@ -60,13 +60,13 @@ void WIB::LoadConfigDAQ_SI5342(std::string const & fileName){
   }
 
   //Make sure the chip isn't in reset
-  if(Read("DAQ.SI5342.RESET") != 0){
-    Write("DAQ.SI5342.RESET",0x0);
+  if(Read("DTS.SI5344.RESET") != 0){
+    Write("DTS.SI5344.RESET",0x0);
     usleep(50000);
   }
 
   //Reset the I2C firmware
-  Write("DAQ.SI5342.I2C.RESET",1);
+  Write("DTS.SI5344.I2C.RESET",1);
 
   std::vector<std::pair<uint16_t,uint8_t> > writes;
   while(!confFile.eof()){
@@ -89,10 +89,10 @@ void WIB::LoadConfigDAQ_SI5342(std::string const & fileName){
     }
   }
 
-  //Disable the SI5342 output
-  Write("DAQ.SI5342.ENABLE",0x0);
+  //Disable the SI5344 output
+  Write("DTS.SI5344.ENABLE",0x0);
 
-  uint8_t page = GetDAQ_SI5342Page();
+  uint8_t page = GetDTS_SI5344Page();
   unsigned int percentDone = 0;
 
 
@@ -100,9 +100,9 @@ void WIB::LoadConfigDAQ_SI5342(std::string const & fileName){
   fprintf(stderr," ");
   for(size_t iWrite = 0; iWrite < writes.size();iWrite++){
 
-    if(page != GetDAQ_SI5342AddressPage(writes[iWrite].first)){
-      page = GetDAQ_SI5342AddressPage(writes[iWrite].first);
-      SetDAQ_SI5342Page(page);
+    if(page != GetDTS_SI5344AddressPage(writes[iWrite].first)){
+      page = GetDTS_SI5344AddressPage(writes[iWrite].first);
+      SetDTS_SI5344Page(page);
       usleep(100000);
     }
 
@@ -118,12 +118,12 @@ void WIB::LoadConfigDAQ_SI5342(std::string const & fileName){
 
     for(size_t iTries = 10; iTries > 0;iTries--){
       try{
-	WriteDAQ_SI5342(address ,data,iData);
+	WriteDTS_SI5344(address ,data,iData);
       }catch (WIBException::WIB_ERROR & e){	
 	//Reset the I2C firmware
-	Write("DAQ.SI5342.I2C.RESET",1);
+	Write("DTS.SI5344.I2C.RESET",1);
 	if(iTries == 1){
-	  e.Append("\nTried 3 times\n");
+	  e.Append("\nTried 10 times\n");
 	  throw;
 	}
       }
@@ -134,10 +134,9 @@ void WIB::LoadConfigDAQ_SI5342(std::string const & fileName){
     }
   }
   printf("\n");
-
 }
 
-void WIB::SelectSI5342(uint64_t input,bool enable){
-  Write("DAQ.SI5342.INPUT_SELECT", input); 
-  Write("DAQ.SI5342.ENABLE", uint64_t(enable)); 
+void WIB::SelectSI5344(uint64_t input,bool enable){
+  Write("DTS.SI5344.INPUT_SELECT", input); 
+  Write("DTS.SI5344.ENABLE", uint64_t(enable)); 
 }

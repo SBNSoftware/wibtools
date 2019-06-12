@@ -3,9 +3,9 @@
 #include <iostream>
 #include <bitset>
 
-//#include <WIB/FE_ASIC_reg_mapping.hh>
-//#include <WIB/ADC_ASIC_reg_mapping.hh>
-//#include <WIB/ASIC_reg_mapping.hh>
+//#include <FE_ASIC_reg_mapping.hh>
+//#include <ADC_ASIC_reg_mapping.hh>
+//#include <ASIC_reg_mapping.hh>
 
 CommandReturn::status WIBTool::WIBDevice::PowerFEMB(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   if(2 != intArg.size()){

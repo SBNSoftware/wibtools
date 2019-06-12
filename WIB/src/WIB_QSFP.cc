@@ -1,5 +1,5 @@
-#include <WIB/WIB.hh>
-#include <WIB/WIBException.hh>
+#include <WIB.hh>
+#include <WIBException.hh>
 #include <fstream>
 #include <unistd.h> //usleep
 

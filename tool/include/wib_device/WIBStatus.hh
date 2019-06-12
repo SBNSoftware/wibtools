@@ -1,8 +1,8 @@
 #ifndef __WIB_STATUS_HH__
 #define __WIB_STATUS_HH__
 
-#include <WIB/WIB.hh>
-#include <WIB/WIBException.hh>
+#include <WIB.hh>
+#include <WIBException.hh>
 #include <helpers/StatusDisplay/StatusDisplay.hh>
 
 namespace WIBTool{

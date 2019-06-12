@@ -1,6 +1,6 @@
-#include <WIB/WIBBase.hh>
-#include <WIB/WIBException.hh>
-#include <WIB/BNL_UDP_Exception.hh>
+#include <WIBBase.hh>
+#include <WIBException.hh>
+#include <BNL_UDP_Exception.hh>
 
 WIBBase::WIBBase(std::string const & address, std::string const & WIBAddressTable, std::string const & FEMBAddressTable):
   wib(NULL), FEMBReadSleepTime(0.01), FEMBWriteSleepTime(0.01) {

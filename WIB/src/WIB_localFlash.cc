@@ -1,5 +1,5 @@
-#include <WIB/WIB.hh>
-#include <WIB/WIBException.hh>
+#include <WIB.hh>
+#include <WIBException.hh>
 
 uint32_t WIB::ReadLocalFlash(uint16_t address){
   //load the address

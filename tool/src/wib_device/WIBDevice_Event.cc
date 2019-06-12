@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "helpers/int_unaligned.h"
 
-#include <WIB/WIBEvent.h>
+#include <WIBEvent.h>
 
 #define FPRINTIND(f, i, fmt, ...) \
   fprintf(f, "%*s" fmt, i, "", __VA_ARGS__)

@@ -1,4 +1,4 @@
-#include <WIB/WIB.hh>
+#include <WIB.hh>
 
 std::vector<uint32_t> WIB::CaptureHistory(std::string const & address){
   std::vector<uint32_t> ret;

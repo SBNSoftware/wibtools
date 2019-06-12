@@ -8,8 +8,8 @@
 
 #include <stdint.h>
 
-#include <WIB/ItemConversion.hh>
-#include <WIB/BNL_UDP.hh>
+#include <ItemConversion.hh>
+#include <BNL_UDP.hh>
 
 class Item{
 public:

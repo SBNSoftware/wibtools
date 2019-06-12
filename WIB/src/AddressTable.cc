@@ -1,6 +1,6 @@
-#include <WIB/AddressTable.hh>
+#include <AddressTable.hh>
 #include <fstream>
-#include <WIB/AddressTableException.hh>
+#include <AddressTableException.hh>
 #include <boost/tokenizer.hpp> //tokenizer
 #include <stdlib.h>  //strtoul & getenv
 #include <boost/regex.hpp> //regex
