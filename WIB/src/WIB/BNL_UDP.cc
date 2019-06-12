@@ -165,11 +165,11 @@ static std::string dump_packet(uint8_t * data, size_t size){
   //  printf("Err: %p %zu\n",data,size);
   std::stringstream ss;
   for(size_t iWord = 0; iWord < size;iWord++){
-    ss << "0x" << std::hex << std::setfill('0') << std::setw(4) << iWord;
-    ss << ": 0x" << std::hex << std::setfill('0') << std::setw(2) << int(data[iWord]);
+    ss << "0x" << std::hex << std::setfill('0') << std::setw(4) << iWord<<std::dec;
+    ss << ": 0x" << std::hex << std::setfill('0') << std::setw(2) << int(data[iWord]) <<std::dec;
     iWord++;
     if(iWord < size){
-      ss << std::hex << std::setfill('0') << std::setw(2) << int(data[iWord]);
+      ss << std::hex << std::setfill('0') << std::setw(2) << int(data[iWord]) << std::dec;
     }
     ss << std::endl;
   }

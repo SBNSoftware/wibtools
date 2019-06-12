@@ -1,0 +1,8 @@
+# Don't include any of the built files
+WIB/build/*
+WIB/lib/*
+exception/lib/*
+exception/obj/*
+tool/bin/*
+tool/lib/*
+tool/obj/*
