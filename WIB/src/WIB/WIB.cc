@@ -11,8 +11,12 @@ WIB::WIB(std::string const & address, std::string const & WIBAddressTable, std::
   ContinueOnFEMBRegReadError(false),ContinueOnFEMBSPIError(false),ContinueOnFEMBSyncError(true),
   ContinueIfListOfFEMBClockPhasesDontSync(true){
 
-
-  if(fullStart){
+  if(fullStart)
+  {
+    // Turn on write acknowledgments
+    wib->SetWriteAck(false);
+    Write("SBND.UDP_EN_WR_RDBK", 1);
+    wib->SetWriteAck(true);
     //Figure out what kind of WIB firmware we are dealing with
     //FEMBCount = Read("SYSTEM.FEMB_COUNT");
     //DAQLinkCount = Read("SYSTEM.DAQ_LINK_COUNT");

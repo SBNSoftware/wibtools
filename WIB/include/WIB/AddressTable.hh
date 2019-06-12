@@ -46,6 +46,7 @@ class AddressTable{
   std::string GetRemoteAddress(){return io->GetAddress();};
   std::vector<std::string> GetTables(std::string const &regex);
   uint64_t GetRetryCount(){return io->GetRetryCount();};
+  void SetWriteAck(bool yesNo){ io->SetWriteAck(yesNo);}
  private:  
   //default constructor is forbidden 
   AddressTable();
