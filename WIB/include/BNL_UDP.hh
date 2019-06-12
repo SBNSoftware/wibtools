@@ -35,8 +35,8 @@ typedef struct
 class BNL_UDP 
 {
 public:
-//  BNL_UDP():readSocketFD(-1),writeSocketFD(-1),buffer_size(0),buffer(NULL),total_retry_count(0) {Clear();};
-  BNL_UDP():reg(NULL),readSocketFD(-1),writeSocketFD(-1),buffer_size(0),buffer(NULL),total_retry_count(0) {};
+//  BNL_UDP():buffer_size(0),buffer(NULL),total_retry_count(0) {Clear();};
+  BNL_UDP():reg(NULL),buffer_size(0),buffer(NULL),total_retry_count(0) {};
   ~BNL_UDP();
 
   void Setup(std::string const & address, uint16_t port_offset = 0); 
@@ -82,10 +82,6 @@ private:
 
   //Network sockets and sockaddrs
   bool connected;
-  int readSocketFD;
-  int writeSocketFD;
-  struct sockaddr_in readAddr;
-  struct sockaddr_in writeAddr;
 
   //Packet buffer
   size_t buffer_size;

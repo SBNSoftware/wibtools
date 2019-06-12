@@ -470,7 +470,7 @@ uint32_t BNL_UDP::Read(uint16_t address)
   std::cout<<"Read, address is "<<address<<" port " << std::hex << readPort << std::dec <<"\n";
 
   //Flush the socket
-  FlushSocket(readSocketFD);
+  FlushSocket(reg->sock_read);
 
   //build the send packet
   WIB_packet_t packet;
