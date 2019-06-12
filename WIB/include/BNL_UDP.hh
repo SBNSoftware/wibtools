@@ -35,8 +35,7 @@ typedef struct
 class BNL_UDP 
 {
 public:
-//  BNL_UDP():buffer_size(0),buffer(NULL),total_retry_count(0) {Clear();};
-  BNL_UDP():reg(NULL),buffer_size(0),buffer(NULL),total_retry_count(0) {};
+  BNL_UDP():reg(NULL),buffer_size(0),buffer(NULL),total_retry_count(0) { buffer_size = 0; buffer= NULL;};
   ~BNL_UDP();
 
   void Setup(std::string const & address, uint16_t port_offset = 0); 

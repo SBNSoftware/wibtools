@@ -183,27 +183,10 @@ void BNL_UDP::FlushSocket(int sock){
   fcntl(sock, F_SETFL, fcntl(sock, F_GETFL) & (~O_NONBLOCK));
 }
   
-void BNL_UDP::Clear(){
-  //close sockets
-  if(readSocketFD != -1){
-    close(readSocketFD);
-    readSocketFD = -1;
-  }
-  if(writeSocketFD != -1){
-    close(writeSocketFD);
-    writeSocketFD = -1;
-  }
-  //Clear packet buffer
-  if(buffer != NULL){
-    delete [] buffer;
-    buffer_size = 0;
-  }  
+void BNL_UDP::Clear()
+{
   writeAck  = false;
   connected = false;
-
-  //Reset send/recv addr structures
-  memset(&readAddr,0,sizeof(readAddr));
-  memset(&writeAddr,0,sizeof(writeAddr));
 }
 
 //static void printaddress(struct sockaddr_in const * addr){
@@ -216,18 +199,18 @@ void BNL_UDP::Clear(){
 //	 ntohs(addr->sin_port));
 //}
 
-void BNL_UDP::Setup(std::string const & address,uint16_t port_offset){
+void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
+{
   std::cout<<"BNL_UDP Setup, port offset = "<<std::hex<<port_offset<<std::dec<<"\n";
   //Reset the network structures
   Clear();
-
- 
 
   //Allocate the recv buffer
   ResizeBuffer();
 
   //Check port_offset range
-  if(port_offset > 128){
+  if(port_offset > 128)
+  {
     WIBException::BNL_UDP_PORT_OUT_OF_RANGE e;
     throw e;    
   }
@@ -353,7 +336,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
 {
   std::cout<<"Write, address is "<<address<<" port " << std::hex << writePort << std::dec <<"\n";
   //Flush this socket
-  FlushSocket(reg->sock_write);
+  FlushSocket(reg->sock_recv);
 
   //Build the packet to send
   WIB_packet_t packet;
@@ -470,7 +453,7 @@ uint32_t BNL_UDP::Read(uint16_t address)
   std::cout<<"Read, address is "<<address<<" port " << std::hex << readPort << std::dec <<"\n";
 
   //Flush the socket
-  FlushSocket(reg->sock_read);
+  FlushSocket(reg->sock_recv);
 
   //build the send packet
   WIB_packet_t packet;
@@ -558,10 +541,12 @@ BNL_UDP::~BNL_UDP(){
 }
 
 
-void BNL_UDP::ResizeBuffer(size_t size){
+void BNL_UDP::ResizeBuffer(size_t size)
+{
   //CHeck if the requested size is larger than the already allocated size
-  //  printf("before %p %zu %zd\n",buffer,buffer_size,buffer_size);
-  if(buffer_size < size){
+  printf("before %p %zu %zd\n",buffer,buffer_size,buffer_size);
+  if(buffer_size < size)
+  {
     //We need to re-allocate
     if(buffer != NULL){
       delete [] buffer;
