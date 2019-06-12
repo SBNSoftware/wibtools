@@ -353,7 +353,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
 {
   std::cout<<"Write, address is "<<address<<" port " << std::hex << writePort << std::dec <<"\n";
   //Flush this socket
-  //  FlushSocket(reg->sock_write);
+  FlushSocket(reg->sock_write);
 
   //Build the packet to send
   WIB_packet_t packet;
@@ -390,10 +390,12 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
     struct sockaddr_in si_other;
     socklen_t len = sizeof(struct sockaddr_in);
     std::cout << "sockaddr_in len " << len << std::endl;
+    std::cout<<"address 0 "<< address << std::endl;
 
     reply_size = recvfrom(reg->sock_recv, buffer, buffer_size, 0, 
 			  (struct sockaddr *)&si_other, &len);
     std::cout<<"reply_size "<<reply_size<<"\n";
+    std::cout<<"address 1 "<< address << std::endl;
     if(-1 == (int)reply_size)
     {
       WIBException::BAD_REPLY e;
@@ -414,6 +416,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
       e.Append(dump_packet(buffer,reply_size).c_str());
       throw e;
     }
+    std::cout<<"address 2 "<< address << std::endl;
 
     uint16_t reply_address =  uint16_t(buffer[0] << 8 | buffer[1]);
     if( reply_address != address)
@@ -467,7 +470,7 @@ uint32_t BNL_UDP::Read(uint16_t address)
   std::cout<<"Read, address is "<<address<<" port " << std::hex << readPort << std::dec <<"\n";
 
   //Flush the socket
-  //  FlushSocket(readSocketFD);
+  FlushSocket(readSocketFD);
 
   //build the send packet
   WIB_packet_t packet;
