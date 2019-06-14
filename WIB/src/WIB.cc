@@ -466,7 +466,7 @@ void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
   std::string reg = "SBND.PWR_EN_BRD";
   reg.push_back(GetFEMBChar(iFEMB));
   if(turnOn){
-    Write (reg,  0x21000F); 
+    Write (reg,  0xFFFFFFF );  
     //if( reg == "SBND.PWR_EN_BRD0" ) Write (reg,  0x21000F); 
     //if( reg == "SBND.PWR_EN_BRD1" ) Write (reg,  0x4200F0); 
     //if( reg == "SBND.PWR_EN_BRD2" ) Write (reg,  0x840F00); 
