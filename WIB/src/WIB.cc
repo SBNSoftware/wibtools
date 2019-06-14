@@ -463,10 +463,13 @@ void WIB::StartStreamToDAQ(){
 }
 
 void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
-  std::string reg = "POWER.ENABLE.FEMB";
+  std::string reg = "SBND.PWR_EN_BRD";
   reg.push_back(GetFEMBChar(iFEMB));
   if(turnOn){
-    Write(reg,0x1F);  
+    if( reg == "SBND.PWR_EN_BRD0" ) Write (reg,  0x21000F); 
+    if( reg == "SBND.PWR_EN_BRD1" ) Write (reg,  0x4200F0); 
+    if( reg == "SBND.PWR_EN_BRD2" ) Write (reg,  0x840F00); 
+    if( reg == "SBND.PWR_EN_BRD3" ) Write (reg, 0x108F000); 
   }else{
     Write(reg,0x0);  
   }
