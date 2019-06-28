@@ -1,7 +1,7 @@
 SYS_RESET                    0x00                      0x1 W    description="Set to reset entire system  (AUTO Clears)"
 REG_RESET                    0x00                      0x2 W    description="Set to reset system registers  (AUTO Clears)"
 UDP_RESET                    0x00                      0x4 W    description="Set to reset UDP interface  (AUTO Clears)"
-ALG_RESET                    0x00                      0x1 W    description="Set to reset MBB state machine  (AUTO Clears)"
+ALG_RESET                    0x00                      0x8 W    description="Set to reset MBB state machine  (AUTO Clears)"
 CALIBRATION_PULSE            0x01                      0x1 R/W  description="Transition form 0 to 1  will generate a calibration signal sent to all FEMB’s"
 TIMESTAMP_RESET              0x01                      0x2 R/W  description="Transition form 0 to 1  will generate a timestamp reset signal to all FEMB’s"
 STOP_FEMB_DAQ                0x01                      0x4 R/W  description="Transition form 0 to 1  will stop all FEMB’s generating  data\n(Synchronous stop)"
