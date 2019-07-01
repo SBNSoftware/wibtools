@@ -512,7 +512,10 @@ CommandReturn::status WIBTool::WIBDevice::FEMBAddresses(std::vector<std::string>
 }
 
 
-std::string WIBTool::WIBDevice::autoComplete_FEMBNumber_FEMBAddressTable(std::vector<std::string> const & line,std::string const & currentToken ,int state){
+std::string WIBTool::WIBDevice::autoComplete_FEMBNumber_FEMBAddressTable(std::vector<std::string> const & line,
+									 std::string const & currentToken ,
+									 int state)
+{
   if(1 == line.size()){
     //Parse the FEMB number
     if(0 == currentToken.size()){

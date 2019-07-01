@@ -17,6 +17,9 @@ public:
   ~MMBDevice();
   void LoadCommandList();
   void PrintNames(std::vector<std::string> const & names,bool isMMB = true);
+  std::string autoComplete_MMBAddressTable(std::vector<std::string> const & line,
+					   std::string const & currentToken ,
+					   int state);
 
 private:
   MMB * mmb;
@@ -38,11 +41,6 @@ private:
   //Addresses
   CommandReturn::status Addresses(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
   CommandReturn::status TestUDP(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
-
-  std::string autoComplete_MMBAddressTable(std::vector<std::string> const & line,std::string const & currentToken ,int state);
-  std::string autoComplete_MMBTables(std::vector<std::string> const & line,std::string const & currentToken ,int state);
-
-
 };
   RegisterDevice(MMBDevice,
 		 "MMB",

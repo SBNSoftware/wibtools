@@ -2,8 +2,11 @@
 #include <WIBException.hh>
 #include <BNL_UDP_Exception.hh>
 
-WIBBase::WIBBase(std::string const & address, std::string const & WIBAddressTable, std::string const & FEMBAddressTable):
-  wib(NULL), FEMBReadSleepTime(0.01), FEMBWriteSleepTime(0.01) {
+WIBBase::WIBBase(std::string const & address, 
+		 std::string const & WIBAddressTable, 
+		 std::string const & FEMBAddressTable):
+  wib(NULL), FEMBReadSleepTime(0.01), FEMBWriteSleepTime(0.01) 
+{
   //Make sure all pointers and NULL before any allocation
 
   for(size_t iFEMB = 0; iFEMB < FEMB_COUNT;iFEMB++){

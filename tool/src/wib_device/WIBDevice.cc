@@ -17,7 +17,7 @@ WIBTool::WIBDevice::WIBDevice(std::vector<std::string> arg)
       WIBTable = arg[1];
     }else{
       //default
-      WIBTable = "WIB.adt";
+      WIBTable = "WIB_SBND_REGS.adt";
     }
 
     //Set WIB address table
@@ -26,7 +26,7 @@ WIBTool::WIBDevice::WIBDevice(std::vector<std::string> arg)
       FEMBTable = arg[2];
     }else{
       //default
-      FEMBTable = "FEMB.adt";
+      FEMBTable = "SBND_FEMB.adt";
     }
 
 

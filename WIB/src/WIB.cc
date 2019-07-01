@@ -15,7 +15,7 @@ WIB::WIB(std::string const & address, std::string const & WIBAddressTable, std::
   {
     // Turn on write acknowledgments
     wib->SetWriteAck(false);
-    Write("SBND.UDP_EN_WR_RDBK", 1);
+    Write("UDP_EN_WR_RDBK", 1);
     wib->SetWriteAck(true);
     //Figure out what kind of WIB firmware we are dealing with
     //FEMBCount = Read("SYSTEM.FEMB_COUNT");
@@ -193,15 +193,15 @@ void WIB::ResetWIB(bool reset_udp){
   usleep(10000);
   
   //Set clock settings
-  Write("DTS.CMD_COUNT_RESET", 0xFFFFFFFF);
-  Write("DTS.CMD_COUNT_RESET", 0);
+  //Write("DTS.CMD_COUNT_RESET", 0xFFFFFFFF);
+  //Write("DTS.CMD_COUNT_RESET", 0);
   
   //Halt signals
-  Write("DTS.CONVERT_CONTROL.HALT", 1);
-  Write("DTS.CONVERT_CONTROL.ENABLE", 0);
+  //Write("DTS.CONVERT_CONTROL.HALT", 1);
+  //Write("DTS.CONVERT_CONTROL.ENABLE", 0);
 
   //Make sure DC/DC is on
-  Write("POWER.ENABLE.MASTER_BIAS",1);
+  //Write("POWER.ENABLE.MASTER_BIAS",1);
 }
 
 void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSsource, uint32_t PDTSAlignment_timeout){
@@ -463,14 +463,14 @@ void WIB::StartStreamToDAQ(){
 }
 
 void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
-  std::string reg = "SBND.PWR_EN_BRD";
+  std::string reg = "PWR_EN_BRD";
   reg.push_back(GetFEMBChar(iFEMB));
   if(turnOn){
     Write (reg,  0xFFFFFFF );  
-    //if( reg == "SBND.PWR_EN_BRD0" ) Write (reg,  0x21000F); 
-    //if( reg == "SBND.PWR_EN_BRD1" ) Write (reg,  0x4200F0); 
-    //if( reg == "SBND.PWR_EN_BRD2" ) Write (reg,  0x840F00); 
-    //if( reg == "SBND.PWR_EN_BRD3" ) Write (reg, 0x108F000); 
+    //if( reg == "PWR_EN_BRD0" ) Write (reg,  0x21000F); 
+    //if( reg == "PWR_EN_BRD1" ) Write (reg,  0x4200F0); 
+    //if( reg == "PWR_EN_BRD2" ) Write (reg,  0x840F00); 
+    //if( reg == "PWR_EN_BRD3" ) Write (reg, 0x108F000); 
   }else{
     Write(reg,0x0);  
   }

@@ -34,8 +34,13 @@
  *  start_frame_mode_sel: 1 to make data frame start the way BU WIB firmware expects
  *  start_frame_swap: 1 to reverse the start bits
  */
-void WIB::ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector<uint16_t> clk_phases,
-            uint8_t pls_mode, uint8_t pls_dac_val, uint8_t start_frame_mode_sel, uint8_t start_frame_swap){
+void WIB::ConfigFEMB(uint8_t iFEMB, 
+		     std::vector<uint32_t> fe_config, 
+		     std::vector<uint16_t> clk_phases,
+		     uint8_t pls_mode, 
+		     uint8_t pls_dac_val,
+		     uint8_t start_frame_mode_sel, 
+		     uint8_t start_frame_swap){
 
   if (iFEMB < 1 || iFEMB > 4)
   {

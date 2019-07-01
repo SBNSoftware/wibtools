@@ -34,6 +34,12 @@ class MMB
   void FullStart();
   AddressTable *map;
 
+  Item const * GetItem(std::string const & str)
+  { return map->GetItem(str);}
+
+  std::vector<std::string> GetNames(std::string const & regex)
+  { return map->GetNames(regex); }
+
  private:
   MMB(); //disallow the default constructor
   // Prevent copying of MMB objects
