@@ -16,15 +16,15 @@ SRC_PATH=./src
 INCLUDE_PATH=./include
 LIB_PATH=./lib
 
-#MMB CLass
-MMB_LIB=${LIB_PATH}/libMMB.so
-MMB_INCLUDE_PATH=${INCLUDE_PATH}
-MMB_SRC_PATH=${SRC_PATH}
-MMB_BUILD_PATH=${BUILD_PATH}
-CXXFLAGS +=-I${MMB_INCLUDE_PATH} -I${WIB_PREFIX}/include
+#MBB CLass
+MBB_LIB=${LIB_PATH}/libMBB.so
+MBB_INCLUDE_PATH=${INCLUDE_PATH}
+MBB_SRC_PATH=${SRC_PATH}
+MBB_BUILD_PATH=${BUILD_PATH}
+CXXFLAGS +=-I${MBB_INCLUDE_PATH} -I${WIB_PREFIX}/include
 LDFLAGS +=-lboost_regex
-MMB_SRC=$(notdir $(wildcard ${MMB_SRC_PATH}/*.cc))
-MMB_OBJ=$(patsubst %.cc,${MMB_BUILD_PATH}/%.o,${MMB_SRC})
+MBB_SRC=$(notdir $(wildcard ${MBB_SRC_PATH}/*.cc))
+MBB_OBJ=$(patsubst %.cc,${MBB_BUILD_PATH}/%.o,${MBB_SRC})
 
 #Exception class
 EXCEPTION_INCLUDE_PATH=${EXCEPTION_BASE_PREFIX}/include/
@@ -33,12 +33,12 @@ CXXFLAGS +=-I${EXCEPTION_INCLUDE_PATH}
 #LDFLAGS +=-L${EXCEPTION_LIB_PATH} 
 #LDFLAGS +=-lToolException
 
-all: ${MMB_LIB}
+all: ${MBB_LIB}
 
 debug :
-	@echo ${MMB_OBJ}
+	@echo ${MBB_OBJ}
 
-${MMB_LIB}	: ${MMB_OBJ}
+${MBB_LIB}	: ${MBB_OBJ}
 	mkdir -p $(@D)
 	${CXX} -o $@ $^ ${LDFLAGS}
 

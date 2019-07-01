@@ -1,7 +1,7 @@
 PACKAGES = \
 	exception \
 	WIB \
-	MMB \
+	MBB \
 	tool \
 	ups_package
 # The packages appear to need to be built in the order above

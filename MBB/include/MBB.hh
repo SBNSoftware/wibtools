@@ -1,5 +1,5 @@
-#ifndef __MMB_HH__
-#define __MMB_HH__
+#ifndef __MBB_HH__
+#define __MBB_HH__
 
 #include <stdint.h>
 #include <string>
@@ -17,14 +17,14 @@
 #pragma GCC diagnostic pop
 #endif
 
-class MMB
+class MBB
 {
  public:
-  MMB(std::string const & address, std::string const & MMBAddressTable = "MMB.adt", bool fullStart=true);
+  MBB(std::string const & address, std::string const & MBBAddressTable = "MBB.adt", bool fullStart=true);
 
   //initialize hardware
-  void InitializeMMB();
-  void ResetMMB(bool reset_udp=false);
+  void InitializeMBB();
+  void ResetMBB(bool reset_udp=false);
 
   // Basic I/O methods
   uint32_t Read(uint16_t address);
@@ -41,10 +41,10 @@ class MMB
   { return map->GetNames(regex); }
 
  private:
-  MMB(); //disallow the default constructor
-  // Prevent copying of MMB objects
-  MMB( const MMB& other) ; // prevents construction-copy
-  MMB& operator=( const MMB&) ; // prevents copying
+  MBB(); //disallow the default constructor
+  // Prevent copying of MBB objects
+  MBB( const MBB& other) ; // prevents construction-copy
+  MBB& operator=( const MBB&) ; // prevents copying
   bool started;
 };
 #endif

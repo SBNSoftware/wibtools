@@ -1,30 +1,30 @@
-#ifndef __MMBDEVICE_HPP__
-#define __MMBDEVICE_HPP__
+#ifndef __MBBDEVICE_HPP__
+#define __MBBDEVICE_HPP__
 
 //For tool device base class
 #include "tool/CommandList.hh"
 #include "tool/DeviceFactory.hh"
 #include "helpers/register_helper.hh"
-#include <MMB.hh>
+#include <MBB.hh>
 
 namespace WIBTool
 {
 
-class MMBDevice: public CommandList<MMBDevice>
+class MBBDevice: public CommandList<MBBDevice>
 {
 public:
-  MMBDevice(std::vector<std::string> arg);   
-  ~MMBDevice();
+  MBBDevice(std::vector<std::string> arg);   
+  ~MBBDevice();
   void LoadCommandList();
-  void PrintNames(std::vector<std::string> const & names,bool isMMB = true);
-  std::string autoComplete_MMBAddressTable(std::vector<std::string> const & line,
+  void PrintNames(std::vector<std::string> const & names,bool isMBB = true);
+  std::string autoComplete_MBBAddressTable(std::vector<std::string> const & line,
 					   std::string const & currentToken ,
 					   int state);
 
 private:
-  MMB * mmb;
+  MBB * mbb;
   std::string Address;
-  std::string MMBTable;
+  std::string MBBTable;
 
   //IO
   CommandReturn::status Read(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
@@ -42,13 +42,13 @@ private:
   CommandReturn::status Addresses(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
   CommandReturn::status TestUDP(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
 };
-  RegisterDevice(MMBDevice,
-		 "MMB",
-		 "address <MMB Address table path>",
+  RegisterDevice(MBBDevice,
+		 "MBB",
+		 "address <MBB Address table path>",
 		 "m",
-		 "MMB",
+		 "MBB",
 		 "address"
-		 ) //Register MMBDevice with the DeviceFactory  
+		 ) //Register MBBDevice with the DeviceFactory  
 
 }
 
