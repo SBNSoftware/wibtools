@@ -16,10 +16,10 @@ public:
   MBBDevice(std::vector<std::string> arg);   
   ~MBBDevice();
   void LoadCommandList();
-  void PrintNames(std::vector<std::string> const & names,bool isMBB = true);
   std::string autoComplete_MBBAddressTable(std::vector<std::string> const & line,
 					   std::string const & currentToken ,
 					   int state);
+  void PrintNames(std::vector<std::string> const & names);
 
 private:
   MBB * mbb;
