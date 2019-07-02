@@ -8,3 +8,5 @@ tool/lib/*
 tool/obj/*
 MBB/build/*
 MBB/lib/*
+*.log
+
