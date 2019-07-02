@@ -9,4 +9,6 @@ tool/obj/*
 MBB/build/*
 MBB/lib/*
 *.log
+ups_package/wibtools/*
+
 
