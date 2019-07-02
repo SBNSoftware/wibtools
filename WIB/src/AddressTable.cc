@@ -7,7 +7,10 @@
 #include <boost/algorithm/string/case_conv.hpp> //to_upper
 
 
-AddressTable::AddressTable(std::string const & addressTableName, std::string const & deviceAddress,uint16_t offset){
+AddressTable::AddressTable(std::string const & addressTableName, 
+			   std::string const & deviceAddress,
+			   uint16_t offset)
+{
   fileLevel = 0;
   io = new BNL_UDP;
   io->Setup(deviceAddress,offset);

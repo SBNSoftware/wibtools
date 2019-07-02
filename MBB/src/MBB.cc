@@ -10,6 +10,7 @@ MBB::MBB(std::string const & address,
 	 bool fullStart): started(false)
 {
   map = new AddressTable(MBBAddressTable,address,0);
+  map->SetWriteAck(false); // Write ack will be awailable in future firmware versions
   if(fullStart)
   {
     FullStart();

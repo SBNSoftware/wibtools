@@ -6,7 +6,7 @@ using namespace std;
 WIBTool::MBBDevice::MBBDevice(std::vector<std::string> arg)
   : CommandList<MBBDevice>("MBB"),mbb(NULL)
 {    
-  //LoadCommandList();
+  LoadCommandList();
   if (arg.size() < 1)
   {
     //MBBException::DEVICE_CREATION_ERROR e;
