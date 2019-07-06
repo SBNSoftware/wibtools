@@ -124,7 +124,7 @@ ${LIBRARY_HELPERS}: ${LIBRARY_HELPERS_OBJECT_FILES}
 
 ${LIBRARY_HELPERS_OBJECT_FILES}: obj/%.o : src/%.cc 
 	mkdir -p $(dir $@)
-	g++ ${CPP_FLAGS} ${UHAL_CPP_FLAGHS} -c $< -o $@
+	g++ ${CPP_FLAGS} -c $< -o $@
 
 # ------------------------
 # WIBDevice library

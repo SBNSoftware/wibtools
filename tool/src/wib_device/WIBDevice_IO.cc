@@ -330,7 +330,8 @@ CommandReturn::status WIBTool::WIBDevice::Write(std::vector<std::string> strArg,
 }
 
 
-void WIBTool::WIBDevice::PrintNames(std::vector<std::string> const & names,bool isWIB){
+void WIBTool::WIBDevice::PrintNames(std::vector<std::string> const & names,bool isWIB)
+{
   printf("Found %zd names\n",names.size());
   printf("  Name                                                        address         mask              mode\n");
   for(std::vector<std::string>::const_iterator name = names.begin();

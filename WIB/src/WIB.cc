@@ -465,8 +465,14 @@ void WIB::StartStreamToDAQ(){
 void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
   std::string reg = "PWR_EN_BRD";
   reg.push_back(GetFEMBChar(iFEMB));
+  std::cout<<"FEMBPower: register string "<<reg<<"    turnOn: "<<turnOn<<"\n";
+
+  // Read the item and get its bit mask 
+  const Item *g = GetItem(reg);
+  std::cout<<"Mask: "<<std::hex<<g->mask<<std::dec<<"\n";
+
   if(turnOn){
-    Write (reg,  0xFFFFFFF );  
+    Write(reg, g->mask);
     //if( reg == "PWR_EN_BRD0" ) Write (reg,  0x21000F); 
     //if( reg == "PWR_EN_BRD1" ) Write (reg,  0x4200F0); 
     //if( reg == "PWR_EN_BRD2" ) Write (reg,  0x840F00); 
@@ -474,6 +480,9 @@ void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
   }else{
     Write(reg,0x0);  
   }
+
+  // Verify that it's been turned on/off
+  std::cout<<"Read("<<reg<<") = "<<std::hex<<Read(reg)<<std::dec<<"\n";
 }
 
 //void WIB::PowerOnFEMB(uint8_t iFEMB){

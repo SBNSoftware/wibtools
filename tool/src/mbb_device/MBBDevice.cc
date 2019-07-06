@@ -104,12 +104,57 @@ std::string WIBTool::MBBDevice::autoComplete_MBBAddressTable(std::vector<std::st
   return std::string("");
 }
 
+void WIBTool::MBBDevice::PrintNames(std::vector<std::string> const & names)
+{
+  printf("Found %zd names\n",names.size());
+  printf("  Name                                                        address         mask              mode\n");
+  for(std::vector<std::string>::const_iterator name = names.begin();
+      name != names.end();
+      name++)
+  {
+    Item const * item = mbb->GetItem(*name);      
+
+    printf("  %-58s (address: 0x%04LX  mask: 0x%08LX)", name->c_str(),
+	   (long long unsigned int)item->address,
+	   (long long unsigned int)item->mask);
+    std::string mode;
+    if(item->mode & Item::READ)  {mode+="r";}
+    if(item->mode & Item::WRITE) {mode+="w";}
+    if(item->mode & Item::ACTION){mode+="a";}
+    printf(" %-3s\n",mode.c_str());
+
+    //print description (if there is only one entry in names)
+    if((names.size() == 1) && (item->user.find("description") != item->user.end()))
+    {
+      std::string description = item->user.find("description")->second; 
+      printf("    Description:   ");
+      boost::char_separator<char> sep("\n");
+      boost::tokenizer<boost::char_separator<char> > tokens(description, sep);
+      boost::tokenizer<boost::char_separator<char> >::iterator it = tokens.begin();
+      if(it != tokens.end())
+      {
+	printf("%s\n",(*it).c_str());
+	it++;
+      }
+      for ( ;it != tokens.end();++it)
+      {
+	printf("        %s\n",(*it).c_str());
+      }       
+    }
+  }
+}
+
+
 CommandReturn::status WIBTool::MBBDevice::Names(std::vector<std::string> strArg,
 						std::vector<uint64_t> intArg)
 {
-  std::cout << intArg.size() << std::endl;
-  std::cout << strArg.size() << std::endl;
-  return CommandReturn::OK;
+  (void) intArg; // to make compiler not complain about unused args
+  if(strArg.size() > 0)
+  {
+    PrintNames(mbb->GetNames(strArg[0]));
+    return CommandReturn::OK;
+  }
+  return CommandReturn::BAD_ARGS;
 }
 
 CommandReturn::status WIBTool::MBBDevice::Read(std::vector<std::string> strArg,
