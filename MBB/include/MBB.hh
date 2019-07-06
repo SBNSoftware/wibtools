@@ -25,7 +25,7 @@ class MBB
   //initialize hardware
   void InitializeMBB();
   void ResetMBB(bool reset_udp=false);
-
+  void ConfigMBB();
   // Basic I/O methods
   uint32_t Read(uint16_t address);
   uint32_t Read(std::string const & address);

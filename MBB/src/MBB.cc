@@ -51,3 +51,25 @@ void MBB::InitializeMBB()
 void MBB::ResetMBB(bool reset_udp)
 {
 }
+
+
+//MBB defaults to send the correct signals to the WIBs on power up.
+ 
+void MBB::ConfigMBB()
+
+{
+
+   Write("PTC_DATA_ADDRESS", 1);
+    
+   for (uint8_t bit_value=1; bit_value < 5; bit_value++)
+      {
+       Write("PTC_CRATE_ADDRESS", bit_value);
+       Write("PTC_DATA", 0);
+       Write("PTC_WR_REG", 0);
+       sleep(1);
+       Write("PTC_WR_REG", 1);
+       sleep(1);
+       Write("PTC_WR_REG", 0);
+      }
+
+}
