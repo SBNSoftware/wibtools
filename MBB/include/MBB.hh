@@ -25,7 +25,11 @@ class MBB
   //initialize hardware
   void InitializeMBB();
   void ResetMBB(bool reset_udp=false);
-  void ConfigMBB();
+
+  void WritePTC(uint8_t icrate, uint16_t address, uint32_t value);
+  void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
+  void ConfigPTC(uint8_t icrate);
+  void ConfigAllPTCs(uint8_t icrate);
   // Basic I/O methods
   uint32_t Read(uint16_t address);
   uint32_t Read(std::string const & address);
