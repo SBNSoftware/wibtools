@@ -1,6 +1,6 @@
 #ifndef __MBB_HH__
 #define __MBB_HH__
-
+#define CRATE_COUNT 4
 #include <stdint.h>
 #include <string>
 #include <AddressTable.hh>
@@ -29,7 +29,7 @@ class MBB
   void WritePTC(uint8_t icrate, uint16_t address, uint32_t value);
   void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
   void ConfigPTC(uint8_t icrate);
-  void ConfigAllPTCs(uint8_t icrate);
+  void ConfigAllPTCs();
   // Basic I/O methods
   uint32_t Read(uint16_t address);
   uint32_t Read(std::string const & address);
