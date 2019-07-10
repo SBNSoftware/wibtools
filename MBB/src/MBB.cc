@@ -3,7 +3,7 @@
 #include <stdio.h> //snprintf
 #include <iostream>
 #include <MBBException.hh>
-
+#include <unistd.h>
 
 MBB::MBB(std::string const & address, 
 	 std::string const & MBBAddressTable, 
@@ -41,9 +41,10 @@ void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value)
 {
   //map->WritePTC(icrate,address,value)
 }
+
 void MBB::WritePTC(uint8_t icrate, std::string const & address, uint32_t value)
 {
-  //map->WritePTC(icrate,address,velue)
+  //map->WritePTC(icrate,address,value)
 }
 
 void MBB::FullStart()
