@@ -1,7 +1,7 @@
 #ifndef __MBB_EXCEPTION_HH__
 #define __MBB_EXCEPTION_HH__ 1
 
-#include <MBBException/ExceptionBase.hh>
+#include <WIBException/ExceptionBase.hh>
 
 namespace MBBException
 {       
