@@ -37,16 +37,6 @@ void MBB::Write(std::string const & address,uint32_t value)
   map->Write(address,value);    
 }
 
-void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value)
-{
-  //map->WritePTC(icrate,address,value)
-}
-
-void MBB::WritePTC(uint8_t icrate, std::string const & address, uint32_t value)
-{
-  //map->WritePTC(icrate,address,value)
-}
-
 void MBB::FullStart()
 {
   started = true;
@@ -62,17 +52,19 @@ void MBB::ResetMBB(bool reset_udp)
 {
 }
 
-
-
-// to get the desired mask for PTC_DATA
-/*void MBB::MBBPower(uint8_t icrate,bool turnOn)
-  {
-  std::string reg = "PTC_DATA";
-  reg.push_back(MBBChar(icrate));
-  std::cout<<"MBBPower: register string "<<reg<<"    turnOn: "<<turnOn<<"\n";
-  }
-*/
 //MBB defaults to send the correct signals to the WIBs on power up.
+void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value)
+{
+  Write("PTC_CRATE_ADDRESS", icrate);
+  Write("PTC_DATA_ADDRESS", address);
+  Write("PTC_DATA", value);
+  Write("PTC_WR_REG", 0);
+  usleep(1000);
+  Write("PTC_WR_REG", 1);
+  usleep(1000);
+  Write("PTC_WR_REG", 0);
+}
+
 void MBB::ConfigPTC(uint8_t icrate)
   {
     if (icrate < 1 || icrate > CRATE_COUNT)
@@ -84,41 +76,20 @@ void MBB::ConfigPTC(uint8_t icrate)
 	e.Append(expstr.str().c_str());
 	throw e;
        }
-
-    WritePTC(icrate, "PTC_DATA_ADDRESS", 0x2);
-    
-    WritePTC(icrate, "PTC_CRATE_ADDRESS", 0x2);
-    
-    /*getting the bitmask from PTC_DATA
-        const Item *g = GetItem(reg);
-	std::cout<<"Mask: "<<std::hex<<g->mask<<std::dec<<"\n";
-        
-
-          if(turnOn)
-	   {
-	    WritePTC(icrate, "PTC_DATA", g->mask);           
-           }
-          
-         else
-           {
-	    WritePTC(icrate,"PTC_DATA",0x0);
-	   }
-    */
-    WritePTC(icrate, "PTC_WR_REG", 0);
-    usleep(1000);
-    WritePTC(icrate, "PTC_WR_REG", 1);
-    usleep(1000);
-    WritePTC(icrate, "PTC_WR_REG", 0);
-      
-  
+    // to get the bitmask for PTC_DATA (more subtelities can be added to throw errors! analogous to FEMBPower!)
+    std::string reg = "PTC_DATA";
+    const Item *g = GetItem(reg);
+    std::cout<<"Mask: "<<std::hex<<g->mask<<std::dec<<"\n";
+    // include the turnOn case like FEMBPower?
+    // the bitmask is passed as an integer argument in WritePTC()
+    WritePTC(icrate, 0x2, g->mask);
+   
   }
 
 void MBB::ConfigAllPTCs()
-
    {
       for(uint8_t icrate=1; icrate <= CRATE_COUNT; icrate++)
       {
 	ConfigPTC(icrate); 
       }
-   
    }
