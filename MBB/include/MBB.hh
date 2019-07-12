@@ -15,7 +15,9 @@ class MBB
   //initialize hardware
   void InitializeMBB();
   void ResetMBB(bool reset_udp=false);
-  void MBBPower(uint8_t icrate,bool turnOn);
+
+  //PTC 
+  void WIBPower(uint8_t icrate,bool turnOn); //to be used to extract bit mask for PTC_DATA
   void WritePTC(uint8_t icrate, uint16_t address, uint32_t value);
   void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
   void ConfigPTC(uint8_t icrate);
