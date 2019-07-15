@@ -41,6 +41,11 @@ private:
   //Addresses
   CommandReturn::status Addresses(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
   CommandReturn::status TestUDP(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+
+  //PTC
+  CommandReturn::status ConfigPTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status ConfigAllPTCs(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status WritePTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
 };
   RegisterDevice(MBBDevice,
 		 "MBB",

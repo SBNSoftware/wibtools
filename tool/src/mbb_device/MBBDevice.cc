@@ -63,6 +63,26 @@ void WIBTool::MBBDevice::LoadCommandList()
 	     &MBBDevice::autoComplete_MBBAddressTable);
   AddCommandAlias("nodes","names");
 
+  AddCommand("configPTC",&MBBDevice::ConfigPTC,
+             "Configure one PTC \n"              \
+             "  Usage:\n"                        \
+             "  configPTC <crate_number 1...4>\n",
+             &MBBDevice::autoComplete_MBBAddressTable);
+  //AddCommandAlias("","");
+
+  AddCommand("configAllPTCs",&MBBDevice::ConfigAllPTCs,
+             "Configure All PTCs\n"              \
+             "  Usage:\n"                        \
+             "  configAllPTCs <>\n",
+             &MBBDevice::autoComplete_MBBAddressTable);
+  //AddCommandAlias("",""); 
+
+  AddCommand("writePTC",&MBBDevice::WritePTC,
+             "Write to PTC\n"                    \
+             "  Usage:\n"                        \
+             "  writePTC <crate_number 1...4> <address> <value>\n",
+             &MBBDevice::autoComplete_MBBAddressTable);
+  //AddCommandAlias("","");
 }
 
 std::string WIBTool::MBBDevice::autoComplete_MBBAddressTable(std::vector<std::string> const & line,
@@ -211,3 +231,56 @@ CommandReturn::status WIBTool::MBBDevice::Write(std::vector<std::string> strArg,
   return CommandReturn::BAD_ARGS;
 }
 
+CommandReturn::status WIBTool::MBBDevice::ConfigPTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg)
+
+{
+  (void) strArg; // to make compiler not complain about unused args
+  if(intArg.size() == 1)
+    {
+      //crate number is first and only argument
+      mbb->ConfigPTC(intArg[0]);
+
+      return CommandReturn::OK;
+    }
+  return CommandReturn::BAD_ARGS;
+}
+
+
+CommandReturn::status WIBTool::MBBDevice::ConfigAllPTCs(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
+
+{
+  (void) strArg; // to make compiler not complain about unused args 
+  if(intArg.size() == 0)
+    {
+      //NO argument                                   
+      mbb->ConfigAllPTCs();
+
+      return CommandReturn::OK;
+    }
+  return CommandReturn::BAD_ARGS;
+}
+
+CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
+{
+  if(intArg.size() == 3)
+    {
+      //A check can be introduced to keep the crate number in between 1-4 and to throw error otherwise.
+      //Check if the argument is a numerical address or string                             
+      if(isdigit(strArg[1][0]))
+	{
+	  //numeric                                                                          
+	  mbb->WritePTC(intArg[0],intArg[1],intArg[2]);
+	  //printf("0x%08  0x%04  0x%08\n",intArg[0],intArg[1],intArg[2]);                                    
+	  //printf("0x%08LX  0x%04LX:  0x%08LX\n",(long long unsigned int)intArg[0], (long long unsigned int)intArg[1], (long long unsigned int)intArg[2]);
+	}
+      else
+	{
+	  //string                                                                           
+	  mbb->WritePTC(intArg[0],strArg[1],intArg[2]);
+	  //printf("0x%08  %s 0x%08\n",intArg[0],strArg[1].c_str(),intArg[2]);                                
+	  //printf("0x%08LX  %s 0x%08LX\n",(long long unsigned int)intArg[0], strArg[1].c_str(),(long long unsigned int)intArg[2]);
+	}
+      return CommandReturn::OK;
+    }
+  return CommandReturn::BAD_ARGS;
+}
