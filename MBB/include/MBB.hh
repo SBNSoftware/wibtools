@@ -5,17 +5,7 @@
 #include <string>
 #include <AddressTable.hh>
 
-// Keeps artDAQ from complaining about __int128
-// not being in C++ standard
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif
 
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
 class MBB
 {
