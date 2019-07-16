@@ -264,7 +264,12 @@ CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strA
 {
   if(intArg.size() == 3)
     {
-      //A check can be introduced to keep the crate number in between 1-4 and to throw error otherwise.
+     //check for CRATE
+       if((0 >= intArg[0]) && (4 < intArg[0]))
+          {
+	   printf("Bad CRATE#: %02LX",(long long unsigned int)intArg[0]);
+	   return CommandReturn::OK;
+          }
       //Check if the argument is a numerical address or string                             
       if(isdigit(strArg[1][0]))
 	{
