@@ -270,15 +270,15 @@ CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strA
 	{
 	  //numeric                                                                          
 	  mbb->WritePTC(intArg[0],intArg[1],intArg[2]);
-	  //printf("0x%08  0x%04  0x%08\n",intArg[0],intArg[1],intArg[2]);                                    
-	  //printf("0x%08LX  0x%04LX:  0x%08LX\n",(long long unsigned int)intArg[0], (long long unsigned int)intArg[1], (long long unsigned int)intArg[2]);
+	  // printf("%02  0x%04  0x%08\n",intArg[0],intArg[1],intArg[2]);                                    
+	  printf("CRATE%02LX  0x%04LX:  0x%08LX\n",(long long unsigned int)intArg[0], (long long unsigned int)intArg[1], (long long unsigned int)intArg[2]);
 	}
       else
 	{
 	  //string                                                                           
 	  mbb->WritePTC(intArg[0],strArg[1],intArg[2]);
-	  //printf("0x%08  %s 0x%08\n",intArg[0],strArg[1].c_str(),intArg[2]);                                
-	  //printf("0x%08LX  %s 0x%08LX\n",(long long unsigned int)intArg[0], strArg[1].c_str(),(long long unsigned int)intArg[2]);
+	  //printf("%02  %s 0x%08\n",intArg[0],strArg[1].c_str(),intArg[2]);                                
+	  printf("CRATE%02LX  %s 0x%08LX\n",(long long unsigned int)intArg[0], strArg[1].c_str(),(long long unsigned int)intArg[2]);
 	}
       return CommandReturn::OK;
     }
