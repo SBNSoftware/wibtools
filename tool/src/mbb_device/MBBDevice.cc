@@ -276,8 +276,9 @@ CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strA
       else
 	{
 	  //string                                                                           
-	  mbb->WritePTC(intArg[0],strArg[1],intArg[2]);
+	  //mbb->WritePTC(intArg[0],strArg[1],intArg[2]);
 	  //printf("%02  %s 0x%08\n",intArg[0],strArg[1].c_str(),intArg[2]);                                
+	  printf("No PTC map available\n");
 	  printf("CRATE%02LX  %s 0x%08LX\n",(long long unsigned int)intArg[0], strArg[1].c_str(),(long long unsigned int)intArg[2]);
 	}
       return CommandReturn::OK;

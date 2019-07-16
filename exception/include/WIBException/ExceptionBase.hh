@@ -22,8 +22,8 @@
 //abi demangling
 #include <cxxabi.h>
 
-namespace WIBException{
-        
+namespace WIBException
+{        
   //Macro for derived exception classes
 #define ExceptionClassGenerator( ClassName , ClassDescription )	\
   class ClassName : public WIBException::exBase {		\
@@ -44,7 +44,8 @@ namespace WIBException{
   };
     
     
-  class exBase : public std::exception {
+  class exBase : public std::exception 
+  {
   public:
     //destructor
     virtual ~exBase() throw();
