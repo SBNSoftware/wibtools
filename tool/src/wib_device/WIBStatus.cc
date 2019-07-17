@@ -92,7 +92,7 @@ void WIBTool::WIBStatus::Process(std::string const & singleTable){
 
   //Build FEMB tables
   for(uint8_t iFEMB = 1; iFEMB <= 4;iFEMB++){    
-    std::string regName("POWER.ENABLE.FEMB");        
+    std::string regName("PWR_EN_BRD"); 
     regName.append(1,'0' +iFEMB);
     //Only look at FEMBs that are powered up
     if(0x1F == wib->Read(regName)){
