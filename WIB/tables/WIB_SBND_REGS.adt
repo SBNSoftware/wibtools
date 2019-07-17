@@ -1,4 +1,3 @@
-MBB     0x0    MBB.adt
 FEMB     0x0    SBND_FEMB.adt
 GLB_i_RESET                                                                             0x00        0x1         W   description="Global reset, auto clears"
 REG_RESET                                                                               0x00        0x2         W   description="Register reset, auto clear
