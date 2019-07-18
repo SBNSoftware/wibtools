@@ -462,27 +462,35 @@ void WIB::StartStreamToDAQ(){
   Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
 }
 
+
 void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
+  
   std::string reg = "PWR_EN_BRD";
   reg.push_back(GetFEMBChar(iFEMB));
-  std::cout<<"FEMBPower: register string "<<reg<<"    turnOn: "<<turnOn<<"\n";
-
-  // Read the item and get its bit mask 
   const Item *g = GetItem(reg);
-  std::cout<<"Mask: "<<std::hex<<g->mask<<std::dec<<"\n";
-
+  
+  std::cout<<"  Before: reg "<<g->address<<" = "<<std::hex<<Read(g->address)<<std::dec<<"\n";
+  
   if(turnOn){
-    Write(reg, g->mask);
-    //if( reg == "PWR_EN_BRD0" ) Write (reg,  0x21000F); 
-    //if( reg == "PWR_EN_BRD1" ) Write (reg,  0x4200F0); 
-    //if( reg == "PWR_EN_BRD2" ) Write (reg,  0x840F00); 
-    //if( reg == "PWR_EN_BRD3" ) Write (reg, 0x108F000); 
+    // if turning on, life is easy
+    Write(reg, 0xFFFFFFFF);
   }else{
-    Write(reg,0x0);  
+    // if turning off, keep in mind other boards might still be on, 
+    // so only turn off the bits unique to *this* board while keeping
+    // the common CLK_IN bit on (this enables the 5V supply)
+    uint32_t mask     = Read(g->address); // current bit pattern
+    uint32_t maskCom  = GetItem("PWR_CLK_IN_1")->mask;
+    uint32_t maskBrd  = g->mask;
+    maskBrd &= ~(maskCom);
+    mask &= ~(maskBrd);
+    // if this is the last board we're turning off, switch off the CLK_IN bit
+    if( (mask & 0xFFFF) == 0x0 ) mask &= ~(maskCom);
+    Write(g->address,mask);
   }
 
-  // Verify that it's been turned on/off
-  std::cout<<"Read("<<reg<<") = "<<std::hex<<Read(reg)<<std::dec<<"\n";
+  // verify that it's been turned on/off
+  std::cout<<"  After : reg "<<g->address<<" = "<<std::hex<<Read(g->address)<<std::dec<<"\n";
+
 }
 
 //void WIB::PowerOnFEMB(uint8_t iFEMB){
