@@ -468,8 +468,10 @@ void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
   std::string reg = "PWR_EN_BRD";
   reg.push_back(GetFEMBChar(iFEMB));
   const Item *g = GetItem(reg);
-  
-  std::cout<<"  Before: reg "<<g->address<<" = "<<std::hex<<Read(g->address)<<std::dec<<"\n";
+ 
+  std::cout
+  <<"  "<<reg<<" ("<<std::hex<<g->mask<<std::dec<<")\n" 
+  <<"  Before: reg "<<g->address<<" = "<<std::hex<<Read(g->address)<<std::dec<<"\n";
   
   if(turnOn){
     // if turning on, life is easy
@@ -483,7 +485,8 @@ void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
     uint32_t maskBrd  = g->mask;
     maskBrd &= ~(maskCom);
     mask &= ~(maskBrd);
-    // if this is the last board we're turning off, switch off the CLK_IN bit
+    // if this is the last board we're turning off, switch off the CLK_IN bit.
+    // we can tell this is the case if all 16 lower bits are 0.
     if( (mask & 0xFFFF) == 0x0 ) mask &= ~(maskCom);
     Write(g->address,mask);
   }
