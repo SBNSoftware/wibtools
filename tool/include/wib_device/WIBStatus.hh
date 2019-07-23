@@ -25,11 +25,15 @@ namespace WIBTool{
     void ProcessFEMB(uint8_t iFEMB);
     WIB * wib;
 
+    double MeasureTemp(uint32_t in);
+    //double ConvertV(uint32_t in);
+    //double ConvertC(uint32_t in);
+
     int   FEMB_PWR[FEMB_COUNT];   // 0=off, 1=on
-    float FEMB_TEMP[FEMB_COUNT];  // C
-    float FEMB_VCC[FEMB_COUNT];   // V
-    float FEMB_V[FEMB_COUNT][6];  // mV
-    float FEMB_C[FEMB_COUNT][6];  // mV
+    double FEMB_TEMP[FEMB_COUNT];  // C
+    double FEMB_VCC[FEMB_COUNT];   // V
+    double FEMB_V[FEMB_COUNT][6];  // mV
+    double FEMB_C[FEMB_COUNT][6];  // mV
   };
 
 }
