@@ -32,8 +32,8 @@ namespace WIBTool{
     int   FEMB_PWR[FEMB_COUNT];   // 0=off, 1=on
     double FEMB_TEMP[FEMB_COUNT];  // C
     double FEMB_VCC[FEMB_COUNT];   // V
-    double FEMB_V[FEMB_COUNT][6];  // mV
-    double FEMB_C[FEMB_COUNT][6];  // mV
+    double FEMB_V[FEMB_COUNT][6];  // V
+    double FEMB_C[FEMB_COUNT][6];  // mA
   };
 
 }

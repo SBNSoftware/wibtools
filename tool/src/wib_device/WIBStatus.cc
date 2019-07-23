@@ -43,11 +43,13 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
   wib->Write("PWR_MES_START",0x0);
   wib->Write("PWR_MES_START",0x1);
 
+  /*
   std::cout<<"\nGetting Vcc and Temp for board "<<int(FEMB)<<":\n";
   std::cout<<"  setting reg 5: "<<std::hex<<wib->Read(0x05)<<std::dec<<"\n";
   std::cout<<"  reading reg 6: "<<std::hex<<wib->Read(0x06)<<std::dec<<"\n";
   std::cout<<"  - upper bits : "<<wib->Read("PWR_MES_OUT_V")<<"\n";
   std::cout<<"  - lower bits : "<<wib->Read("PWR_MES_OUT_C_TEMP")<<"\n";
+  */
 
   // get temperature measurement by taking 10 reads and 
   // throwing out the obvious wrong ones (> ~500) 
@@ -81,18 +83,25 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
     wib->Write(pwrMesSel,wib->GetItem(sel)->mask);
     wib->Write("PWR_MES_START",0x0);
     wib->Write("PWR_MES_START",0x1);
+    /*
     std::cout<<"Getting V/C "<<i+1<<" ("<<sel<<")\n";
     std::cout<<"  setting reg 5: "<<std::hex<<wib->Read(0x05)<<std::dec<<"\n";
     std::cout<<"  reading reg 6: "<<std::hex<<wib->Read(0x06)<<std::dec<<"\n";
     std::cout<<"  - upper bits : "<<wib->Read("PWR_MES_OUT_V")<<"\n";
     std::cout<<"  - lower bits : "<<wib->Read("PWR_MES_OUT_C_TEMP")<<"\n";
-    
-    FEMB_V[iFEMB][i]=wib->Read("PWR_MES_OUT_V") * 3.0518/10.;
-    if( iv==3 ) {
-      FEMB_C[iFEMB][i]=wib->Read("PWR_MES_OUT_C_TEMP") * 1.9075;
-    } else {
-      FEMB_C[iFEMB][i]=wib->Read("PWR_MES_OUT_C_TEMP") * 190.75;
-    }
+    */
+
+    // zero out bit 0x2000 to ignore signed component
+    //uint32_t readout_u = (~0x2000 & wib->Read("PWR_MES_OUT_V"));
+    //uint32_t readout_l = (~0x2000 & wib->Read("PWR_MES_OUT_C_TEMP"));
+    uint32_t readout_u = (wib->Read("PWR_MES_OUT_V"));
+    uint32_t readout_l = (wib->Read("PWR_MES_OUT_C_TEMP"));
+    FEMB_V[iFEMB][i]  = readout_u * 3.0518/10. * 1e-3; // convert mV to V
+    if( iv==3 ) FEMB_C[iFEMB][i]=readout_l * 1.9075; // already in mA
+    else        FEMB_C[iFEMB][i]=readout_l * 190.75 * 1e-3; // convert uA to mA
+   
+    // check for high values, indicating negative bit is set
+    if( FEMB_C[iFEMB][i] > 3000. ) FEMB_C[iFEMB][i] = 0.; 
   }
 
   /*
@@ -175,9 +184,8 @@ void WIBTool::WIBStatus::Process(std::string const & singleTable){
   printf("%13s","Vcc [V]");       for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%13.3f",FEMB_VCC[i]);   printf("\n");
   for(int iv=0; iv<6; iv++){
     sprintf(label,"V%d  [V]",iv+1);
-    printf("%13s",label);        for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%13.3f",FEMB_V[i][iv]*1e-3); printf("\n");
-    if( iv+1==3 )  sprintf(label,"C%d [mA]",iv+1);
-    else          sprintf(label,"C%d [uA]",iv+1);
+    printf("%13s",label);        for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%13.3f",FEMB_V[i][iv]); printf("\n");
+    sprintf(label,"C%d [mA]",iv+1);
     printf("%13s",label);        for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%13.3f",FEMB_C[i][iv]); printf("\n");
   }
 
