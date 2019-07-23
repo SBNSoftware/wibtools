@@ -1,14 +1,15 @@
 #include <wib_device/WIBStatus.hh>
 
 void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){  
+ 
+  // Conversions from Jack: 
+  // Vcc      = (data) * 305.18 uV + 2.5 V
+  // TEMP     = (data) * 0.0625 C
+  // V1-6     = (data) * 3.0518 mV
+  // C1-2,4-6 = (data) * 190.75 uA
+  // C3       = (data) * 1.9075 mA  
   
-  // Vcc      = _ x 305.18 uV + 2.5 V
-  // TEMP     = _ x 0.0625 C
-  // V1-6     = _ x 3.0518 mV
-  // C1-2,4-6 = _ x 190.75 uA
-  // C3       = _ x 1.9075 mA  
-  
-  int   iFEMB = FEMB-1;
+  int   iFEMB = FEMB-1; // FEMB index (0-3)
   FEMB_PWR[iFEMB]   = 0;
   FEMB_TEMP[iFEMB]  = 0;
   FEMB_VCC[iFEMB]   = 0;
@@ -17,9 +18,15 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
   regName.append(1,'0'+FEMB);
   const Item *g = wib->GetItem(regName);
 
+  // reset register
+  wib->Write(0x05,0x0);
+  //std::cout<<"Reseting register 5: "<<std::hex<<wib->Read(0x05)<<"\n";
+
   // check if board is on
   if( (g->mask & wib->Read(g->address))==g->mask ) FEMB_PWR[iFEMB]=1;
  
+  //std::cout<<regName<<" on/off: "<<FEMB_PWR[iFEMB]<<"\n";
+
   std::string pwrMesSel("PWR_MES_SEL");
   //const Item *g_sel = wib->GetItem(pwrMesSel);
   
@@ -27,13 +34,30 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
   pwrMesSelBrd.append("_BRD");
   pwrMesSelBrd.append(1,'0'+FEMB);
 
+  //std::cout<<pwrMesSelBrd<<"\n";
+  
+  // set bit 16 to enable LTC2991 CMS conversion operation
+  wib->Write("PWR_MES_START",0x1);
+
+  // turn off filter
+  wib->Write("FILTER_EN",0x0);
+
+  //std::cout<<std::hex<<wib->Read(0x05)<<std::dec<<"\n";
+
   // get temp and Vcc
   std::string sel = pwrMesSelBrd; 
   sel.append("_VCC_TEMP");
+  //std::cout<<pwrMesSelBrd<<"\n";
   wib->Write(pwrMesSel,wib->GetItem(sel)->mask);
-  wib->Write("PWR_MES_START",0x1);
-  FEMB_TEMP[iFEMB]   = wib->Read("PWR_MES_OUT_V") * 305.18e-6 + 2.5;
-  FEMB_VCC[iFEMB]  = wib->Read("PWR_MES_OUT_C_TEMP") * 0.0625; 
+
+  //std::cout<<"\nGetting Vcc and Temp for board "<<FEMB<<"\n";
+  //std::cout<<"  setting reg 5: "<<std::hex<<wib->Read(0x05)<<std::dec<<"\n";
+  //std::cout<<"  reading reg 6: "<<std::hex<<wib->Read(0x06)<<std::dec<<"\n";
+  //std::cout<<"  - upper bits : "<<wib->Read("PWR_MES_OUT_V")<<"\n";
+  //std::cout<<"  - lower bits : "<<wib->Read("PWR_MES_OUT_C_TEMP")<<"\n";
+
+  FEMB_VCC[iFEMB]   = wib->Read("PWR_MES_OUT_V") * 305.18e-6 + 2.5;
+  FEMB_TEMP[iFEMB]  = wib->Read("PWR_MES_OUT_C_TEMP") * 0.0625; 
   
   // get voltages and currents
   for(int i=0; i<6; i++){
@@ -44,6 +68,9 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
     sel.append("_");
     sel.append(1,'0'+iv);
     wib->Write(pwrMesSel,wib->GetItem(sel)->mask);
+    //std::cout<<"Getting V/C "<<i+1<<" ("<<sel<<")\n";
+    //std::cout<<"  setting reg 5: "<<std::hex<<wib->Read(0x05)<<std::dec<<"\n";
+    //std::cout<<"  reading reg 6: "<<std::hex<<wib->Read(0x06)<<std::dec<<"\n";
     FEMB_V[iFEMB][i]=wib->Read("PWR_MES_OUT_V") * 3.0518;
     if( iv==3 ) {
       FEMB_C[iFEMB][i]=wib->Read("PWR_MES_OUT_C_TEMP") * 1.9075;
@@ -114,7 +141,6 @@ void WIBTool::WIBStatus::Process(std::string const & singleTable){
  
   //Build WIB tables
   std::vector<std::string> WIBNames = wib->GetNames("*"); 
-  std::cout<<"WIBNames.size() = "<<WIBNames.size()<<"\n";
   std::cout<<singleTable<<"\n";
  
   //Build FEMB tables
@@ -126,19 +152,19 @@ void WIBTool::WIBStatus::Process(std::string const & singleTable){
   // =======================================================================================
   // Print the FEMB table
   char label[100];
-  printf("\n\n%15s","FEMB Num:"); for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%15d",i+1);             printf("\n");
-  printf("   ============");      for(uint8_t i=0;i<FEMB_COUNT;i++) printf("===============");      printf("\n");
-  printf("%15s","ON/OFF");        for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%15d",FEMB_PWR[i]);     printf("\n");
-  printf("%15s","TEMP [C]");      for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%15.2f",FEMB_TEMP[i]);  printf("\n");
-  printf("%15s","Vcc [V]");       for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%15.3f",FEMB_VCC[i]);   printf("\n");
+  printf("\n\n%12s","FEMB Num:"); for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",i+1);             printf("\n");
+  printf("   =========");      for(uint8_t i=0;i<FEMB_COUNT;i++) printf("============");      printf("\n");
+  printf("%12s","ON/OFF");        for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",FEMB_PWR[i]);     printf("\n");
+  printf("%12s","TEMP [C]");      for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12.2f",FEMB_TEMP[i]);  printf("\n");
+  printf("%12s","Vcc [V]");       for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12.3f",FEMB_VCC[i]);   printf("\n");
   for(int iv=0; iv<6; iv++){
     sprintf(label,"V%d [mV]",iv+1);
-    printf("%15s",label);        for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%15.3f",FEMB_V[i][iv]); printf("\n");
+    printf("%12s",label);        for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12.3f",FEMB_V[i][iv]); printf("\n");
   }
   for(int iv=0; iv<6; iv++){
     if( iv+1==3 )  sprintf(label,"C%d [mA]",iv+1);
     else          sprintf(label,"C%d [uA]",iv+1);
-    printf("%15s",label);        for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%15.3f",FEMB_V[i][iv]); printf("\n");
+    printf("%12s",label);        for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12.3f",FEMB_V[i][iv]); printf("\n");
   }
 
   // =======================================================================================
