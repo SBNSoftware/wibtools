@@ -1,6 +1,7 @@
 #ifndef __MBB_HH__
 #define __MBB_HH__
 #define CRATE_COUNT 4
+#define WIB_COUNT 6
 #include <stdint.h>
 #include <string>
 #include <AddressTable.hh>
@@ -36,6 +37,9 @@ class MBB
 
   std::vector<std::string> GetNames(std::string const & regex)
   { return map->GetNames(regex); }
+  
+  static const int Version; //SVN version
+  int GetSVNVersion(){return Version;}
 
  private:
   MBB(); //disallow the default constructor
