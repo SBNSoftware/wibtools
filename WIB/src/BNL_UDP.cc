@@ -474,7 +474,7 @@ uint32_t BNL_UDP::Read(uint16_t address)
     e.Append(ss.str().c_str());
     e.Append(dump_packet((uint8_t *)&packet,send_size).c_str());
     throw e;
-  }
+    }
   else if( reply_size < WIB_RPLY_PACKET_SIZE)
   {
     WIBException::BAD_REPLY e;

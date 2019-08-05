@@ -11,7 +11,7 @@ PLL_CLOCK_SELECT             0x03                      0x1 R/W  description="0 =
 PLL_RESET                    0x03                      0x2 R/W  description="Set to reset PLL -- does not auto clear"
 PTC_DATA_ADDRESS             0x04                      0xf R/W  description="(SET to 0x02)  to control WIB POWER"
 PTC_CRATE_ADDRESS            0x04                     0xf0 R/W  description="PTC Crate address:  set by PTC dipswitch\nAllows system to control each PTC\nindividually"
-PTC_DATA                     0x05                   0xffff R/W  description="Data word to be sent to PTC(\n(To control power on PTC register\n0x02\nBIT 0 = WIB 1 POWER DISABLE\nBIT 1 = WIB 2 POWER DISBALE\nBIT 2 = WIB 3 POWER DISBALE\nBIT 3 = WIB 4 POWER DISBALE\nBIT 4 = WIB 5 POWER DISBALE\nBIT 5 = WIB 6 POWER DISBALE)"
+PTC_DATA                     0x05                   0xffff R/W  description="Data word to be sent to PTC(\n(To control PTC power on PTC register 0x02\nBIT 0 = WIB 1 POWER DISABLE\nBIT 1 = WIB 2 POWER DISBALE\nBIT 2 = WIB 3 POWER DISBALE\nBIT 3 = WIB 4 POWER DISBALE\nBIT 4 = WIB 5 POWER DISBALE\nBIT 5 = WIB 6 POWER DISBALE)"
 PTC_WR_REG                   0x06                      0x1 R/W  description="Transition form 0 to 1  will  send data to the PTC"
 PULSE_SRC_SELECT             0x07                      0xf R/W  description="Select source for Calibration pulse\n0x0 =  LEMO INPUT\n0x1 = MBB internal pulse generator\n0x2-0xf = DO NOT USE\n.."
 PULSE_PERIOD                 0x08               0xffffffff R/W  description="Set the period of the MBB internal test pulse\n0 =  0ns\n1 = 10ns\n2 = 20ns\n..\n.."

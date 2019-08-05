@@ -11,11 +11,11 @@ namespace WIBTool{
   class MBBStatus: public StatusDisplay {
   public:
     MBBStatus(MBB *_mbb):mbb(NULL){ //not sure about whats happening here.
-      /*if(_mbb == NULL){
+      if(_mbb == NULL){
 	MBBException::MBB_BAD_ARGS e;
         e.Append("Bad pointer for MBB status table\n");//not sure.
         throw e;
-	}*/
+	}
       mbb = _mbb;
       SetVersion(mbb->GetSVNVersion());//not sure. WIB/include/WIBBase.hh
     }
@@ -25,11 +25,7 @@ namespace WIBTool{
     void ProcessPTC(uint8_t icrate);
     MBB * mbb;
 
-    // double MeasureTemp(uint32_t in);
-    //double ConvertV(uint32_t in);                                             
-    //double ConvertC(uint32_t in);
-
-    //Equivalents will be defined in MBBStatus.cc later. Right now PTC is just hunch.
+    
     int   CRATE_PWR[CRATE_COUNT];   // 0=off, 1=on                              
     float CRATE_PULSE_SRC[CRATE_COUNT];                                        
     float CRATE_PULSE_PERIOD[CRATE_COUNT];                                        
