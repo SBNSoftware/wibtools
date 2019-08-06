@@ -92,16 +92,25 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
     */
 
     // zero out bit 0x2000 to ignore signed component
-    //uint32_t readout_u = (~0x2000 & wib->Read("PWR_MES_OUT_V"));
-    //uint32_t readout_l = (~0x2000 & wib->Read("PWR_MES_OUT_C_TEMP"));
+    //
+    // check if bit 0x2000 is set; if so, zero out whole value
     uint32_t readout_u = (wib->Read("PWR_MES_OUT_V"));
     uint32_t readout_l = (wib->Read("PWR_MES_OUT_C_TEMP"));
+    
+    /*if( (0x2000 & readout_u) != 0x0 ) {
+      std::cout<<"Bit 0x2000 is set: "<<std::hex<<readout_u<<std::dec<<"\n";
+      readout_u = 0x0;
+    }
+    
+    if( (0x2000 & readout_l) != 0x0 ) readout_l = 0x0;
+    */
+
     FEMB_V[iFEMB][i]  = readout_u * 3.0518/10. * 1e-3; // convert mV to V
     if( iv==3 ) FEMB_C[iFEMB][i]=readout_l * 1.9075; // already in mA
     else        FEMB_C[iFEMB][i]=readout_l * 190.75 * 1e-3; // convert uA to mA
    
     // check for high values, indicating negative bit is set
-    if( FEMB_C[iFEMB][i] > 3000. ) FEMB_C[iFEMB][i] = 0.; 
+    //if( FEMB_C[iFEMB][i] > 3000. ) FEMB_C[iFEMB][i] = 0.; 
   }
 
   /*
