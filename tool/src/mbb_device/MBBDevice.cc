@@ -84,11 +84,11 @@ void WIBTool::MBBDevice::LoadCommandList()
              &MBBDevice::autoComplete_MBBAddressTable);
   //AddCommandAlias("","");
 
-  AddCommand("status",&MBBDevice::StatusDisplay,
+  /*AddCommand("status",&MBBDevice::StatusDisplay,
              "Show status display\n"    \
              "  Usage:\n"                                       \
              "  status <level> <table>\n",
-             &MBBDevice::autoComplete_MBBAddressTable);
+             &MBBDevice::autoComplete_MBBAddressTable);*/
 }
 
 std::string WIBTool::MBBDevice::autoComplete_MBBAddressTable(std::vector<std::string> const & line,
