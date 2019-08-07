@@ -33,7 +33,7 @@ namespace WIBTool{
     float CRATE_CLK_TYPE[CRATE_COUNT];
     float CRATE_CLK_STATUS[CRATE_COUNT];                                       
     float WIB_PWR[WIB_COUNT];
-    //it might be that the argument is WIB_COUNT in all. Also more parameters need to be included.                                       
+    //it might be that the argument is WIB_COUNT in all.                                       
   };
 
 }
