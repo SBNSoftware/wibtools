@@ -1,8 +1,8 @@
 #ifndef __MBB_EXCEPTION_HH__
 #define __MBB_EXCEPTION_HH__ 1
 
-#include <MBBException.hh>
-//#include <MBBException/ExceptionBase.hh>
+//#include <MBBException.hh>
+#include <MBBException/ExceptionBase.hh>
 
 namespace MBBException
 {       

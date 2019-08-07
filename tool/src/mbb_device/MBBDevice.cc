@@ -83,6 +83,12 @@ void WIBTool::MBBDevice::LoadCommandList()
              "  writePTC <crate_number 1...4> <address> <value>\n",
              &MBBDevice::autoComplete_MBBAddressTable);
   //AddCommandAlias("","");
+
+  AddCommand("status",&MBBDevice::StatusDisplay,
+             "Show status display\n"    \
+             "  Usage:\n"                                       \
+             "  status <level> <table>\n",
+             &MBBDevice::autoComplete_MBBAddressTable);
 }
 
 std::string WIBTool::MBBDevice::autoComplete_MBBAddressTable(std::vector<std::string> const & line,
@@ -290,3 +296,10 @@ CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strA
     }
   return CommandReturn::BAD_ARGS;
 }
+
+
+/*CommandReturn::status WIBTool::MBBDevice::status(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
+
+{
+}
+*/
