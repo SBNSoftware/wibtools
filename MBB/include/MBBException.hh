@@ -1,11 +1,10 @@
 #ifndef __MBB_EXCEPTION_HH__
 #define __MBB_EXCEPTION_HH__ 1
 
-//#include <MBBException.hh>
+
 #include <MBBException/ExceptionBase.hh>
 
-namespace MBBException
-{       
+namespace MBBException{       
   //Exceptions for MBB
    ExceptionClassGenerator(MBB_INDEX_OUT_OF_RANGE,"Index out of range\n")
   //  ExceptionClassGenerator(MBB_FEMB_RANGE,"MBB FEMB out of range\n")
