@@ -25,10 +25,8 @@ namespace WIBTool{
     void ProcessFEMB(uint8_t iFEMB);
     WIB * wib;
 
-    double MeasureTemp(uint32_t in);
-    //double ConvertV(uint32_t in);
-    //double ConvertC(uint32_t in);
-
+    uint32_t ConvertSignedInt(uint32_t in);
+    
     int   FEMB_PWR[FEMB_COUNT];   // 0=off, 1=on
     double FEMB_TEMP[FEMB_COUNT];  // C
     double FEMB_VCC[FEMB_COUNT];   // V
