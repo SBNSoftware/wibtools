@@ -6,7 +6,7 @@
 #include "tool/DeviceFactory.hh"
 #include "helpers/register_helper.hh"
 #include <MBB.hh>
-
+#include <helpers/StatusDisplay/StatusDisplay.hh>
 namespace WIBTool
 {
 
@@ -16,9 +16,7 @@ public:
   MBBDevice(std::vector<std::string> arg);   
   ~MBBDevice();
   void LoadCommandList();
-  std::string autoComplete_MBBAddressTable(std::vector<std::string> const & line,
-					   std::string const & currentToken ,
-					   int state);
+  std::string autoComplete_MBBAddressTable(std::vector<std::string> const & line, std::string const & currentToken , int state);
   void PrintNames(std::vector<std::string> const & names);
 
 private:
