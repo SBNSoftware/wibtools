@@ -1,5 +1,8 @@
 #include <mbb_device/MBBDevice.h>
 #include <iostream>
+#include <fstream>
+#include <time.h> //time
+#include <helpers/StatusDisplay/StatusDisplay.hh>
 
 using namespace std;
 
@@ -83,6 +86,23 @@ void WIBTool::MBBDevice::LoadCommandList()
              "  writePTC <crate_number 1...4> <address> <value>\n",
              &MBBDevice::autoComplete_MBBAddressTable);
   //AddCommandAlias("","");
+
+  /* AddCommand("status",&MBBDevice::StatusDisplay,
+             "Show status display\n"    \
+             "  Usage:\n"                                       \
+             "  status <level> <table>\n",
+             &MBBDevice::autoComplete_MBBAddressTable);
+
+   AddCommand("html-status",&MBBDevice::StatusDisplayHTML,
+             "Write status display to status.html\n"    \
+             "  Usage:\n"                                       \
+	      "  html-status <level> <table>\n");
+
+   AddCommand("file-status",&MBBDevice::StatusDisplayFILE,
+             "Write status display to status-<date>.dump\n"     \
+             "  Usage:\n"                                       \
+	     "  file-status <level> <table>\n");*/
+  
 }
 
 std::string WIBTool::MBBDevice::autoComplete_MBBAddressTable(std::vector<std::string> const & line,
@@ -290,3 +310,105 @@ CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strA
     }
   return CommandReturn::BAD_ARGS;
 }
+
+/*static bool IsNumberHelper(const std::string & str){
+  bool levelIsNumber = true;
+  for(size_t iDigit = 0; iDigit < str.size();iDigit++){
+    //Check if char is 0-9,'-',or '.'.                                     
+    levelIsNumber = levelIsNumber && (isdigit(str[iDigit]) || str[iDigit] == '-' || str[iDigit] == '.');
+  }
+  return levelIsNumber;
+  }
+
+
+CommandReturn::status WIBTool::MBBDevice::StatusDisplay(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+  //Create status display object                                           
+  MBBStatus  *stat = new MBBStatus(mbb);
+  std::ostream & stream = std::cout;
+  if(intArg.size()==0){
+    //default to level 1 display                                          
+    stat->Report(1,stream);
+  } else if(intArg.size()==1){
+    //arg 0 should be an integer                                           
+    if (IsNumberHelper(strArg[0])){
+      stat->Report(intArg[0],stream);
+    } else {
+      std::cout << "Error: \"" << strArg[0] << "\" is not a valid print level\n";
+    }
+  } else if(intArg.size() > 1){
+    //arg 0 should be an integer                                         
+    if (IsNumberHelper(strArg[0])){
+      for(size_t iTable = 1; iTable < strArg.size();iTable++){
+        stat->Report(intArg[0],stream,strArg[iTable]);
+      }
+    } else {
+      std::cout << "Error: \"" << strArg[0] << "\" is not a valid print level\n";
+    }
+  }
+  return CommandReturn::OK;
+}
+
+CommandReturn::status WIBTool::MBBDevice::StatusDisplayHTML(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+  //Create status display object                                        
+  MBBStatus * stat = new MBBStatus(mbb);
+  stat->SetHTML();
+  std::ofstream stream("status.html");
+  if(intArg.size()==0){
+    //default to level 1 display                                         
+    stat->Report(1,stream);
+  } else if(intArg.size()==1){
+    //arg 0 should be an integer                                        
+    if (IsNumberHelper(strArg[0])){
+      stat->Report(intArg[0],stream);
+    } else {
+      std::cout << "Error: \"" << strArg[0] << "\" is not a valid print level\n";
+    }
+  } else if(intArg.size() > 1){
+    //arg 0 should be an integer                                          
+    if (IsNumberHelper(strArg[0])){
+      stat->Report(intArg[0],stream,strArg[1]);
+    } else {
+      std::cout << "Error: \"" << strArg[0] << "\" is not a valid print level\n";
+    }
+  }
+  return CommandReturn::OK;
+}
+
+CommandReturn::status WIBTool::MBBDevice::StatusDisplayFILE(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+  //Create status display object                                       
+  MBBStatus * stat = new MBBStatus(mbb);
+  time_t currentTime = time(NULL);
+  const size_t filenameSize = 40;
+  char filename[filenameSize+1];
+  if( 0 == strftime(filename,filenameSize,
+                    "Status-%Y-%m-%d-%H:%M:%S-%Z.txt",
+                    localtime(&currentTime))){
+    snprintf(filename,filenameSize,"%s","Status.txt");
+  }
+  std::ofstream stream(filename);
+  if(stream.fail()){
+    return CommandReturn::BAD_ARGS;
+  }
+
+  printf("Dumping status display to %s\n",filename);
+
+  if(intArg.size()==0){
+    //default to level 1 display                                 
+    stat->Report(1,stream);
+  } else if(intArg.size()==1){
+    //arg 0 should be an integer                                         
+    if (IsNumberHelper(strArg[0])){
+      stat->Report(intArg[0],stream);
+    } else {
+      std::cout << "Error: \"" << strArg[0] << "\" is not a valid print level\n";
+    }
+  } else if(intArg.size() > 1){
+    //arg 0 should be an integer                                  
+    if (IsNumberHelper(strArg[0])){
+      stat->Report(intArg[0],stream,strArg[1]);
+    } else {
+      std::cout << "Error: \"" << strArg[0] << "\" is not a valid print level\n";
+    }
+  }
+  return CommandReturn::OK;
+  }*/

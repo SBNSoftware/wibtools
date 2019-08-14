@@ -1,6 +1,7 @@
 #ifndef __MBB_HH__
 #define __MBB_HH__
 #define CRATE_COUNT 4
+#define WIB_COUNT 6
 #include <stdint.h>
 #include <string>
 #include <AddressTable.hh>
@@ -29,13 +30,16 @@ class MBB
   void Write(uint16_t address,uint32_t value);
   void Write(std::string const & address,uint32_t value);
   void FullStart();
-  AddressTable *map;
+  AddressTable *mbb;
 
   Item const * GetItem(std::string const & str)
-  { return map->GetItem(str);}
+  { return mbb->GetItem(str);}
 
   std::vector<std::string> GetNames(std::string const & regex)
-  { return map->GetNames(regex); }
+  { return mbb->GetNames(regex); }
+  
+  static const int Version; //SVN version
+  int GetSVNVersion(){return Version;}
 
  private:
   MBB(); //disallow the default constructor

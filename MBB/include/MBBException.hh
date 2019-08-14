@@ -1,13 +1,18 @@
 #ifndef __MBB_EXCEPTION_HH__
 #define __MBB_EXCEPTION_HH__ 1
 
-#include <MBBException.hh>
-//#include <MBBException/ExceptionBase.hh>
 
-namespace MBBException
-{       
+
+#include <MBBException/ExceptionBase.hh>
+
+
+//#include <MBBException.hh>
+#include <MBBException/ExceptionBase.hh>
+
+
+namespace MBBException{       
   //Exceptions for MBB
-  ExceptionClassGenerator(MBB_INDEX_OUT_OF_RANGE,"Index out of range\n")
+   ExceptionClassGenerator(MBB_INDEX_OUT_OF_RANGE,"Index out of range\n")
   //  ExceptionClassGenerator(MBB_FEMB_RANGE,"MBB FEMB out of range\n")
   //  ExceptionClassGenerator(MBB_DAQ_LINK_RANGE,"MBB DAQ Link out of range\n")
   ExceptionClassGenerator(MBB_BUSY,"MBB BUSY\n")
@@ -20,7 +25,7 @@ namespace MBBException
   ExceptionClassGenerator(MBB_FLASH_ERROR,"An error while using the flash")
   ExceptionClassGenerator(MBB_FLASH_IHEX_ERROR,"An error while parsing intel Hex files")
   ExceptionClassGenerator(MBB_DTS_ERROR,"MBB timing system error")
-
+  
 }
 
 #endif
