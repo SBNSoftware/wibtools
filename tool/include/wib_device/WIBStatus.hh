@@ -22,7 +22,9 @@ namespace WIBTool{
   private:
     void Process(std::string const & singleTable);
     //void ProcessFEMB(uint8_t iFEMB,std::string const & singleTable);
+    void StartPowerMes();
     void ProcessFEMB(uint8_t iFEMB);
+    void ProcessWIB();
     WIB * wib;
 
     uint32_t ConvertSignedInt(uint32_t in);
@@ -32,6 +34,8 @@ namespace WIBTool{
     double FEMB_VCC[FEMB_COUNT];   // V
     double FEMB_V[FEMB_COUNT][6];  // V
     double FEMB_C[FEMB_COUNT][6];  // mA
+    double WIB_V[4];
+    double WIB_TEMP;
   };
 
 }
