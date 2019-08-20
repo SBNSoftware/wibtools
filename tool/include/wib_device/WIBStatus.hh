@@ -29,13 +29,32 @@ namespace WIBTool{
 
     uint32_t ConvertSignedInt(uint32_t in);
     
-    int   FEMB_PWR[FEMB_COUNT];   // 0=off, 1=on
-    double FEMB_TEMP[FEMB_COUNT];  // C
-    double FEMB_VCC[FEMB_COUNT];   // V
-    double FEMB_V[FEMB_COUNT][6];  // V
-    double FEMB_C[FEMB_COUNT][6];  // mA
-    double WIB_V[4];
-    double WIB_TEMP;
+    // Power monitoring
+    int     FEMB_PWR[FEMB_COUNT];   // 0=off, 1=on
+    double  FEMB_TEMP[FEMB_COUNT];  // C
+    double  FEMB_VCC[FEMB_COUNT];   // V
+    double  FEMB_V[FEMB_COUNT][6];  // V
+    double  FEMB_C[FEMB_COUNT][6];  // mA
+    double  WIB_VCC;
+    double  WIB_V[4];
+    double  WIB_C[4];
+    double  WIB_TEMP;
+    
+    // WIB monitoring parameters
+    int     LINK_STATUS[FEMB_COUNT][4];
+    int     CHKSUM_ERR[FEMB_COUNT];
+    int     TS_COUNT[FEMB_COUNT];
+    int     TS_ERROR[FEMB_COUNT];
+    int     FRAME_ERROR[FEMB_COUNT];
+    int     EQUALIZER_STATUS[FEMB_COUNT][4];
+
+    // For the FEMBs we want:
+    //  - everything in 0x08
+    //  - 0x09 (bits 0 and 3)
+    //  - 0x29
+    //  - 0x2A
+    //  - 0x101-0x104
+
   };
 
 }
