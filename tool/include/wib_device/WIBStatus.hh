@@ -6,7 +6,6 @@
 #include <helpers/StatusDisplay/StatusDisplay.hh>
 
 
-
 namespace WIBTool{
   class WIBStatus: public StatusDisplay {
   public:
@@ -40,13 +39,13 @@ namespace WIBTool{
     double  WIB_C[4];
     double  WIB_TEMP;
     
-    // WIB monitoring parameters
+    // WIB/FEMB monitoring 
     int     LINK_STATUS[FEMB_COUNT][4];
-    int     CHKSUM_ERR[FEMB_COUNT];
-    int     TS_COUNT[FEMB_COUNT];
-    int     TS_ERROR[FEMB_COUNT];
-    int     FRAME_ERROR[FEMB_COUNT];
     int     EQUALIZER_STATUS[FEMB_COUNT][4];
+    int     CHKSUM_ERROR_COUNT[FEMB_COUNT][4];
+    int     TIME_STAMP[FEMB_COUNT][4];
+    int     TS_ERROR_COUNT[FEMB_COUNT][4];
+    int     FRAME_ERROR_COUNT[FEMB_COUNT][4];
 
     // For the FEMBs we want:
     //  - everything in 0x08
