@@ -75,20 +75,21 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
   }
 
   // Get 4 link statuses for this board (2bits per link)
-  uint32_t linkStatBits = wib->Read("LINK_SYNC_STATUS_BRD"+std::to_string(FEMB)); 
-  //for(int i=0; i<4; i++) LINK_STATUS[FEMB][i] = 0;
-  LINK_STATUS[iFEMB][0] = ( 0x3  & linkStatBits );     
-  LINK_STATUS[iFEMB][1] = ( 0xC  & linkStatBits );     
-  LINK_STATUS[iFEMB][2] = ( 0x30 & linkStatBits );     
-  LINK_STATUS[iFEMB][3] = ( 0xC0 & linkStatBits );     
+  uint32_t linkStatBits = wib->Read("LINK_SYNC_STATUS_BRD"+std::to_string(FEMB));
+  std::cout<<"Link status bits: "<<std::hex<<linkStatBits<<std::dec<<"\n"; 
+  for(int i=0; i<4; i++) LINK_STATUS[iFEMB][i] = 0;
+  if( (0x3  & linkStatBits) != 0x0 ) LINK_STATUS[iFEMB][0] = 1;     
+  if( (0xC  & linkStatBits) != 0x0 ) LINK_STATUS[iFEMB][1] = 1;     
+  if( (0x30 & linkStatBits) != 0x0 ) LINK_STATUS[iFEMB][2] = 1;     
+  if( (0xC0 & linkStatBits) != 0x0 ) LINK_STATUS[iFEMB][3] = 1;     
 
   // Get 4 equalizer statuses (1 bit per link)
   uint32_t eqStatBits = wib->Read("EQ_LOS_BRD"+std::to_string(FEMB)+"_RX");
-  //for(int i=0; i<4; i++) EQUALIZER_STATUS[FEMB][i] = 0;
-  EQUALIZER_STATUS[iFEMB][0] = ( 0x1 & eqStatBits );     
-  EQUALIZER_STATUS[iFEMB][1] = ( 0x2 & eqStatBits );     
-  EQUALIZER_STATUS[iFEMB][2] = ( 0x4 & eqStatBits );     
-  EQUALIZER_STATUS[iFEMB][3] = ( 0x8 & eqStatBits );     
+  for(int i=0; i<4; i++) EQUALIZER_STATUS[iFEMB][i] = 0;
+  if( (0x1  & eqStatBits) != 0x0 ) EQUALIZER_STATUS[iFEMB][0] = 1;     
+  if( (0x2  & eqStatBits) != 0x0 ) EQUALIZER_STATUS[iFEMB][1] = 1;     
+  if( (0x4 & eqStatBits) != 0x0 ) EQUALIZER_STATUS[iFEMB][2] = 1;     
+  if( (0x8 & eqStatBits) != 0x0 ) EQUALIZER_STATUS[iFEMB][3] = 1;     
 
   // Get checksum error, timestamp, timestmap error, frame error
   // (these all require using 0x12 to set the FEMB and the link)
