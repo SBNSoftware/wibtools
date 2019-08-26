@@ -16,6 +16,8 @@ Common:
    Action=setup
       setupenv()
       proddir()
+      setupRequired("gcc v7_3_0")
+      setupRequired("boost v1_69_0 -q e17:prof")
       ExeActionRequired(DefineFQ)
       envSet(WIB_ADDRESS_TABLE_PATH, ${UPS_PROD_DIR}/tables)
       envSet(WIB_CONFIG_PATH, ${UPS_PROD_DIR}/config)
@@ -26,6 +28,7 @@ Common:
       envSet(WIBTOOLS_BIN, ${WIBTOOLS_FQ_DIR}/bin)
       envPrepend(PATH, ${WIBTOOLS_BIN})
       envSet(WIBTOOLS_INC, ${WIBTOOLS_DIR}/include)
+      addAlias(wib,WIBTool.exe)
 
 End:
 # End Group definition
