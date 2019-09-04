@@ -3,10 +3,7 @@
 
 
 
-#include <MBBException/ExceptionBase.hh>
 
-
-//#include <MBBException.hh>
 #include <MBBException/ExceptionBase.hh>
 
 
@@ -25,6 +22,7 @@ namespace MBBException{
   ExceptionClassGenerator(MBB_FLASH_ERROR,"An error while using the flash")
   ExceptionClassGenerator(MBB_FLASH_IHEX_ERROR,"An error while parsing intel Hex files")
   ExceptionClassGenerator(MBB_DTS_ERROR,"MBB timing system error")
+  ExceptionClassGenerator(DEVICE_CREATION_ERROR, "device creation error")
   
 }
 
