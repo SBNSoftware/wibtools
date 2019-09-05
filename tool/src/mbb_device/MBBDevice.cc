@@ -1,9 +1,10 @@
 #include <mbb_device/MBBDevice.h>
+#include <mbb_device/MBBStatus.hh>
 #include <iostream>
 #include <MBBException.hh>
-/*#include <fstream>
+#include <fstream>
 #include <time.h> //time
-#include <helpers/StatusDisplay/StatusDisplay.hh>*/
+#include <helpers/StatusDisplay/StatusDisplay.hh>
 
 using namespace std;
 
@@ -88,11 +89,11 @@ void WIBTool::MBBDevice::LoadCommandList()
              &MBBDevice::autoComplete_MBBAddressTable);
   //AddCommandAlias("","");
 
-  /* AddCommand("status",&MBBDevice::StatusDisplay,
+   AddCommand("status",&MBBDevice::StatusDisplay,
              "Show status display\n"    \
              "  Usage:\n"                                       \
              "  status <level> <table>\n",
-             &MBBDevice::autoComplete_MBBAddressTable);*/
+             &MBBDevice::autoComplete_MBBAddressTable);
 
    /*AddCommand("html-status",&MBBDevice::StatusDisplayHTML,
              "Write status display to status.html\n"    \
@@ -312,17 +313,17 @@ CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strA
   return CommandReturn::BAD_ARGS;
 }
 
-/*static bool IsNumberHelper(const std::string & str){
+static bool IsNumberHelper(const std::string & str){
   bool levelIsNumber = true;
   for(size_t iDigit = 0; iDigit < str.size();iDigit++){
     //Check if char is 0-9,'-',or '.'.                                     
     levelIsNumber = levelIsNumber && (isdigit(str[iDigit]) || str[iDigit] == '-' || str[iDigit] == '.');
   }
   return levelIsNumber;
-  }*/
+  }
 
 
-/*CommandReturn::status WIBTool::MBBDevice::StatusDisplay(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::MBBDevice::StatusDisplay(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   //Create status display object                                           
   MBBStatus  * stat = new MBBStatus(mbb);
   std::ostream& stream = std::cout;
@@ -347,7 +348,7 @@ CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strA
     }
   }
   return CommandReturn::OK;
-  }*/
+  }
 
 /*CommandReturn::status WIBTool::MBBDevice::StatusDisplayHTML(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   //Create status display object                                        
