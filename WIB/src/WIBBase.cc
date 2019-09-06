@@ -1,6 +1,7 @@
 #include <WIBBase.hh>
 #include <WIBException.hh>
 #include <BNL_UDP_Exception.hh>
+#include <iostream>
 
 WIBBase::WIBBase(std::string const & address, 
 		 std::string const & WIBAddressTable, 

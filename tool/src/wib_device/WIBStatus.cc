@@ -76,7 +76,6 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
 
   // Get 4 link statuses for this board (2bits per link)
   uint32_t linkStatBits = wib->Read("LINK_SYNC_STATUS_BRD"+std::to_string(FEMB));
-  std::cout<<"Link status bits: "<<std::hex<<linkStatBits<<std::dec<<"\n"; 
   for(int i=0; i<4; i++) LINK_STATUS[iFEMB][i] = 0;
   if( (0x3  & linkStatBits) != 0x0 ) LINK_STATUS[iFEMB][0] = 1;     
   if( (0xC  & linkStatBits) != 0x0 ) LINK_STATUS[iFEMB][1] = 1;     
@@ -101,7 +100,23 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
     TS_ERROR_COUNT[iFEMB][i]      = wib->Read("TS_ERROR"); 
     FRAME_ERROR_COUNT[iFEMB][i]   = wib->Read("FRAME_ERROR"); 
   }
-
+ 
+  // Get everything else we care to look at 
+  ADC_READOUT_EN[iFEMB] = wib->ReadFEMB(FEMB, "ADC_DISABLE_REG");
+  CLOCK_SWITCH[iFEMB]   = wib->ReadFEMB(FEMB, "FEMB_SYSTEM_CLOCK_SWITCH");
+  ACTIVE_CLOCK[iFEMB]   = wib->ReadFEMB(FEMB, "FEMB_SYSTEM_ACTIVE_CLOCK");
+  CLOCK_STATUS[iFEMB][0]= wib->ReadFEMB(FEMB, "FEMB_SYSTEM_CLOCK_STATUS_0"); // 0=good, 1=bad
+  CLOCK_STATUS[iFEMB][1]= wib->ReadFEMB(FEMB, "FEMB_SYSTEM_CLOCK_STATUS_1"); // 0=good, 1=bad
+  STREAM_EN[iFEMB]      = wib->ReadFEMB(FEMB, "STREAM_EN");
+  ADC_SEND_EN[iFEMB]    = wib->ReadFEMB(FEMB,  "ADC_DATA_EN");
+  ADC_SYNC_MODE[iFEMB]  = wib->ReadFEMB(FEMB, "ADC_SYNC_MODE");
+  FEMB_TEST_SEL[iFEMB]  = wib->ReadFEMB(FEMB, "FEMB_TST_SEL");
+  FIRMWARE_VER[iFEMB]   = wib->ReadFEMB(FEMB, "VERSION_ID");
+  ID[iFEMB]             = wib->ReadFEMB(FEMB, "BOARD_ID");
+  COMPILED_VER[iFEMB]   = wib->ReadFEMB(FEMB, "COMPILED_VERSION");
+  DATE_COMPILED[iFEMB]  = wib->ReadFEMB(FEMB, "DATE_COMPILED"); 
+  TIME_COMPILED[iFEMB]  = wib->ReadFEMB(FEMB, "TIME_COMPILED"); 
+  
 }
 
 void WIBTool::WIBStatus::ProcessWIB(){  
@@ -120,8 +135,6 @@ void WIBTool::WIBStatus::ProcessWIB(){
   std::string pwrMesSel("PWR_MES_SEL");
   
   // Vcc and temp
-//  std::string sel = pwrMesSel; 
-//  sel.append("_WIB_VCC_TEMP");
   wib->Write(pwrMesSel,wib->GetItem(pwrMesSel+"_WIB_VCC_TEMP")->mask);
   
   uint32_t upperBits = (wib->Read("PWR_MES_OUT_V"));
@@ -134,9 +147,6 @@ void WIBTool::WIBStatus::ProcessWIB(){
     WIB_V[i]=0;
     WIB_C[i]=0;
     uint8_t iv = i+1;
-//    sel = pwrMesSel;
-//    sel.append("_WIB_");
-//    sel.append(1,'0'+iv);
     wib       ->Write(pwrMesSel,wib->GetItem((pwrMesSel+"_WIB_"+std::to_string(iv)).c_str())->mask);
     upperBits = (wib->Read("PWR_MES_OUT_V"));
     lowerBits = ConvertSignedInt(wib->Read("PWR_MES_OUT_C_TEMP"));
@@ -149,19 +159,15 @@ void WIBTool::WIBStatus::ProcessWIB(){
 
 
 //void WIBTool::WIBStatus::Process(std::string const & singleTable){  
-void WIBTool::WIBStatus::Process(std::string const & singleTable){  
+void WIBTool::WIBStatus::Process(std::string const & option){  
   // Main control function for the 'status' command in wibtools.
   // Need to output:
   //  [x] FEMB V and C readout for each board (PWR_MES_SEL, read out by 0x06 PWR_MES_OUT 31:0)
-  //  [-] WIB parameters (Vcc, V1-4)
+  //  [x] WIB parameters (Vcc, V1-4)
   //  [-] FE Vcc / temp (what is this?)
   //  [-] Bias Vcc / temp 
-  //  [-] FEMB link status
+  //  [x] FEMB link status + data options
  
-  //Build WIB tables
-  //std::vector<std::string> WIBNames = wib->GetNames("*"); 
-  std::cout<<singleTable<<"\n";
-  
   //Prompt measurements
   StartPowerMes();
  
@@ -169,9 +175,39 @@ void WIBTool::WIBStatus::Process(std::string const & singleTable){
   ProcessWIB();
   for(uint8_t i=1; i<=FEMB_COUNT;i++) ProcessFEMB(i);
 
+  if( option == "power" || option == "pwr" || option == "" )
+    PrintPowerTable();
 
+  if( option == "femb" || option == "" ) 
+    PrintFEMBTable();
+  
+  printf("\n\n");
+}
+
+void WIBTool::WIBStatus::StartPowerMes(){
+  // disable filter
+  wib->Write("FILTER_EN",0x0);
+  // repeatedly toggle bit 16 to enable LTC2991 CMS conversion
+  for(int i=0; i<100; i++){
+    wib->Write("PWR_MES_START",0x0);
+    wib->Write("PWR_MES_START",0x1); 
+  }
+  usleep(5000); // sleep for 5ms
+}
+
+uint32_t WIBTool::WIBStatus::ConvertSignedInt(uint32_t in){
+  // Assumes input is a 'signed' 14-bit integer cast into
+  // an unsigned int. This checks if bit 14 is set; if so,
+  // value is set to 0x0
+  in = ( ~0xC000 & in );
+  if( in & 0x2000 ) in = 0x0;
+  return in;
+}
+
+void WIBTool::WIBStatus::PrintPowerTable(){
   // =======================================================================================
   // Print the power / temperature monitoring table for WIB and FEMBs
+  // =======================================================================================
   printf("\n%10s","");    
   printf("%10s","WIB"); 
   for(uint8_t i=0;i<FEMB_COUNT;i++) { printf("%10s",("FEMB_"+std::to_string(i+1)).c_str());  }           
@@ -210,18 +246,71 @@ void WIBTool::WIBStatus::Process(std::string const & singleTable){
   printf("\n");
   }
   printf("\n");
+}
+
+void WIBTool::WIBStatus::PrintFEMBTable(){
+  
   // =======================================================================================
-
-
-
+  // Link status table (& other goodies)
   // =======================================================================================
-  // Link status table
+  
+  std::string enable_disable[2] ={"disabled","enabled"};
+  std::string on_off[2]         ={"off","on"};
+  std::string badclk[2]         ={"good","bad"};
+  std::string clkmode[2]        ={"system","osc"};
+  std::string syncmode[4]       ={"normal","free run","follow","disabled"};
+
   printf("\n\n%20s","");    
-  for(uint8_t i=0;i<FEMB_COUNT;i++) { printf("%10s",("FEMB_"+std::to_string(i+1)).c_str());  }           
+  for(uint8_t i=0;i<FEMB_COUNT;i++) { printf("%12s",("FEMB_"+std::to_string(i+1)).c_str());  }           
   printf("\n");
   printf(" ===================");   
-  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("==========");      
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("============");      
   printf("\n");
+  
+  printf("%20s","BOARD ID:");   for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",ID[i]); printf("\n");   
+  printf("%20s","FW VERSION:");       for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",FIRMWARE_VER[i]); printf("\n");   
+  printf("%20s","COMPILED VERSION:"); for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",COMPILED_VER[i]); printf("\n");   
+  printf("%20s","DATE COMPILED:"); for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",DATE_COMPILED[i]); printf("\n");   
+  printf("%20s","TIME COMPILED:"); for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",TIME_COMPILED[i]); printf("\n");   
+  
+  printf(" -------------------\n");
+    
+  printf("%20s","DATA STREAM:");
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12s",enable_disable[ADC_READOUT_EN[i]].c_str());
+  printf("\n");   
+  
+  printf("%20s","ACTIVE CLK:");
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",ACTIVE_CLOCK[i]);
+  printf("\n");   
+  
+  printf("%20s","CLK SWITCH:");
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12s",clkmode[CLOCK_SWITCH[i]].c_str());
+  printf("\n");   
+  
+  printf("%20s","CLK 0 STATUS:");
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12s",badclk[CLOCK_STATUS[i][0]].c_str());
+  printf("\n");   
+  printf("%20s","CLK 1 STATUS:");
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12s",badclk[CLOCK_STATUS[i][1]].c_str());
+  printf("\n");   
+  
+  printf("%20s","ADC SEND:");
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12s",enable_disable[ADC_SEND_EN[i]].c_str());
+  printf("\n");   
+  
+  printf("%20s","HIGH-SPEED DATA:");
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12s",enable_disable[STREAM_EN[i]].c_str());
+  printf("\n");   
+
+  printf("%20s","ADC SYNC MODE:");
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12s",syncmode[ADC_SYNC_MODE[i]].c_str());
+  printf("\n");   
+ 
+  printf("%20s","TEST MODE:");
+  for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",FEMB_TEST_SEL[i]);
+  printf("\n");   
+  
+  printf(" -------------------\n");
   
   for(int iLink=0; iLink<4; iLink++){
 
@@ -229,58 +318,40 @@ void WIBTool::WIBStatus::Process(std::string const & singleTable){
     printf("\n");
 
     printf("%20s","SYNC STATUS:");
-    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%10d",LINK_STATUS[i][iLink]);
+    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",LINK_STATUS[i][iLink]);
     printf("\n");   
     
     printf("%20s","EQUALIZER STATUS:");
-    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%10d",EQUALIZER_STATUS[i][iLink]);
+    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",EQUALIZER_STATUS[i][iLink]);
     printf("\n");   
-    
+ 
     printf("%20s","TIMESTAMP:");
-    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%10d",TIME_STAMP[i][iLink]);
+    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",TIME_STAMP[i][iLink]);
     printf("\n");   
     
     printf("%20s","TIMESTAMP ERROR CNT:");
-    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%10d",TS_ERROR_COUNT[i][iLink]);
+    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",TS_ERROR_COUNT[i][iLink]);
     printf("\n");   
     
     printf("%20s","CHKSUM ERROR CNT:");
-    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%10d",CHKSUM_ERROR_COUNT[i][iLink]);
+    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",CHKSUM_ERROR_COUNT[i][iLink]);
     printf("\n");   
     
     printf("%20s","FRAME ERROR CNT:");
-    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%10d",FRAME_ERROR_COUNT[i][iLink]);
+    for(uint8_t i=0;i<FEMB_COUNT;i++) printf("%12d",FRAME_ERROR_COUNT[i][iLink]);
     printf("\n");   
     
     printf(" -------------------\n");
   }
-  // =======================================================================================
+  
+  
+  /*
+  // Get everything else we care to look at 
+  FIRMWARE_VER[iFEMB]   = wib->ReadFEMB(FEMB, "VERSION_ID");
+  ID[iFEMB]             = wib->ReadFEMB(FEMB, "BOARD_ID");
+  COMPILED_VER[iFEMB]   = wib->ReadFEMB(FEMB, "COMPILED_VERSION");
+  DATE_COMPILED[iFEMB]  = wib->ReadFEMB(FEMB, "DATE_COMPILED"); 
+  TIME_COMPILED[iFEMB]  = wib->ReadFEMB(FEMB, "TIME_COMPILED"); 
+*/
 
-
-
-
-
-  printf("\n\n");
 }
-
-void WIBTool::WIBStatus::StartPowerMes(){
-  // disable filter
-  wib->Write("FILTER_EN",0x0);
-  // repeatedly toggle bit 16 to enable LTC2991 CMS conversion
-  for(int i=0; i<100; i++){
-    wib->Write("PWR_MES_START",0x0);
-    wib->Write("PWR_MES_START",0x1); 
-  }
-  usleep(5000); // sleep for 5ms
-}
-
-uint32_t WIBTool::WIBStatus::ConvertSignedInt(uint32_t in){
-  // Assumes input is a 'signed' 14-bit integer cast into
-  // an unsigned int. This checks if bit 14 is set; if so,
-  // value is set to 0x0
-  in = ( ~0xC000 & in );
-  if( in & 0x2000 ) in = 0x0;
-  return in;
-}
-
-
