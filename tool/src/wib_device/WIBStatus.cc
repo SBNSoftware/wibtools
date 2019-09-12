@@ -355,3 +355,7 @@ void WIBTool::WIBStatus::PrintFEMBTable(){
 */
 
 }
+
+void WIBTool::WIBStatus::TestFunction(){
+  printf("Hello!\n");
+}

@@ -26,6 +26,7 @@ namespace WIBTool{
     void ProcessWIB();
     void PrintPowerTable();
     void PrintFEMBTable();
+    void TestFunction();
     WIB * wib;
 
     uint32_t ConvertSignedInt(uint32_t in);
