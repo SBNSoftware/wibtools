@@ -356,6 +356,72 @@ void WIBTool::WIBStatus::PrintFEMBTable(){
 
 }
 
+std::map<std::string,double> WIBTool::WIBStatus::RetrieveStatusVars(){
+  StartPowerMes();
+  ProcessWIB();
+  for(uint8_t i=1; i<=FEMB_COUNT;i++) ProcessFEMB(i);
+  
+  std::map<std::string,double> map;
+  map.insert( std::pair<std::string,double>("WIB_TEMP",WIB_TEMP) );
+  map.insert( std::pair<std::string,double>("WIB_VCC",WIB_VCC) );
+  map.insert( std::pair<std::string,double>("WIB_V1",WIB_V[0]) );
+  map.insert( std::pair<std::string,double>("WIB_V2",WIB_V[1]) );
+  map.insert( std::pair<std::string,double>("WIB_V3",WIB_V[2]) );
+  map.insert( std::pair<std::string,double>("WIB_V4",WIB_V[3]) );
+  map.insert( std::pair<std::string,double>("WIB_C1",WIB_C[0]) );
+  map.insert( std::pair<std::string,double>("WIB_C2",WIB_C[1]) );
+  map.insert( std::pair<std::string,double>("WIB_C3",WIB_C[2]) );
+  map.insert( std::pair<std::string,double>("WIB_C4",WIB_C[3]) );
+
+  for(int i=0; i<FEMB_COUNT; i++){
+    int ibrd = i+1;
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_PWR", FEMB_PWR[i] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_TEMP", FEMB_TEMP[i]) );
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_VCC", FEMB_VCC[i] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_V1", FEMB_V[i][0] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_V2", FEMB_V[i][1] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_V3", FEMB_V[i][2] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_V4", FEMB_V[i][3] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_V5", FEMB_V[i][4] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_V6", FEMB_V[i][5] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_C1", FEMB_C[i][0] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_C2", FEMB_C[i][1] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_C3", FEMB_C[i][2] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_C4", FEMB_C[i][3] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_C5", FEMB_C[i][4] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_C6", FEMB_C[i][5] ));
+    
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_BOARD_ID", ID[i] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_FIRMWARE_VER", FIRMWARE_VER[i] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_COMPILED_VER", COMPILED_VER[i] ));
+    map.insert( std::pair<std::string,double>( "FEMB"+std::to_string(ibrd)+"_DATE_COMPILED", DATE_COMPILED[i] ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_TIME_COMPILED", TIME_COMPILED[i] ));
+
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_ADC_READOUT_ENABLE", ADC_READOUT_EN[i] ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_ADC_SEND_ENABLE", ADC_SEND_EN[i] ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_ACTIVE_CLOCK", ACTIVE_CLOCK[i] ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_CLOCK_SWITCH", CLOCK_SWITCH[i] ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_CLOCK0_STATUS", CLOCK_STATUS[i][0] ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_CLOCK1_STATUS", CLOCK_STATUS[i][1] ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_HIGHSPEED_DATA_ENABLE", STREAM_EN[i] ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_ADC_SYNC_MODE", ADC_SYNC_MODE[i] ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_TEST_SEL", FEMB_TEST_SEL[i] ));
+    
+    for(int iLink=0; iLink<4; iLink++){
+      map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_LINK"+std::to_string(iLink+1)+"_LINK_STATUS", LINK_STATUS[i][iLink] ));
+      map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_LINK"+std::to_string(iLink+1)+"_EQUALIZER_STATUS", EQUALIZER_STATUS[i][iLink] ));
+      map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_LINK"+std::to_string(iLink+1)+"_TIME_STAMP", TIME_STAMP[i][iLink] ));
+      map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_LINK"+std::to_string(iLink+1)+"_TIME_STAMP_ERRCOUNT", TS_ERROR_COUNT[i][iLink] ));
+      map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_LINK"+std::to_string(iLink+1)+"_CHKSUM_ERRCOUNT", CHKSUM_ERROR_COUNT[i][iLink] ));
+      map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_LINK"+std::to_string(iLink+1)+"_FRAME_ERRCOUNT", FRAME_ERROR_COUNT[i][iLink] ));
+    }
+         
+  }  
+
+  return map;
+
+}
+
 void WIBTool::WIBStatus::TestFunction(){
   printf("Hello!\n");
 }

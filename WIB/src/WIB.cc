@@ -469,9 +469,9 @@ void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
   reg.push_back(GetFEMBChar(iFEMB));
   const Item *g = GetItem(reg);
  
-  std::cout
-  <<"  "<<reg<<" ("<<std::hex<<g->mask<<std::dec<<")\n" 
-  <<"  Before: reg "<<g->address<<" = "<<std::hex<<Read(g->address)<<std::dec<<"\n";
+  //std::cout
+  //<<"  "<<reg<<" ("<<std::hex<<g->mask<<std::dec<<")\n" 
+  //<<"  Before: reg "<<g->address<<" = "<<std::hex<<Read(g->address)<<std::dec<<"\n";
   
   if(turnOn){
     // if turning on, life is easy
@@ -492,7 +492,7 @@ void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
   }
 
   // verify that it's been turned on/off
-  std::cout<<"  After : reg "<<g->address<<" = "<<std::hex<<Read(g->address)<<std::dec<<"\n";
+  //std::cout<<"  After : reg "<<g->address<<" = "<<std::hex<<Read(g->address)<<std::dec<<"\n";
 
 }
 

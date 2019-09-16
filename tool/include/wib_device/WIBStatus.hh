@@ -4,7 +4,8 @@
 #include <WIB.hh>
 #include <WIBException.hh>
 #include <helpers/StatusDisplay/StatusDisplay.hh>
-
+#include <utility>
+#include <vector>
 
 namespace WIBTool{
   class WIBStatus: public StatusDisplay {
@@ -26,10 +27,11 @@ namespace WIBTool{
     void ProcessWIB();
     void PrintPowerTable();
     void PrintFEMBTable();
+    uint32_t ConvertSignedInt(uint32_t in);
     void TestFunction();
     WIB * wib;
-
-    uint32_t ConvertSignedInt(uint32_t in);
+    
+    std::map<std::string,double> RetrieveStatusVars();
     
     // Power monitoring
     int     FEMB_PWR[FEMB_COUNT];   // 0=off, 1=on
