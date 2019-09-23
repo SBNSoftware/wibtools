@@ -33,6 +33,24 @@ void ASIC_reg_mapping::set_board(const FE_ASIC_reg_mapping & fe_map, const ADC_A
   } // for iChip
 } // set_board
 
+void ASIC_reg_mapping::set_board(const FE_ASIC_reg_mapping & fe_map)
+{
+  const std::bitset<1152> fe_bits = fe_map.get_bits();
+  //std::cout << std::hex << fe_bits << std::dec << std::endl;
+  uint32_t nRegs = 36;
+  for (size_t iReg=0; iReg < nRegs; iReg++)
+    {
+      std::bitset<32> regBits;
+      for (size_t iBit=0; iBit < 32; iBit++)
+	{
+	  regBits[iBit] = fe_bits[iBit+iReg*32];
+	}
+      uint32_t regUInt = regBits.to_ulong();
+      REGS[iReg] = regUInt;
+      //std::cout << std::hex << REGS[iReg] << std::dec << std::endl;
+    } // for iReg
+} // set_board
+
 std::vector<uint32_t> ASIC_reg_mapping::get_regs() const
 {
   return REGS;

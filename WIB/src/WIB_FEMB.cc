@@ -38,7 +38,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
 		     std::vector<uint32_t> fe_config, 
 		     std::vector<uint16_t> clk_phases,
 		     uint8_t pls_mode, 
-		     uint8_t pls_dac_val,
+		     uint8_t pls_dac_val, 
 		     uint8_t start_frame_mode_sel, 
 		     uint8_t start_frame_swap){
 
@@ -94,14 +94,14 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
     "\t4:" << std::setw(22) << std::setfill(' ') <<  "Leakage x 10 "       << fe_config[4] << std::endl <<
     "\t5:" << std::setw(22) << std::setfill(' ') <<  "AC Coupling "        << fe_config[5] << std::endl <<
     "\t6:" << std::setw(22) << std::setfill(' ') <<  "Buffer "             << fe_config[6] << std::endl <<
-    "\t8:" << std::setw(22) << std::setfill(' ') <<  "Use External Clock " << fe_config[7] << std::endl; 
+    "\t7:" << std::setw(22) << std::setfill(' ') <<  "Use External Clock " << fe_config[7] << std::endl; 
   }
 
   std::cout << "Pulser Mode: " << int(pls_mode) << " and DAC Value: " << int(pls_dac_val) << std::endl;
 
   // get this register so we can leave it in the state it started in
-  uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
-  Write("SYSTEM.SLOW_CONTROL_DND",1);
+  //uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
+  //Write("SYSTEM.SLOW_CONTROL_DND",1);
 
   if(ReadFEMB(iFEMB,"VERSION_ID") == ReadFEMB(iFEMB,"SYS_RESET")) { // can't read register if equal
     if(ContinueOnFEMBRegReadError){
@@ -122,10 +122,12 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   sleep(1);
   WriteFEMB(iFEMB, "START_FRAME_SWAP", start_frame_swap);
 
+  /* only for P1 ADC
   if(fe_config[7]){ // use external clock
     SetupFEMBExtClock(iFEMB);
   }
   sleep(0.05);
+  */
 
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
@@ -155,12 +157,14 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   WriteFEMB(iFEMB, "FE_ASIC_RESET", 0x1);
   sleep(0.005);
 
+  /* only for P1 ADC
   //Set ADC latch_loc
   uint32_t REG_LATCHLOC1_4_data = 0x04040404;
   uint32_t REG_LATCHLOC5_8_data = 0x04040404;
   
   WriteFEMB(iFEMB, "ADC_LATCH_LOC_0TO3", REG_LATCHLOC1_4_data);
   WriteFEMB(iFEMB, "ADC_LATCH_LOC_4TO7", REG_LATCHLOC5_8_data);
+  */
 
   // Setup pulser
   uint8_t internal_daq_value = 0;
@@ -178,13 +182,13 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
     internal_daq_value = pls_dac_val;
     SetupInternalPulser(iFEMB);
   }
-  else if (pls_mode == 2) // external, FPGA, 5 bits
+  else if (pls_mode == 2) // external, FPGA, 6 bits
   {
-    if (pls_dac_val >= 32)
+    if (pls_dac_val >= 63)
     {
       WIBException::WIB_BAD_ARGS e;
       std::stringstream expstr;
-      expstr << "ConfigFEMB: pls_dac_val is 5 bits for FPGA DAC, must be 0-31, but is: "
+      expstr << "ConfigFEMB: pls_dac_val is 6 bits for FPGA DAC, must be 0-63, but is: "
              << int(pls_dac_val);
       e.Append(expstr.str().c_str());
       throw e;
@@ -196,8 +200,9 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   SetupFEMBASICs(iFEMB, fe_config[0], fe_config[1], fe_config[2], fe_config[3], fe_config[4], fe_config[5], fe_config[6], fe_config[7], pls_mode, internal_daq_value); 
   std::cout << "FEMB " << int(iFEMB) << " Successful SPI config" << std::endl;
 
+  /* only for P1 ADCs
   // Try to sync ADCs
-  /*  if (clk_phases.size() == 0)
+  if (clk_phases.size() == 0)
   {
     clk_phases.push_back(0xFFFF);
   }
@@ -250,7 +255,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   */
 
 
-  //Initializing the shift and phase variables
+  //Initializing the COTS ADCs shift and phase variables
   uint8_t fe1_sft_RT = 0x00000000;
   uint8_t fe2_sft_RT = 0x00000000;
   uint8_t fe3_sft_RT = 0x00000000;
@@ -288,16 +293,12 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   uint8_t fe8_pha_CT = 0x00000000;
 
   //writing on FEMB
-  
-  
-  //how does the board know whether its at RT or CT? can we ask for it from the user?
 
-  bool RT=false;
-  // printf("enter 0 for RoomTemp OR 1 for ColdTemp:");
-  // scanf("%d",&RT)
-   
+  bool RT=false; // use CT sinse they are the same
+
   if(RT)
     {
+      std::cout << "Configuring COTS ADCS for RT" << std::endl;
       WriteFEMB(iFEMB, 21, fe1_sft_RT);
       WriteFEMB(iFEMB, 29, fe1_pha_RT);
       WriteFEMB(iFEMB, 22, fe2_sft_RT);
@@ -314,28 +315,33 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
       WriteFEMB(iFEMB, 35, fe7_pha_RT);
       WriteFEMB(iFEMB, 28, fe8_sft_RT);
       WriteFEMB(iFEMB, 36, fe8_pha_RT);
+    } 
+  else
+    {
+      std::cout << "Configuring COTS ADCS for CT" << std::endl;
+      WriteFEMB(iFEMB, 21, fe1_sft_CT);
+      WriteFEMB(iFEMB, 29, fe1_pha_CT);
+      WriteFEMB(iFEMB, 22, fe2_sft_CT);
+      WriteFEMB(iFEMB, 30, fe2_pha_CT);
+      WriteFEMB(iFEMB, 23, fe3_sft_CT);
+      WriteFEMB(iFEMB, 31, fe3_pha_CT);
+      WriteFEMB(iFEMB, 24, fe4_sft_CT);
+      WriteFEMB(iFEMB, 32, fe4_pha_CT);
+      WriteFEMB(iFEMB, 25, fe5_sft_CT);
+      WriteFEMB(iFEMB, 33, fe5_pha_CT);
+      WriteFEMB(iFEMB, 26, fe6_sft_CT);
+      WriteFEMB(iFEMB, 34, fe6_pha_CT);
+      WriteFEMB(iFEMB, 27, fe7_sft_CT);
+      WriteFEMB(iFEMB, 35, fe7_pha_CT);
+      WriteFEMB(iFEMB, 28, fe8_sft_CT);
+      WriteFEMB(iFEMB, 36, fe8_pha_CT);
     }
 
-  else
-   {
-     WriteFEMB(iFEMB, 21, fe1_sft_CT);
-     WriteFEMB(iFEMB, 29, fe1_pha_CT);
-     WriteFEMB(iFEMB, 22, fe2_sft_CT);
-     WriteFEMB(iFEMB, 30, fe2_pha_CT);
-     WriteFEMB(iFEMB, 23, fe3_sft_CT);
-     WriteFEMB(iFEMB, 31, fe3_pha_CT);
-     WriteFEMB(iFEMB, 24, fe4_sft_CT);
-     WriteFEMB(iFEMB, 32, fe4_pha_CT);
-     WriteFEMB(iFEMB, 25, fe5_sft_CT);
-     WriteFEMB(iFEMB, 33, fe5_pha_CT);
-     WriteFEMB(iFEMB, 26, fe6_sft_CT);
-     WriteFEMB(iFEMB, 34, fe6_pha_CT);
-     WriteFEMB(iFEMB, 27, fe7_sft_CT);
-     WriteFEMB(iFEMB, 35, fe7_pha_CT);
-     WriteFEMB(iFEMB, 28, fe8_sft_CT);
-     WriteFEMB(iFEMB, 36, fe8_pha_CT);
-   }
 
+  //time stamp reset
+  WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
+  WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
+ 
   // These are all Jack's WIB addresses, need to figure out Dan's addresses for functionality
   ////Sync Time stamp /WIB
   //Write(1, 0);
@@ -349,7 +355,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   //Write(18, 0x8000);
   //Write(18, 0x8000);
 
-  Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
+  //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
 }
 
 /** \brief Setup FEMB in fake data mode
@@ -410,8 +416,8 @@ void WIB::ConfigFEMBFakeData(uint8_t iFEMB, uint8_t fake_mode, uint32_t fake_wor
   }
 
   // get this register so we can leave it in the state it started in
-  uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
-  Write("SYSTEM.SLOW_CONTROL_DND",1);
+  //uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
+  //Write("SYSTEM.SLOW_CONTROL_DND",1);
 
   WriteFEMB(iFEMB, "REG_RESET", 1);
   sleep(1);
@@ -454,7 +460,7 @@ void WIB::ConfigFEMBFakeData(uint8_t iFEMB, uint8_t fake_mode, uint32_t fake_wor
 
   WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9);
 
-  Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
+  //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
 }
 
 /** \brief Setup FEMB External Clock
@@ -639,7 +645,7 @@ void WIB::SetupFEMBExtClock(uint8_t iFEMB){
 uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, std::vector<uint32_t> registerList){
 
   const size_t REG_SPI_BASE = 512;
-  const size_t NREGS = 71;
+  const size_t NREGS = 36;
   
   if (registerList.size() != NREGS)
   {
@@ -679,7 +685,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, std::vector<uint32_t> registerList){
   WriteFEMB(iFEMB, "WRITE_FE_ASIC_SPI", 1);
   sleep(0.01);
 
-  uint16_t adc_sync_status = (uint16_t) ReadFEMB(iFEMB, "ADC_ASIC_SYNC_STATUS");
+  //uint16_t adc_sync_status = (uint16_t) ReadFEMB(iFEMB, "ADC_ASIC_SYNC_STATUS");
   /////////////////////////////
   /////////////////////////////
 
@@ -687,7 +693,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, std::vector<uint32_t> registerList){
   sleep(2);
   WriteFEMB(iFEMB, "STREAM_EN", 1 );
 
-  return adc_sync_status;
+  return 1;
 }
 
 /** \brief Setup FEMB ASICs
@@ -734,10 +740,10 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
 
   const size_t REG_SPI_BASE_WRITE = 0x200; // 512
   const size_t REG_SPI_BASE_READ = 0x250; // 592
-  // 0x48 registers total, 72 in hex
+  // for COTS ADCs first 36 registers are used for the FE ASICs
 
-  bool bypassOutputBuffer=true; // if false might blow up protoDUNE
-  bool useOutputMonitor=false; // if true might blow up protoDUNE
+  bool bypassOutputBuffer=true; // if false might blow up SBND
+  bool useOutputMonitor=false; // if true might blow up SBND
   bool useCh16HighPassFilter=false;
   bool monitorBandgapNotTemp=false;
   bool monitorTempBandgapNotSignal=false;
@@ -763,7 +769,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
                       leakagex10,acCoupling,internalDACControl,internalDACValue
                   );
     // Now just set collection channels to low baseline
-    fe_map.set_collection_baseline(1);   // in FE_ASIC_reg_mapping.cc
+    fe_map.set_collection_baseline(1);
   }
   else
   {
@@ -773,6 +779,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
                       leakagex10,acCoupling,internalDACControl,internalDACValue
                   );
   }
+  /*
   ADC_ASIC_reg_mapping adc_map;
   uint8_t offsetCurrentValue=0;
   bool pcsr=0;
@@ -798,13 +805,14 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
                     clk0,clk1,freq,
                     enableOffsetCurrent,f0,f1,
                     f2,f3);
+  */
   ASIC_reg_mapping map;
-  map.set_board(fe_map,adc_map);
+  map.set_board(fe_map);
   map.get_regs();
   const std::vector<uint32_t> regs = map.get_regs();
   const size_t nRegs = regs.size();
 
-  uint16_t adc_sync_status = 0xFFFF;
+  //uint16_t adc_sync_status = 0xFFFF;
 
   for(unsigned iSPIWrite=0; iSPIWrite < 2; iSPIWrite++)
   {
@@ -820,6 +828,8 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
   
   
     //run the SPI programming
+    sleep(0.1);
+    WriteFEMB(iFEMB, "WRITE_ASIC_SPI", 1);
     sleep(0.1);
     WriteFEMB(iFEMB, "WRITE_ASIC_SPI", 1);
     sleep(0.1);
@@ -886,22 +896,20 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
     WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
     sleep(0.1);
   
-    adc_sync_status = (uint16_t) ReadFEMB(iFEMB, "ADC_ASIC_SYNC_STATUS");
+    //adc_sync_status = (uint16_t) ReadFEMB(iFEMB, "ADC_ASIC_SYNC_STATUS");
 
     // The real sync check can happen here in Shanshan's code
 
   } // for iSPIWrite
 
-  return adc_sync_status;
+  return 1;
 }
 
 uint16_t WIB::SetupASICPulserBits(uint8_t iFEMB){
 
   const uint32_t REG_SPI_BASE_WRITE = 0x200; // 512
   const uint32_t  REG_SPI_BASE_READ = 0x250; // 592
-  uint16_t adc_sync_status = 0xFFFF;
-
-  
+  //uint16_t adc_sync_status = 0xFFFF;
 
   size_t nASICs = 8;
   unsigned nTries = 3;
@@ -918,7 +926,7 @@ uint16_t WIB::SetupASICPulserBits(uint8_t iFEMB){
     std::vector<uint32_t> vals(nASICs);
     for (size_t iASIC=0; iASIC<nASICs; iASIC++)
     {
-        uint32_t address = (REG_SPI_BASE_WRITE + 9*iASIC + 8);
+        uint32_t address = (REG_SPI_BASE_WRITE + 9*iASIC);
         std::cout <<"Writing address " << std::hex << std::setfill ('0') << std::setw(8) << address << std::endl;
         //WriteFEMBBits(iFEMB, address, pos, mask, value);
 
@@ -932,9 +940,7 @@ uint16_t WIB::SetupASICPulserBits(uint8_t iFEMB){
 
         sleep(0.01);
     }
-    
-  
-  
+      
     //run the SPI programming
     sleep(0.1);
     WriteFEMB(iFEMB, "WRITE_ASIC_SPI", 1);
@@ -989,13 +995,13 @@ uint16_t WIB::SetupASICPulserBits(uint8_t iFEMB){
     WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
     sleep(0.1);
   
-    adc_sync_status = (uint16_t) ReadFEMB(iFEMB, "ADC_ASIC_SYNC_STATUS");
+    //adc_sync_status = (uint16_t) ReadFEMB(iFEMB, "ADC_ASIC_SYNC_STATUS");
 
     // The real sync check can happen here in Shanshan's code
 
   } // for iSPIWrite
 
-  return adc_sync_status;
+  return 1;
 }
 
 void WIB::SetupFPGAPulser(uint8_t iFEMB, uint8_t dac_val){
