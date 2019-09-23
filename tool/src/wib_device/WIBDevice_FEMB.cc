@@ -8,12 +8,22 @@
 //#include <ASIC_reg_mapping.hh>
 
 CommandReturn::status WIBTool::WIBDevice::PowerFEMB(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+
   if(2 != intArg.size()){
     return CommandReturn::BAD_ARGS;
   }
 
   //Get FEMBs to process
-  std::vector<size_t> FEMBs = parseList(strArg[0]);
+  std::vector<size_t> FEMBs;
+  if( strArg[0] == "all" ) { 
+    FEMBs.push_back(1); 
+    FEMBs.push_back(2);
+    FEMBs.push_back(3);
+    FEMBs.push_back(4);
+  } else {
+    //FEMBs.push_back(parseList(strArg[0]));
+    FEMBs.push_back(intArg[0]);
+  }
   
   //Get power state
   for(size_t iFEMB = 0; iFEMB < FEMBs.size();iFEMB++){      

@@ -104,7 +104,7 @@ namespace WIBTool{
     
     //Call the function that processes the derived class address table
     this->Process(singleTable);
-    printf("Process done\n");
+    //printf("Process done\n");
     // Now output the content, looping over the tables
     // Eventually calls one of PrintLaTeX(), PrintHTML() or Print() for each table
     for(std::map<std::string,StatusDisplayMatrix>::iterator itTable = tables.begin();

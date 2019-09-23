@@ -123,6 +123,11 @@ CommandReturn::status WIBTool::WIBDevice::StatusDisplay(std::vector<std::string>
     //default to level 1 display
     stat->Report(1,stream);
   } else if(intArg.size()==1){
+    // arg 0 is a string, either "power" or "femb"
+    stat->Report(1,stream,strArg[0]);
+  }
+  /*
+  } else if(intArg.size()==1){
     //arg 0 should be an integer
     if (IsNumberHelper(strArg[0])){
       stat->Report(intArg[0],stream);
@@ -139,6 +144,7 @@ CommandReturn::status WIBTool::WIBDevice::StatusDisplay(std::vector<std::string>
       std::cout << "Error: \"" << strArg[0] << "\" is not a valid print level\n";
     }
   }
+  */
   return CommandReturn::OK;    
 }
 

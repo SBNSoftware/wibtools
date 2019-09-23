@@ -11,5 +11,4 @@ MBB/lib/*
 *.log
 ups_package/wibtools/*
 *.swp
-
-
+edit.sh
