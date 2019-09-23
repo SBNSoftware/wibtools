@@ -16,23 +16,21 @@ namespace WIBTool{
         throw e;
 	}
       mbb = _mbb;
-      // SetVersion(mbb->GetSVNVersion());
+      //SetVersion(mbb->GetSVNVersion());
     }
   private:
     void Process(std::string const & singleTable);
     //void ProcessPTC(uint8_t iFEMB,std::string const & singleTable);        
     void ProcessPTC(uint8_t icrate);
     MBB * mbb;
-
     
-    int   CRATE_PWR[CRATE_COUNT];   // 0=off, 1=on
-    float CRATE_PULSE_SRC[CRATE_COUNT];
-    float PERIOD[CRATE_COUNT];                                         
-    float CRATE_PULSE_PERIOD[CRATE_COUNT];                                          
-    //float CRATE_WR_REG[CRATE_COUNT];
-    float CRATE_CLK_TYPE[CRATE_COUNT];
-    float CRATE_CLK_STATUS[CRATE_COUNT];                                       
-    float WIB_PWR[WIB_COUNT];                                       
+    uint32_t CRATE_PWR[CRATE_COUNT];   // 0=off, 1=on
+    uint32_t CRATE_PULSE_SRC;
+    uint32_t PERIOD;                                         
+    uint32_t CRATE_PULSE_PERIOD;                                          
+    uint32_t CRATE_CLK_TYPE;
+    uint32_t CRATE_CLK_STATUS;                                       
+    uint32_t WIB_PWR[WIB_COUNT];                                       
   };
 
 }
