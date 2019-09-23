@@ -4,7 +4,8 @@
 #include <WIB.hh>
 #include <WIBException.hh>
 #include <helpers/StatusDisplay/StatusDisplay.hh>
-
+#include <utility>
+#include <vector>
 
 namespace WIBTool{
   class WIBStatus: public StatusDisplay {
@@ -19,14 +20,18 @@ namespace WIBTool{
       SetVersion(wib->GetSVNVersion());
     }
   private:
-    void Process(std::string const & singleTable);
+    void Process(std::string const & option);
     //void ProcessFEMB(uint8_t iFEMB,std::string const & singleTable);
     void StartPowerMes();
     void ProcessFEMB(uint8_t iFEMB);
     void ProcessWIB();
-    WIB * wib;
-
+    void PrintPowerTable();
+    void PrintFEMBTable();
     uint32_t ConvertSignedInt(uint32_t in);
+    void TestFunction();
+    WIB * wib;
+    
+    std::map<std::string,double> RetrieveStatusVars();
     
     // Power monitoring
     int     FEMB_PWR[FEMB_COUNT];   // 0=off, 1=on
@@ -48,11 +53,19 @@ namespace WIBTool{
     int     FRAME_ERROR_COUNT[FEMB_COUNT][4];
 
     // For the FEMBs we want:
-    //  - everything in 0x08
-    //  - 0x09 (bits 0 and 3)
-    //  - 0x29
-    //  - 0x2A
-    //  - 0x101-0x104
+    int     ADC_READOUT_EN[FEMB_COUNT];     // 0x08 bit 4
+    int     CLOCK_SWITCH[FEMB_COUNT];       // 0x08 bit 16
+    int     ACTIVE_CLOCK[FEMB_COUNT];       // 0x08 bit 31
+    int     CLOCK_STATUS[FEMB_COUNT][2];    // 0x08 bit 29(clk1) and bit 30(clk0) -- 0=good, 1=bad
+    int     STREAM_EN[FEMB_COUNT];          // 0x09 bit 0
+    int     ADC_SEND_EN[FEMB_COUNT];        // 0x09 bit 3
+    int     ADC_SYNC_MODE[FEMB_COUNT];      // 0x29 0:1
+    int     FEMB_TEST_SEL[FEMB_COUNT];      // 0x2A
+    int     FIRMWARE_VER[FEMB_COUNT];       // 0x101 0:15
+    int     ID[FEMB_COUNT];                 // 0x101 16:31
+    int     COMPILED_VER[FEMB_COUNT];       // 0x102 0:31
+    int     DATE_COMPILED[FEMB_COUNT];      // 0x103 0:31 (in HEX)
+    int     TIME_COMPILED[FEMB_COUNT];      // 0x104 0:31 (in HEX)
 
   };
 
