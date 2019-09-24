@@ -114,13 +114,14 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
     e.Append(expstr.str().c_str());
     throw e;
   }
+  std::cout << "FW VERSION " << std::hex << ReadFEMB(iFEMB,"VERSION_ID") << std::dec << std::endl;
 
   WriteFEMB(iFEMB, "REG_RESET", 1);
   sleep(1);
 
-  WriteFEMB(iFEMB, "START_FRAME_MODE_SELECT", start_frame_mode_sel);
-  sleep(1);
-  WriteFEMB(iFEMB, "START_FRAME_SWAP", start_frame_swap);
+  //WriteFEMB(iFEMB, "START_FRAME_MODE_SELECT", start_frame_mode_sel);
+  //sleep(1);
+  //WriteFEMB(iFEMB, "START_FRAME_SWAP", start_frame_swap);
 
   /* only for P1 ADC
   if(fe_config[7]){ // use external clock
@@ -129,6 +130,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   sleep(0.05);
   */
 
+  std::cout << "Time stamp reset" << std::endl;
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
 
