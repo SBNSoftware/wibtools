@@ -18,7 +18,7 @@ PULSE_PERIOD                 0x08               0xffffffff R/W  description="Set
 PLL_ACTIVE_CLK               0x09                      0x1 R    description="This is used to verify which clock is being used by the PLL\n 0 = External clock\n 1 = Internal 16MHz clock"
 PLL_CLK_STATUS               0x09                     0x3f R    description="0 = clock good     1 = clock bad\n Bit 4 = External clock\n Bit 5 = Internal clock"
 UDP_EN_WR_RDBK               0x0A                      0x1 R/W  description="Set to enable Write echo mode"
-UDP_REGISTER_RESPONSE_PORT   0x0A                      0x2 R/W  description="for firmware version 106\n    BU - style response echoed on port 0x7d01 for write and 0x7d02 for reads\n For Firmware version 107\n Response port = 0x7d10 + (lowest octet of the IP address)."
+UDP_REGISTER_RESPONCE_PORT   0x0A                      0x2 R/W  description="for firmware version 106\n    BU - style response echoed on port 0x7d01 for write and 0x7d02 for reads\n For Firmware version 107\n Response port = 0x7d10 + (lowest octet of the IP address)."
 FIRMWARE_VERSION             0xFF                   0xffff R    description="Firmware version number"
 FIRMWARE_TRACKER            0x100               0xffffffff R    description="value increments on every compilation"
 COMPILATION_DATE            0x101               0xffffffff R    description="Value viewed in HEX"

@@ -6,7 +6,6 @@
 #include <time.h> //time
 #include <helpers/StatusDisplay/StatusDisplay.hh>
 
-using namespace std;
 
 WIBTool::MBBDevice::MBBDevice(std::vector<std::string> arg)
   : CommandList<MBBDevice>("MBB"),mbb(NULL)
@@ -34,7 +33,7 @@ WIBTool::MBBDevice::MBBDevice(std::vector<std::string> arg)
   }
 
   mbb = new MBB(Address,MBBTable);    
-  //SetInfo(mbb->GetAddress().c_str());
+  SetInfo(mbb->GetAddress().c_str());
 }
 
 WIBTool::MBBDevice::~MBBDevice()
@@ -95,7 +94,7 @@ void WIBTool::MBBDevice::LoadCommandList()
              "  status <level> <table>\n",
              &MBBDevice::autoComplete_MBBAddressTable);
 
-   /*AddCommand("html-status",&MBBDevice::StatusDisplayHTML,
+   AddCommand("html-status",&MBBDevice::StatusDisplayHTML,
              "Write status display to status.html\n"    \
              "  Usage:\n"                                       \
 	      "  html-status <level> <table>\n");
@@ -103,7 +102,7 @@ void WIBTool::MBBDevice::LoadCommandList()
    AddCommand("file-status",&MBBDevice::StatusDisplayFILE,
              "Write status display to status-<date>.dump\n"     \
              "  Usage:\n"                                       \
-	     "  file-status <level> <table>\n");*/
+	     "  file-status <level> <table>\n");
   
 }
 
@@ -350,7 +349,7 @@ CommandReturn::status WIBTool::MBBDevice::StatusDisplay(std::vector<std::string>
   return CommandReturn::OK;
   }
 
-/*CommandReturn::status WIBTool::MBBDevice::StatusDisplayHTML(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+CommandReturn::status WIBTool::MBBDevice::StatusDisplayHTML(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   //Create status display object                                        
   MBBStatus * stat = new MBBStatus(mbb);
   stat->SetHTML();
@@ -413,4 +412,4 @@ CommandReturn::status WIBTool::MBBDevice::StatusDisplayFILE(std::vector<std::str
     }
   }
   return CommandReturn::OK;
-  }*/
+  }

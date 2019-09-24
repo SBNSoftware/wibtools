@@ -20,7 +20,7 @@ class MBB
   //PTC 
   void WIBPower(uint8_t icrate,bool turnOn); //to be used to extract bit mask for PTC_DATA
   void WritePTC(uint8_t icrate, uint16_t address, uint32_t value);
-  // void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
+  //void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
   void ConfigPTC(uint8_t icrate);
   void ConfigAllPTCs();
 
@@ -31,6 +31,8 @@ class MBB
   void Write(std::string const & address,uint32_t value);
   void FullStart();
   AddressTable *mbb;
+
+  std::string GetAddress();
 
   Item const * GetItem(std::string const & str)
   { return mbb->GetItem(str);}

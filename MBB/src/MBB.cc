@@ -9,16 +9,17 @@
 MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false)
 {
   mbb = new AddressTable(MBBAddressTable,address,0);
-  // mbb->SetWriteAck(false); // Write ack will be awailable in future firmware versions
-  if(fullStart)
-  {
-    // Turn on write acknowledgments
-        mbb->SetWriteAck(false);
-	Write("UDP_EN_WR_RDBK", 1);
-	mbb->SetWriteAck(true);                                            
-        started = true; 
-	// FullStart();
-  }
+  if(fullStart){
+     //Turn on write acknowledgments
+     mbb->SetWriteAck(false);
+     Write("UDP_EN_WR_RDBK", 1);
+     mbb->SetWriteAck(true);                                            
+     started = true; 
+     }
+}
+
+std::string MBB::GetAddress(){
+  return mbb->GetRemoteAddress();
 }
 
 uint32_t MBB::Read(uint16_t address)

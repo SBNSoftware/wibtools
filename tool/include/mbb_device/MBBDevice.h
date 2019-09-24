@@ -3,7 +3,6 @@
 
 //For tool device base class
 #include "tool/CommandList.hh"
-
 #include "tool/DeviceFactory.hh"
 #include <MBB.hh>
 //#include <WIBEvent.h>
