@@ -10,6 +10,7 @@ class ASIC_reg_mapping {
  public:
   ASIC_reg_mapping();
   void set_board(const FE_ASIC_reg_mapping & fe_map, const ADC_ASIC_reg_mapping & adc_map);
+  void set_board(const FE_ASIC_reg_mapping & fe_map);
   std::vector<uint32_t> get_regs() const;
   void print() const;
 
