@@ -19,6 +19,7 @@ class MBB
 
   //PTC 
   void WIBPower(uint8_t icrate,bool turnOn); //to be used to extract bit mask for PTC_DATA
+  void EnableWIBs(uint8_t icrate, uint32_t value);
   void WritePTC(uint8_t icrate, uint16_t address, uint32_t value);
   //void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
   void ConfigPTC(uint8_t icrate);
