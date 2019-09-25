@@ -6,10 +6,7 @@
 #include <string>
 #include <AddressTable.hh>
 
-
-
-class MBB
-{
+class MBB{
  public:
   MBB(std::string const & address, std::string const & MBBAddressTable = "MBB.adt", bool fullStart=true);
 
@@ -51,4 +48,5 @@ class MBB
   MBB& operator=( const MBB&) ; // prevents copying
   bool started;
 };
+
 #endif

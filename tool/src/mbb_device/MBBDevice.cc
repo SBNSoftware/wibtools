@@ -1,7 +1,7 @@
 #include <mbb_device/MBBDevice.h>
-#include <mbb_device/MBBStatus.hh>
 #include <iostream>
 #include <MBBException.hh>
+#include <MBBStatus.hh>
 #include <fstream>
 #include <time.h> //time
 #include <helpers/StatusDisplay/StatusDisplay.hh>
