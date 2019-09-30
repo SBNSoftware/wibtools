@@ -9,6 +9,7 @@
 
 namespace WIBTool{
   class WIBStatus: public StatusDisplay {
+  
   public:
     WIBStatus(WIB *_wib):wib(NULL){
       if(_wib == NULL){
@@ -19,6 +20,10 @@ namespace WIBTool{
       wib = _wib;
       SetVersion(wib->GetSVNVersion());
     }
+  
+    std::map<std::string,double> RetrieveStatusVars();
+    void TestFunction();
+  
   private:
     void Process(std::string const & option);
     //void ProcessFEMB(uint8_t iFEMB,std::string const & singleTable);
@@ -28,10 +33,8 @@ namespace WIBTool{
     void PrintPowerTable();
     void PrintFEMBTable();
     uint32_t ConvertSignedInt(uint32_t in);
-    void TestFunction();
     WIB * wib;
     
-    std::map<std::string,double> RetrieveStatusVars();
     
     // Power monitoring
     int     FEMB_PWR[FEMB_COUNT];   // 0=off, 1=on
