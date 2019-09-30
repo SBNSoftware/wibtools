@@ -30,8 +30,9 @@ namespace WIBTool{
     uint32_t PERIOD;                                         
     uint32_t CRATE_PULSE_PERIOD;                                          
     uint32_t CRATE_CLK_TYPE;
-    uint32_t CRATE_CLK_STATUS;                                       
-    uint32_t WIB_PWR[WIB_COUNT];                                       
+    uint32_t CRATE_CLK_STATUS;
+
+    //int     FIRMWARE_VER[CRATE_COUNT];                                                                              
   };
 
 }
