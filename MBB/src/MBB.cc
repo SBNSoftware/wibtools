@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 
-MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false)
+MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false)//, crateReadSleepTime(0.01)
 {
   mbb = new AddressTable(MBBAddressTable,address,0);
   if(fullStart){
@@ -31,6 +31,25 @@ uint32_t MBB::Read(std::string const & address)
 {
   return mbb->Read(address);    
 }
+
+/*uint32_t MBB::ReadMBB(int icrate,uint16_t address){
+  if((icrate > 4) || (icrate <1)){
+    MBBException::MBB_INDEX_OUT_OF_RANGE e;
+    e.Append("In MBB::ReadMBB\n");
+    throw e;
+  }
+  return crate[icrate-1]->Read(address);    
+  usleep((useconds_t) crateReadSleepTime * 1e6);
+}
+uint32_t MBB::ReadMBB(int icrate,std::string const & address){
+  if((icrate > 4) || (icrate <1)){
+    MBBException::MBB_INDEX_OUT_OF_RANGE e;
+    e.Append("In MBB::ReadMBB\n");
+    throw e;
+  }
+  return crate[icrate-1]->Read(address);    
+  usleep((useconds_t) crateReadSleepTime * 1e6);
+  }*/
 
 void MBB::Write(uint16_t address,uint32_t value)
 {

@@ -29,6 +29,10 @@ class MBB{
   void Write(std::string const & address,uint32_t value);
   void FullStart();
   AddressTable *mbb;
+  AddressTable * crate[CRATE_COUNT];
+
+  // uint32_t ReadMBB(int icrate, uint16_t address);
+  //uint32_t ReadMBB(int icrate, std::string const & address);
 
   std::string GetAddress();
 
@@ -47,6 +51,7 @@ class MBB{
   MBB( const MBB& other) ; // prevents construction-copy
   MBB& operator=( const MBB&) ; // prevents copying
   bool started;
+  //const float crateReadSleepTime;
 };
 
 #endif
