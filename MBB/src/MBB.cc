@@ -59,7 +59,7 @@ void MBB::ResetMBB(bool reset_udp)
 
 void MBB::EnableWIBs(uint8_t icrate,uint32_t value)
 {
-  WritePTC(ic,2,value);
+  WritePTC(icrate,2,value);
 }
 
 //MBB defaults to send the correct signals to the WIBs on power up.
