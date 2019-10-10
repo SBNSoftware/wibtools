@@ -6,15 +6,27 @@
 
 
 
-WIB::WIB(std::string const & address, std::string const & WIBAddressTable, std::string const & FEMBAddressTable, bool fullStart): 
-  WIBBase(address,WIBAddressTable,FEMBAddressTable),DAQMode(UNKNOWN),FEMBStreamCount(4),FEMBCDACount(2),
-  ContinueOnFEMBRegReadError(false),ContinueOnFEMBSPIError(false),ContinueOnFEMBSyncError(true),
-  ContinueIfListOfFEMBClockPhasesDontSync(true){
+WIB::WIB(std::string const & address, 
+	 std::string const & WIBAddressTable, 
+	 std::string const & FEMBAddressTable, 
+	 bool fullStart): 
+  WIBBase(address,WIBAddressTable,FEMBAddressTable),
+  DAQMode(UNKNOWN),
+  FEMBStreamCount(4),
+  FEMBCDACount(2),
+  ContinueOnFEMBRegReadError(false),
+  ContinueOnFEMBSPIError(false),
+  ContinueOnFEMBSyncError(true),
+  ContinueIfListOfFEMBClockPhasesDontSync(true)
+{
 
   if(fullStart)
   {
     // Turn on write acknowledgments
-    wib->SetWriteAck(false);
+    int flag= Read("UDP_EN_WR_RDBK");
+    if ( flag ) wib->SetWriteAck(true);
+    else  wib->SetWriteAck(false);
+
     Write("UDP_EN_WR_RDBK", 1);
     wib->SetWriteAck(true);
     //Figure out what kind of WIB firmware we are dealing with
