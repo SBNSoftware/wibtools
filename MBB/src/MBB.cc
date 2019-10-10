@@ -4,9 +4,14 @@
 #include <iostream>
 #include <MBBException.hh>
 #include <unistd.h>
+#include <sstream>
+#include <iomanip>
+#include <bitset>
+
+#define sleep(x) usleep((useconds_t) x * 1e6)
 
 
-MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false)//, crateReadSleepTime(0.01)
+MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false), ContinueOnMBBRegReadError(false)
 {
   mbb = new AddressTable(MBBAddressTable,address,0);
   if(fullStart){
@@ -32,23 +37,11 @@ uint32_t MBB::Read(std::string const & address)
   return mbb->Read(address);    
 }
 
-/*uint32_t MBB::ReadMBB(int icrate,uint16_t address){
-  if((icrate > 4) || (icrate <1)){
-    MBBException::MBB_INDEX_OUT_OF_RANGE e;
-    e.Append("In MBB::ReadMBB\n");
-    throw e;
-  }
-  return crate[icrate-1]->Read(address);    
-  usleep((useconds_t) crateReadSleepTime * 1e6);
+/*uint32_t MBB::ReadMBB(uint16_t address){
+  return mbb->Read(address);
 }
-uint32_t MBB::ReadMBB(int icrate,std::string const & address){
-  if((icrate > 4) || (icrate <1)){
-    MBBException::MBB_INDEX_OUT_OF_RANGE e;
-    e.Append("In MBB::ReadMBB\n");
-    throw e;
-  }
-  return crate[icrate-1]->Read(address);    
-  usleep((useconds_t) crateReadSleepTime * 1e6);
+uint32_t MBB::ReadMBB(std::string const & address){
+  return mbb->Read(address);    
   }*/
 
 void MBB::Write(uint16_t address,uint32_t value)
@@ -122,3 +115,63 @@ void MBB::ConfigAllPTCs()
 	ConfigPTC(icrate); 
       }
    }
+
+/** \Setup MBB
+ *
+ *  Sets up MBB
+ *  mbb_config: list of options to configure the mbb:
+ *          PLL clock type: 0,1 for External clock input and Internal 16MHz clock respectively. 
+ *          Pulse source: 0,1 for LEMO input and MBB internal pulse generator respectively.
+ *          Pulse Period: 0,1,2 for 0ns, 10ns, 20ns and so on.
+ */
+
+void MBB::ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD){
+
+     if (PLL_CLOCK_TYPE > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: PLL_CLOCK_TYPE is allowed to be 0 (external), 1 (internal) but is: " << int(PLL_CLOCK_TYPE);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if (PULSE_SOURCE > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: PULSE_SOURCE is allowed to be 0 (LEMO), 1 (MBB) but is: " << int(PULSE_SOURCE);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if (PULSE_PERIOD > 10000000){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: PULSE_PERIOD is allowed to be 0 (0ns), 1 (10ns) and so on.. but is: " << int(PULSE_PERIOD);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     std::cout << "PLL_CLOCK_TYPE: " << int(PLL_CLOCK_TYPE) << " and PULSE_SOURCE" << int(PULSE_SOURCE) << std::endl;
+
+     if(Read("FIRMWARE_VERSION") == Read("SYS_RESET")) { // can't read register if equal
+       if(ContinueOnMBBRegReadError){
+           std::cout << "Error: Can't read registers from MBB"<< std::endl;
+           return;
+           }
+        MBBException::MBB_REG_READ_ERROR e;
+        std::stringstream expstr;
+        expstr << " Register Read Error" << std::endl; 
+	e.Append(expstr.str().c_str());
+        throw e;
+        }
+
+     std::cout << "FW VERSION " << std::hex << Read("FIRMWARE_VERSION") << std::dec << std::endl;
+
+     Write("REG_RESET", 1);
+     sleep(1);
+    
+ }
+
+void MBB::SetContinueOnMBBRegReadError(bool enable){
+  ContinueOnMBBRegReadError = enable;
+}
