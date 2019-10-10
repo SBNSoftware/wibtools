@@ -1,9 +1,6 @@
 #ifndef __MBB_EXCEPTION_HH__
 #define __MBB_EXCEPTION_HH__ 1
 
-
-
-
 #include <MBBException/ExceptionBase.hh>
 
 
@@ -23,7 +20,7 @@ namespace MBBException{
   ExceptionClassGenerator(MBB_FLASH_IHEX_ERROR,"An error while parsing intel Hex files")
   ExceptionClassGenerator(MBB_DTS_ERROR,"MBB timing system error")
   ExceptionClassGenerator(DEVICE_CREATION_ERROR, "device creation error")
-  
-}
+  ExceptionClassGenerator(MBB_REG_READ_ERROR, "Can't read MBB Registers")
+  }
 
 #endif

@@ -21,6 +21,8 @@ class MBB{
   //void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
   void ConfigPTC(uint8_t icrate);
   void ConfigAllPTCs();
+  
+  void ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD);
 
   // Basic I/O methods
   uint32_t Read(uint16_t address);
@@ -31,8 +33,8 @@ class MBB{
   AddressTable *mbb;
   AddressTable * crate[CRATE_COUNT];
 
-  // uint32_t ReadMBB(int icrate, uint16_t address);
-  //uint32_t ReadMBB(int icrate, std::string const & address);
+  //uint32_t ReadMBB(uint16_t address);
+  //uint32_t ReadMBB(std::string const & address);
 
   std::string GetAddress();
 
@@ -45,6 +47,8 @@ class MBB{
   static const int Version; //SVN version
   int GetSVNVersion(){return Version;}
 
+  void SetContinueOnMBBRegReadError(bool enable);
+
  private:
   MBB(); //disallow the default constructor
   // Prevent copying of MBB objects
@@ -52,6 +56,7 @@ class MBB{
   MBB& operator=( const MBB&) ; // prevents copying
   bool started;
   //const float crateReadSleepTime;
+   bool ContinueOnMBBRegReadError;
 };
 
 #endif

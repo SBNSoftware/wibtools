@@ -5,6 +5,7 @@
 #include <fstream>
 #include <time.h> //time
 #include <helpers/StatusDisplay/StatusDisplay.hh>
+#include <MBB.hh>
 
 
 WIBTool::MBBDevice::MBBDevice(std::vector<std::string> arg)
@@ -103,6 +104,11 @@ void WIBTool::MBBDevice::LoadCommandList()
              "Write status display to status-<date>.dump\n"     \
              "  Usage:\n"                                       \
 	     "  file-status <level> <table>\n");
+  
+   AddCommand("configMBB",&MBBDevice::ConfigMBB,
+	     "Configure the MBB\n"				\
+	     "  Usage:\n"					\
+	     "  configMBB <PLL_CLOCK_TYPE 0-1> <PULSE_SOURCE 0-1> <PULSE_PERIOD 0-10000000>\n");
   
 }
 
@@ -413,3 +419,34 @@ CommandReturn::status WIBTool::MBBDevice::StatusDisplayFILE(std::vector<std::str
   }
   return CommandReturn::OK;
   }
+
+CommandReturn::status WIBTool::MBBDevice::ConfigMBB(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
+{
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+
+  if(nArgs < 3){
+    std::cout << "Error: Not enough args to configMBB" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  if(intArg[0] > 1){
+    std::cout << "Error: Pll clock type Setting --  " << intArg[0] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[1] > 1){
+    std::cout << "Error: Invalid Pulse Source Setting --  " << intArg[1] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[2] > 10000000){
+    std::cout << "Error: Invalid Pulse Period Setting --  " << intArg[2] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  uint32_t PLL_CLOCK_TYPE = intArg[0];
+  uint32_t PULSE_SOURCE = intArg[1];
+  uint32_t PULSE_PERIOD = intArg[2];
+ 
+  mbb->ConfigMBB(PLL_CLOCK_TYPE, PULSE_SOURCE, PULSE_PERIOD);
+  return CommandReturn::OK;
+}
