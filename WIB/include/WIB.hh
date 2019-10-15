@@ -33,9 +33,9 @@ class WIB: public WIBBase {
   bool started;
 
   //initialize hardware
+  void configWIB(uint8_t clockSource = 0);
   void InitializeWIB();
   void ResetWIB(bool reset_udp=false);
-  void InitializeDTS(uint8_t PDTSsource = 0,uint8_t clockSource = 0, uint32_t PDTSAlignment_timeout = 0 /*default infinite*/);
   void EnableDAQLink(uint8_t iDAQLink);
   void EnableDAQLink_Lite(uint8_t iDAQLink,uint8_t enable);
   void StartSyncDTS();
@@ -62,13 +62,13 @@ class WIB: public WIBBase {
   uint32_t ReadDTS_CDS(uint16_t address,uint8_t byte_count = 4);
   float ConfigureDTSCDS(uint8_t source = 0);
 
-  //DTS SI5344
-  void     WriteDTS_SI5344(uint16_t address,uint32_t value,uint8_t byte_count = 4);
-  uint32_t ReadDTS_SI5344(uint16_t address,uint8_t byte_count = 4);
-  void     SetDTS_SI5344Page(uint8_t page);
-  uint8_t  GetDTS_SI5344Page();
-  uint8_t  GetDTS_SI5344AddressPage(uint16_t address);
-  void     LoadConfigDTS_SI5344(std::string const & fileName);
+  // SI5344
+  void     Write_SI5344(uint16_t address,uint32_t value,uint8_t byte_count = 4);
+  uint32_t Read_SI5344(uint16_t address,uint8_t byte_count = 4);
+  void     Set_SI5344Page(uint8_t page);
+  uint8_t  Get_SI5344Page();
+  uint8_t  Get_SI5344AddressPage(uint16_t address);
+  void     LoadConfig_SI5344(std::string const & fileName);
   void     ResetSi5344();
   void     SelectSI5344(uint64_t input, bool enable);
   void     SelectSI5342(uint64_t input, bool enable);
