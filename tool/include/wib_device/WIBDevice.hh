@@ -80,7 +80,7 @@ private:
 
 
   //INIT
-  CommandReturn::status InitializeDTS(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status ConfigWIB(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
   CommandReturn::status ResetSI5342(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
   CommandReturn::status ResetWIB(std::vector<std::string>,std::vector<uint64_t> intArg);
   CommandReturn::status ResetWIBAndCfgDTS(std::vector<std::string>,std::vector<uint64_t> intArg);

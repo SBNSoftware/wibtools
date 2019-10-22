@@ -109,20 +109,10 @@ void WIBTool::WIBDevice::LoadCommandList(){
   AddCommandAlias("fnames","FEMBnames");
   AddCommandAlias("fnodes","fnames");
 
-  AddCommand("rdcds",&WIBDevice::Read_DTS_CDS_I2C,
-	     "Read from DTS CDS i2c"\
-	     "  Usage:\n"\
-	     "  rdcds address <byte_count>\n"
-	     );
   AddCommand("rdsi5344",&WIBDevice::Read_DTS_SI5344_I2C,
 	     "Read from DTS Si5344 i2c"		\
 	     "  Usage:\n"\
 	     "  rdsi5344 address value <byte_count>\n"
-	     );
-  AddCommand("wrcds",&WIBDevice::Write_DTS_CDS_I2C,
-	     "Write to DTS CDS i2c"\
-	     "  Usage:\n"\
-	     "  wrcds address value <byte_count>\n"
 	     );
   AddCommand("wrsi5344",&WIBDevice::Write_DTS_SI5344_I2C,
 	     "Write to DTS Si5344 i2c"\
@@ -215,10 +205,6 @@ void WIBTool::WIBDevice::LoadCommandList(){
 	     "Set the current SI5344 page.\n"	\
 	     "  Usage:\n"					\
 	     "  setSI5344_Page page_number\n");
-  AddCommand("configDTSCDS",&WIBDevice::ConfigureDTSCDS,
-	     "Configure the DTS CDS.\n"	\
-	     "  Usage:\n"					\
-	     "  configDTSCDS <input>\n");
   AddCommand("resetSI5344",&WIBDevice::ResetSI5344,
 	     "Reset the Si5344.\n"				\
 	     "  Usage:\n"					\
@@ -231,18 +217,14 @@ void WIBTool::WIBDevice::LoadCommandList(){
 	     "Enable and use the SI5342.\n"			\
 	     "  Usage:\n"					\
 	     "  selectSI5342 <input:1,2,3> <1:on/0:off>\n");
-  AddCommand("initDTS",&WIBDevice::InitializeDTS,
-	     "Initialize the DTS with source FP(1) or BP(0).\n" \
-	     "  Usage:\n"					\
-	     "  initDTS <PDTS source> <clockSource> <PDTSAlignment_timeout>\n");
+  AddCommand("configWIB",&WIBDevice::ConfigWIB,
+  	     "Configure a WIB\n" \
+  	     "  Usage:\n"			       		\
+  	     "  configWIB <clockSource (0 for PLL, 1 for local)>\n");
   AddCommand("resetWIB",&WIBDevice::ResetWIB,
 	     "Reset the WIB.\n"				        \
 	     "  Usage:\n"					\
 	     "  resetWIB <force UDP Reset>\n");
-  AddCommand("resetPDTS",&WIBDevice::ResetPDTS,
-	     "Simple reset of the PDTS\n"				\
-	     "  Usage:\n"					\
-	     "  resetPDTS \n");
   AddCommand("resetWIBAndCfgDTS",&WIBDevice::ResetWIBAndCfgDTS,
 	     "Reset WIB and configure timing."				\
 	     " Afterward, you can configure (fake) FEMBs and then start streaming to DAQ\n"				\
@@ -286,10 +268,6 @@ void WIBTool::WIBDevice::LoadCommandList(){
 	     "Reset the Si5342.\n"				\
 	     "  Usage:\n"					\
 	     "  resetSi5342 \n");
-  AddCommand("start_sync_DTS",&WIBDevice::DTSStartSync,
-	     "Start sync with DTS\n"				\
-	     "  Usage:\n"					\
-	     "  start_sync_DTS \n");
   AddCommand("spy_femb",&WIBDevice::ReadCDLinkSpyBuffer,
 	     "Read out FEMB spy buffer\n"				\
 	     "  Usage:\n"					\
@@ -338,16 +316,6 @@ void WIBTool::WIBDevice::LoadCommandList(){
 	     "  Usage:\n"\
 	     "  rdWSFP address value <byte_count>\n"
 	     );
-  AddCommand("pdtsHist",&WIBDevice::PrintPDTSERRHistory,
-	     "Print PDTS debug history after an error"\
-	     "  Usage:\n"\
-	     "  pdtsHist\n"
-	     );
-  AddCommand("pdtsRunning",&WIBDevice::PDTSInRunningState,
-	     "Check if the PDTS is in the RUN state.\n"				\
-	     "  Usage:\n"					\
-	     "  pdtsRunning \n");
-
 
 }
 

@@ -26,7 +26,7 @@ CommandReturn::status WIBTool::WIBDevice::Read_DTS_SI5344_I2C(std::vector<std::s
     }
     address = intArg[0];
   }
-  uint32_t val = wib->ReadDTS_SI5344(address,byte_count);
+  uint32_t val = wib->Read_SI5344(address,byte_count);
   printf("I2C:%"PRIX16": 0x%0*X\n",address,2*byte_count,val);      
   return CommandReturn::OK;
 }
@@ -67,7 +67,7 @@ CommandReturn::status WIBTool::WIBDevice::Write_DTS_SI5344_I2C(std::vector<std::
     }
     address = intArg[0];
   }
-  wib->WriteDTS_SI5344(address,val,byte_count);
+  wib->Write_SI5344(address,val,byte_count);
   printf("I2C:%"PRIX16": 0x%0*X\n",address,2*byte_count,val);      
   return CommandReturn::OK;
 }
@@ -75,9 +75,9 @@ CommandReturn::status WIBTool::WIBDevice::Write_DTS_SI5344_I2C(std::vector<std::
 CommandReturn::status WIBTool::WIBDevice::Write_DTS_SI5344_Config(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) intArg; // to make compiler not complain about unused args
   if(strArg.size() == 0){
-    wib->LoadConfigDTS_SI5344("default");
+    wib->LoadConfig_SI5344("default");
   } else {
-    wib->LoadConfigDTS_SI5344(strArg[0]);
+    wib->LoadConfig_SI5344(strArg[0]);
   }
   return CommandReturn::OK;
 }
@@ -88,11 +88,11 @@ CommandReturn::status WIBTool::WIBDevice::Write_DTS_SI5344_Page(std::vector<std:
   if(intArg.size() == 0){
     return CommandReturn::BAD_ARGS;    
   }
-  wib->SetDTS_SI5344Page(intArg[0]);
+  wib->Set_SI5344Page(intArg[0]);
   return CommandReturn::OK;
 }
 CommandReturn::status WIBTool::WIBDevice::Read_DTS_SI5344_Page(std::vector<std::string> /*strArg*/,std::vector<uint64_t> /*intArg*/){
-  printf("SI5344 page: %u\n",wib->GetDTS_SI5344Page());
+  printf("SI5344 page: %u\n",wib->Get_SI5344Page());
   return CommandReturn::OK;
 }	   
 

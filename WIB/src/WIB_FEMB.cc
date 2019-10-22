@@ -116,8 +116,8 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   }
   std::cout << "FW VERSION " << std::hex << ReadFEMB(iFEMB,"VERSION_ID") << std::dec << std::endl;
 
-  WriteFEMB(iFEMB, "REG_RESET", 1);
-  sleep(1);
+  //WriteFEMB(iFEMB, "REG_RESET", 1);
+  //sleep(1);
 
   //WriteFEMB(iFEMB, "START_FRAME_MODE_SELECT", start_frame_mode_sel);
   //sleep(1);
@@ -133,6 +133,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   std::cout << "Time stamp reset" << std::endl;
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
+  std::cout << "here" << std::endl;
 
   // These are all Jack's WIB addresses, need to figure out Dan's addresses for functionality
   ////Sync Time stamp /WIB
