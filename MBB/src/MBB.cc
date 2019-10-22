@@ -14,6 +14,7 @@
 MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false), ContinueOnMBBRegReadError(false)
 {
   mbb = new AddressTable(MBBAddressTable,address,0);
+
   if(fullStart){
      //Turn on write acknowledgments
      mbb->SetWriteAck(false);
@@ -21,6 +22,7 @@ MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool 
      mbb->SetWriteAck(true);                                            
      started = true; 
      }
+
 }
 
 std::string MBB::GetAddress(){
@@ -36,13 +38,6 @@ uint32_t MBB::Read(std::string const & address)
 {
   return mbb->Read(address);    
 }
-
-/*uint32_t MBB::ReadMBB(uint16_t address){
-  return mbb->Read(address);
-}
-uint32_t MBB::ReadMBB(std::string const & address){
-  return mbb->Read(address);    
-  }*/
 
 void MBB::Write(uint16_t address,uint32_t value)
 {
@@ -75,17 +70,16 @@ void MBB::EnableWIBs(uint8_t icrate,uint32_t value)
 }
 
 //MBB defaults to send the correct signals to the WIBs on power up.
-void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value)
-{
-  Write("PTC_CRATE_ADDRESS", icrate);
+void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value){
   Write("PTC_DATA_ADDRESS", address);
+  Write("PTC_CRATE_ADDRESS", icrate);
   Write("PTC_DATA", value);
   Write("PTC_WR_REG", 0);
   usleep(1000);
   Write("PTC_WR_REG", 1);
   usleep(1000);
   Write("PTC_WR_REG", 0);
-}
+  }
 
 void MBB::ConfigPTC(uint8_t icrate)
   {
@@ -98,23 +92,27 @@ void MBB::ConfigPTC(uint8_t icrate)
 	e.Append(expstr.str().c_str());
 	throw e;
        }
-    // to get the bitmask for PTC_DATA (more subtelities can be added to throw errors! analogous to FEMBPower!)
+    //Controlling WIB power
     std::string reg = "PTC_DATA";
     const Item *g = GetItem(reg);
-    std::cout<<"Mask: "<<std::hex<<g->mask<<std::dec<<"\n";
-    // include the turnOn case like FEMBPower?
-    // the bitmask is passed as an integer argument in WritePTC()
+    
+    Write(reg, 0xffff);// Turns all the WIBs ON.
+    Write(reg, 0x0); //Turns OFF WIB 1
+    Write(reg, 0x1); //Turns OFF WIB 2
+    Write(reg, 0x2); //Turns OFF WIB 3
+    Write(reg, 0x3); //Turns OFF WIB 4
+    Write(reg, 0x4); //Turns OFF WIB 5
+    Write(reg, 0x5); //Turns OFF WIB 6
+   
     WritePTC(icrate, 0x2, g->mask);
    
   }
 
-void MBB::ConfigAllPTCs()
-   {
-      for(uint8_t icrate=1; icrate <= CRATE_COUNT; icrate++)
-      {
-	ConfigPTC(icrate); 
-      }
-   }
+void MBB::ConfigAllPTCs(){
+          for(uint8_t icrate=1; icrate <= CRATE_COUNT; icrate++){
+	      ConfigPTC(icrate); 
+              }
+          }
 
 /** \Setup MBB
  *
@@ -151,9 +149,30 @@ void MBB::ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PUL
          throw e;
          }
 
-     std::cout << "PLL_CLOCK_TYPE: " << int(PLL_CLOCK_TYPE) << " and PULSE_SOURCE" << int(PULSE_SOURCE) << std::endl;
+     if(PLL_CLOCK_TYPE==0){
+        if(Read("PLL_ACTIVE_CLK")==1){
+           Write("PLL_CLOCK_SELECT",0);
+           Write("PLL_CLOCK_SELECT",1);
+           }
+        else if(Read("PLL_ACTIVE_CLK")==0){
+	        Write("PLL_CLOCK_SELECT",0);
+	        }
+        }
 
-     if(Read("FIRMWARE_VERSION") == Read("SYS_RESET")) { // can't read register if equal
+     if(PLL_CLOCK_TYPE==1){
+        if(Read("PLL_ACTIVE_CLK")==0){
+	  Write("PLL_CLOCK_SELECT",0);
+	  Write("PLL_CLOCK_SELECT",1);
+          }
+        else if(Read("PLL_ACTIVE_CLK")==1){
+                Write("PLL_CLOCK_SELECT",1);
+	        }
+        } 
+
+     Write("PULSE_SRC_SELECT", PULSE_SOURCE);
+     Write("PULSE_PERIOD",     PULSE_PERIOD);
+
+     /*if(Read("FIRMWARE_VERSION") == Read("SYS_RESET")) { // can't read register if equal
        if(ContinueOnMBBRegReadError){
            std::cout << "Error: Can't read registers from MBB"<< std::endl;
            return;
@@ -163,11 +182,9 @@ void MBB::ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PUL
         expstr << " Register Read Error" << std::endl; 
 	e.Append(expstr.str().c_str());
         throw e;
-        }
+        }*/
 
-     std::cout << "FW VERSION " << std::hex << Read("FIRMWARE_VERSION") << std::dec << std::endl;
-
-     Write("REG_RESET", 1);
+     //Write("REG_RESET", 1);
      sleep(1);
     
  }

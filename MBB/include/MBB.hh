@@ -27,14 +27,13 @@ class MBB{
   // Basic I/O methods
   uint32_t Read(uint16_t address);
   uint32_t Read(std::string const & address);
+  uint32_t ReadPTC(int icrate, uint16_t address);
+  uint32_t ReadPTC(int icrate, std::string const & address);
   void Write(uint16_t address,uint32_t value);
   void Write(std::string const & address,uint32_t value);
   void FullStart();
-  AddressTable *mbb;
-  AddressTable * crate[CRATE_COUNT];
 
-  //uint32_t ReadMBB(uint16_t address);
-  //uint32_t ReadMBB(std::string const & address);
+  AddressTable * mbb;
 
   std::string GetAddress();
 
@@ -44,7 +43,6 @@ class MBB{
   std::vector<std::string> GetNames(std::string const & regex)
   { return mbb->GetNames(regex); }
   
-  static const int Version; //SVN version
   int GetSVNVersion(){return Version;}
 
   void SetContinueOnMBBRegReadError(bool enable);
@@ -54,9 +52,11 @@ class MBB{
   // Prevent copying of MBB objects
   MBB( const MBB& other) ; // prevents construction-copy
   MBB& operator=( const MBB&) ; // prevents copying
+
+  static const int Version; //SVN version
   bool started;
-  //const float crateReadSleepTime;
-   bool ContinueOnMBBRegReadError;
+  //const float PTCReadSleepTime;
+  bool ContinueOnMBBRegReadError;
 };
 
 #endif
