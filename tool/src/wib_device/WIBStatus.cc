@@ -158,7 +158,6 @@ void WIBTool::WIBStatus::ProcessWIB(){
 }
 
 
-//void WIBTool::WIBStatus::Process(std::string const & singleTable){  
 void WIBTool::WIBStatus::Process(std::string const & option){  
   // Main control function for the 'status' command in wibtools.
   // Need to output:

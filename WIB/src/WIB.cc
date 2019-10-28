@@ -17,22 +17,7 @@ WIB::WIB(std::string const & address, std::string const & WIBAddressTable, std::
     wib->SetWriteAck(false);
     Write("UDP_EN_WR_RDBK", 1);
     wib->SetWriteAck(true);
-    //Figure out what kind of WIB firmware we are dealing with
-    //FEMBCount = Read("SYSTEM.FEMB_COUNT");
-    //DAQLinkCount = Read("SYSTEM.DAQ_LINK_COUNT");
-    //Hardcoded lookup for RCE and FELIX
-    // Not readable in SBND
-    FEMBCount = 4;
-    DAQLinkCount = 4;
-    if((FEMBCount == 4) && (DAQLinkCount == 4)){
-      DAQMode = RCE;
-    }else if((FEMBCount == 4) && (DAQLinkCount == 2)){
-      DAQMode = FELIX;
-    }
-    //TODO check FEMBStreamCount and FEMCDACount from registers on the WIB
-    //TODO create those registers
-    //Write("POWER.ENABLE.MASTER_BIAS",1);
-    started = true;
+    FullStart();
   }
 }
 
@@ -40,32 +25,23 @@ WIB::~WIB(){
 }
 
 void WIB::FullStart(){
-  //Figure out what kind of WIB firmware we are dealing with
-  //FEMBCount = Read("SYSTEM.FEMB_COUNT");
-  //DAQLinkCount = Read("SYSTEM.DAQ_LINK_COUNT");
-  //Hardcoded lookup for RCE and FELIX
-  // SBND has fixed mode, not readable in firmware (wfb)
+  //SBND has fixed mode, not readable in firmware (wfb)
   FEMBCount = 4;
   DAQLinkCount = 4;
-  if((FEMBCount == 4) && (DAQLinkCount == 4)){
-    DAQMode = RCE;
-  }else if((FEMBCount == 4) && (DAQLinkCount == 2)){
-    DAQMode = FELIX;
-  }
   //TODO check FEMBStreamCount and FEMCDACount from registers on the WIB
   //TODO create those registers
-  //Write("POWER.ENABLE.MASTER_BIAS",1);   
   started = true;
 }
 
 void WIB::EnableDAQLink(uint8_t iDAQLink){
-  //CHeck if we know how to dael with this firmware
-  if(!((DAQMode == RCE)||(DAQMode == FELIX))){
-    //Not RCE or FELIX firmware, return
-    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
-    e.Append("Automatic DAQLink configuration not supported with this firmware.\n");    
-    throw e;
-  }
+
+  // 0x01, bit 3, "SBND_START_DAQ"
+  // 1 = begin sending data from FEMBs->WIB
+  // (must be flipped back to 0)
+  
+  // 0x14, bit 1, "TX_PACK_Stream_EN"
+  // 0 = enable data stream from WIB->Nevis
+
 
   //Build the base string for this DAQLINK
   std::string base("DAQ_LINK_");
@@ -85,14 +61,7 @@ void WIB::EnableDAQLink(uint8_t iDAQLink){
 }
 
 void WIB::EnableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
-  //CHeck if we know how to dael with this firmware
-  if(!((DAQMode == RCE)||(DAQMode == FELIX))){
-    //Not RCE or FELIX firmware, return
-    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
-    e.Append("Automatic DAQLink configuration not supported with this firmware.\n");    
-    throw e;
-  }
-
+  
   //Build the base string for this DAQLINK
   std::string base("DAQ_LINK_");
   base.push_back(GetDAQLinkChar(iDAQLink));
@@ -108,34 +77,6 @@ void WIB::EnableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
   Write(base+"ENABLE",enable);
 }
 
-/*void WIB::DisableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
-  //CHeck if we know how to dael with this firmware
-  if(!((DAQMode == RCE)||(DAQMode == FELIX))){
-    //Not RCE or FELIX firmware, return
-    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
-    e.Append("Automatic DAQLink configuration not supported with this firmware.\n");    
-    throw e;
-  }
-
-  //Build the base string for this DAQLINK
-  std::string base("DAQ_LINK_");
-  base.push_back(GetDAQLinkChar(iDAQLink));
-  base.append(".CONTROL.");
-  
-  uint8_t stream = 0;
-  if(DAQMode == RCE) stream = 0xF;
-  else stream = 0xFF; 
-  
-  if(enable){
-    Write(base+"ENABLE_CDA_STREAM",stream);
-
-    Write(base+"ENABLE",enable);  
-  }
-  else{
-    Write(base+"ENABLE_CDA_STREAM",0);
-    Write(base+"ENABLE",0);
-  }
-}*/
 
 void WIB::InitializeWIB(){
   //run resets
@@ -209,6 +150,7 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
     WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
   }
+ // retain localClock input, get rid of DAQ mode stuff
   if(localClock > 1){
     WIBException::WIB_BAD_ARGS e;
     e.Append("localClock > 1; must be 0 (for DTS) or 1 (for local clock)\n");
@@ -226,10 +168,10 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
   }
 
   // get this register so we can leave it in the state it started in
-  uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
+  //uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
  
   ResetWIB();
-  Write("SYSTEM.SLOW_CONTROL_DND",1);
+  //Write("SYSTEM.SLOW_CONTROL_DND",1);
   sleep(1);
  
   for (size_t iFEMB=1; iFEMB<=4; iFEMB++){
@@ -245,13 +187,13 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
   if(localClock > 0){
     printf("Configuring local clock\n");
     //Configure the SI5344 to use the local oscillator instead of the PDTS
-    LoadConfigDTS_SI5344("default");
+    LoadConfigDTS_SI5344("default"); // still have SI5344, need to modify function (get rid of DTS stuff)
     sleep(1);
     SelectSI5344(1,1);
     sleep(1);
     Write("DTS.CONVERT_CONTROL.EN_FAKE",1);  
     Write("DTS.CONVERT_CONTROL.LOCAL_TIMESTAMP",1);  
-    Write("FEMB_CNC.CNC_CLOCK_SELECT",1);  
+    Write("FEMB_CNC.CNC_CLOCK_SELECT",1);  // <-- change to proper reg name? 0x3? (external = 0)
     //    Write("FEMB_CNC.ENABLE_DTS_CMDS",1);  
     sleep(1);
   }
@@ -275,7 +217,7 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
   Write("FEMB3.DAQ.ENABLE",0);  
   Write("FEMB4.DAQ.ENABLE",0);  
  
-  Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
+  //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
 
 }
 
@@ -357,10 +299,10 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
 
   if(reset_check){
     // get this register so we can leave it in the state it started in
-    uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
+//    uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
   
     ResetWIB();
-    Write("SYSTEM.SLOW_CONTROL_DND",1);
+    //Write("SYSTEM.SLOW_CONTROL_DND",1);
   
     for (size_t iFEMB=1; iFEMB<=4; iFEMB++){
       FEMBPower(iFEMB,0);
@@ -400,7 +342,7 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
     }
   
   
-    Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
+    //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
   }
   //Now we have the 128MHz clock
   std::cout << "Resetting DAQ Links" << std::endl;
@@ -419,15 +361,16 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
 }
 
 void WIB::StartStreamToDAQ(){
-  if(DAQMode == UNKNOWN){
+  /*if(DAQMode == UNKNOWN){
     WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
   }
   WriteWithRetry("DTS.CONVERT_CONTROL.HALT",1);
   WriteWithRetry("DTS.CONVERT_CONTROL.ENABLE",0);
-
+*/
 
   // get this register so we can leave it in the state it started in
+  /*
   uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
   Write("SYSTEM.SLOW_CONTROL_DND",1);
 
@@ -436,14 +379,15 @@ void WIB::StartStreamToDAQ(){
   sleep(1);
   Write("SYSTEM.RESET.DAQ_PATH_RESET",1);  
   sleep(1);
+  */
 
   // Enable DAQ links
   size_t nLinks = 4;
-  if (DAQMode == FELIX){
-    nLinks = 2;
-  }
+  //if (DAQMode == FELIX){
+  //  nLinks = 2;
+  //}
   for (size_t iLink=1; iLink <= nLinks; iLink++){
-    EnableDAQLink_Lite(iLink,1);
+    EnableDAQLink_Lite(iLink,1); // TX_PAC_STREAM_EN?
   }
 
   // Enable the FEMB to align to idle and wait for convert
@@ -459,7 +403,7 @@ void WIB::StartStreamToDAQ(){
   //Write("FEMB_CNC.FEMB_START",1);  
   //  Write("SYSTEM.RESET.FEMB_COUNTER_RESET",1);  
 
-  Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
+  //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
 }
 
 
