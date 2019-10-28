@@ -69,7 +69,8 @@ namespace MBBException
     exBase() throw() ;
     //Copy function for base class internals (called by derived)           
     void Copy(const exBase & rh) throw();
-    exBase(const exBase & rh) throw() {(void) rh;}; // have to cast to void to keep from unused param error                                                   
+    exBase(const exBase & rh) throw() {(void) rh;}; // have to cast to void to keep from unused param error
+                                                   
   private:
     //assignment operator is private and not implemented            
     exBase & operator=(const exBase & rh) throw();

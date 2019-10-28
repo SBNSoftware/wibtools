@@ -1,23 +1,24 @@
 #include <MBBStatus.hh>
 #include <MBB.hh>
 #include <iostream>
+
 void WIBTool::MBBStatus::ProcessPTC(uint8_t crate){
     
-    // int icrate = crate-1;
+  // int icrate = crate-1;
     CRATE_PULSE_SRC  = 0;
     PERIOD = 0;
     CRATE_PULSE_PERIOD   = 0;
     CRATE_CLK_TYPE = 0;
     CRATE_CLK_STATUS = 0;
 
-    // check if board is on
-    for(int icrate=0; icrate<4; icrate++){
+    // check if board is on PTC_CRATE_ADDRESS will be compared with PTC dipswitch that you put manually. Leave for now.
+    /*for(int icrate=0; icrate<4; icrate++){
         CRATE_PWR[icrate]   = 0;
         const Item *g = mbb->GetItem("PTC_CRATE_ADDRESS");
         if( (g->mask & mbb->Read(g->address))==g->mask ){
              CRATE_PWR[icrate]=1;
              }
-        }
+	     }*/
 
     // get type of pulse, pulse period, Clock type and Clock Status.
     CRATE_PULSE_SRC = mbb->Read("PULSE_SRC_SELECT");
@@ -27,7 +28,10 @@ void WIBTool::MBBStatus::ProcessPTC(uint8_t crate){
     CRATE_CLK_STATUS = mbb->Read("PLL_CLK_STATUS");
 
     // get everything else
-    //FIRMWARE_VER[icrate]  = mbb->ReadMBB(crate, "FIRMWARE_VERSION");
+    FIRMWARE_VER  = mbb->Read("FIRMWARE_VERSION");
+    FIRMWARE_TRK  = mbb->Read("FIRMWARE_TRACKER");
+    COMPILATION_DT= mbb->Read("COMPILATION_DATE");
+    COMPILATION_TM= mbb->Read("COMPILATION_TIME");
  }
 
 void WIBTool::MBBStatus::Process(std::string const & singleTable){
@@ -50,23 +54,28 @@ void WIBTool::MBBStatus::Process(std::string const & singleTable){
   // Printing the MBB table
   // ========================================================================================================================================
   
-  printf("\n\n%13s","PTC Num:"); for(uint8_t i=0;i<CRATE_COUNT;i++) printf("%13d",i+1); printf("\n");
-  printf("   =========="); for(uint8_t i=0;i<CRATE_COUNT;i++) printf("============="); printf("\n");
-  printf("%13s","ON/OFF"); for(uint8_t i=0;i<CRATE_COUNT;i++) printf("%13d",CRATE_PWR[i]); printf("\n");
-  printf("%13s","PULSE TYPE"); for(uint8_t i=0;i<CRATE_COUNT;i++){
-                                   if(CRATE_PULSE_SRC==0){ printf("%13s","LEMO");}
-                                   else { printf("%13s","MBB");}} printf("\n");
-  printf("%13s","PLS PERIOD ns"); for(uint8_t i=0;i<CRATE_COUNT;i++) printf("%13d",CRATE_PULSE_PERIOD); printf("\n");
-  printf("%13s","CLOCK TYPE"); for(uint8_t i=0;i<CRATE_COUNT;i++){
-                                   if(CRATE_CLK_TYPE==0){ printf("%13s","External");}
-                                   else { printf("%13s","Internal");}} printf("\n");
-  printf("%13s","CLOCK STATUS"); for(uint8_t i=0;i<CRATE_COUNT;i++){
-                                   if(CRATE_CLK_STATUS==0){ printf("%13s","Good");}
-                                   if(CRATE_CLK_STATUS==1){ printf("%13s","Bad");}
-                                   if(CRATE_CLK_STATUS==4){ printf("%13s","External");}
-                                   if(CRATE_CLK_STATUS==5){ printf("%13s","Internal");}} printf("\n");
-  //printf("%20s","FW VERSION:");  for(uint8_t i=0;i<CRATE_COUNT;i++) printf("%12d",FIRMWARE_VER[i]); printf("\n");  
-  printf("=================================================================");
+  printf("\n\n%20s","PTC Num:"); for(uint8_t i=0;i<CRATE_COUNT;i++) printf("%20d",i+1); printf("\n");
+  printf("   =========="); for(uint8_t i=0;i<CRATE_COUNT;i++) printf("======================="); printf("\n");
+  //printf("%20s","ON/OFF"); for(uint8_t i=0;i<CRATE_COUNT;i++) printf("%20d",CRATE_PWR[i]); printf("\n");
+  printf("%20s","PULSE TYPE"); for(uint8_t i=0;i<CRATE_COUNT;i++){
+                                   if(CRATE_PULSE_SRC==0){ printf("%20s","LEMO");}
+                                   else { printf("%20s","MBB");}} printf("\n");
+  printf("%20s","PLS PERIOD ns"); for(uint8_t i=0;i<CRATE_COUNT;i++) printf("%20d",CRATE_PULSE_PERIOD); printf("\n");
+  printf("%20s","CLOCK TYPE"); for(uint8_t i=0;i<CRATE_COUNT;i++){
+                                   if(CRATE_CLK_TYPE==0){ printf("%20s","External");}
+                                   else { printf("%20s","Internal");}} printf("\n");
+  printf("%20s","CLOCK STATUS"); for(uint8_t i=0;i<CRATE_COUNT;i++){
+                                   if(CRATE_CLK_STATUS==0){ printf("%20s","Good");}
+                                   if(CRATE_CLK_STATUS==1){ printf("%20s","Bad");}
+                                   if(CRATE_CLK_STATUS==4){ printf("%20s","External");}
+                                   if(CRATE_CLK_STATUS==5){ printf("%20s","Internal");}} printf("\n");
+  printf("=========================================================================================================="); printf("\n");
+  printf("%20s","FW VERSION:");         printf("%20x",FIRMWARE_VER);   printf("\n");
+  printf("%20s","FW TRACKER:");         printf("%20x",FIRMWARE_TRK);   printf("\n");
+  printf("%20s","COMPILATION DATE:");   printf("%20x",COMPILATION_DT); printf("\n");
+  printf("%20s","COMPILATION TIME:");   printf("%20x",COMPILATION_TM); printf("\n");
+  
+  printf("==========================================================================================================");
   printf("\n");
     
 }

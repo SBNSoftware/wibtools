@@ -4,11 +4,17 @@
 #include <iostream>
 #include <MBBException.hh>
 #include <unistd.h>
+#include <sstream>
+#include <iomanip>
+#include <bitset>
+
+#define sleep(x) usleep((useconds_t) x * 1e6)
 
 
-MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false)//, crateReadSleepTime(0.01)
+MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false), ContinueOnMBBRegReadError(false)
 {
   mbb = new AddressTable(MBBAddressTable,address,0);
+
   if(fullStart){
      //Turn on write acknowledgments
      mbb->SetWriteAck(false);
@@ -16,6 +22,7 @@ MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool 
      mbb->SetWriteAck(true);                                            
      started = true; 
      }
+
 }
 
 std::string MBB::GetAddress(){
@@ -31,25 +38,6 @@ uint32_t MBB::Read(std::string const & address)
 {
   return mbb->Read(address);    
 }
-
-/*uint32_t MBB::ReadMBB(int icrate,uint16_t address){
-  if((icrate > 4) || (icrate <1)){
-    MBBException::MBB_INDEX_OUT_OF_RANGE e;
-    e.Append("In MBB::ReadMBB\n");
-    throw e;
-  }
-  return crate[icrate-1]->Read(address);    
-  usleep((useconds_t) crateReadSleepTime * 1e6);
-}
-uint32_t MBB::ReadMBB(int icrate,std::string const & address){
-  if((icrate > 4) || (icrate <1)){
-    MBBException::MBB_INDEX_OUT_OF_RANGE e;
-    e.Append("In MBB::ReadMBB\n");
-    throw e;
-  }
-  return crate[icrate-1]->Read(address);    
-  usleep((useconds_t) crateReadSleepTime * 1e6);
-  }*/
 
 void MBB::Write(uint16_t address,uint32_t value)
 {
@@ -82,17 +70,16 @@ void MBB::EnableWIBs(uint8_t icrate,uint32_t value)
 }
 
 //MBB defaults to send the correct signals to the WIBs on power up.
-void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value)
-{
-  Write("PTC_CRATE_ADDRESS", icrate);
+void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value){
   Write("PTC_DATA_ADDRESS", address);
+  Write("PTC_CRATE_ADDRESS", icrate);
   Write("PTC_DATA", value);
   Write("PTC_WR_REG", 0);
   usleep(1000);
   Write("PTC_WR_REG", 1);
   usleep(1000);
   Write("PTC_WR_REG", 0);
-}
+  }
 
 void MBB::ConfigPTC(uint8_t icrate)
   {
@@ -105,20 +92,367 @@ void MBB::ConfigPTC(uint8_t icrate)
 	e.Append(expstr.str().c_str());
 	throw e;
        }
-    // to get the bitmask for PTC_DATA (more subtelities can be added to throw errors! analogous to FEMBPower!)
+
     std::string reg = "PTC_DATA";
     const Item *g = GetItem(reg);
-    std::cout<<"Mask: "<<std::hex<<g->mask<<std::dec<<"\n";
-    // include the turnOn case like FEMBPower?
-    // the bitmask is passed as an integer argument in WritePTC()
-    WritePTC(icrate, 0x2, g->mask);
+    WritePTC(icrate, 0x2, g->mask);//passes the mask as the value in WritePTC
    
   }
 
-void MBB::ConfigAllPTCs()
-   {
-      for(uint8_t icrate=1; icrate <= CRATE_COUNT; icrate++)
-      {
-	ConfigPTC(icrate); 
-      }
-   }
+void MBB::ConfigAllPTCs(){
+          for(uint8_t icrate=1; icrate <= CRATE_COUNT; icrate++){
+	      ConfigPTC(icrate); 
+              }
+          }
+
+/** \Setup MBB
+ *
+ *  Sets up MBB
+ *  mbb_config: list of options to configure the mbb:
+ *          PLL clock type: 0,1 for External clock input and Internal 16MHz clock respectively. 
+ *          Pulse source: 0,1 for LEMO input and MBB internal pulse generator respectively.
+ *          Pulse Period: 0,1,2 for 0ns, 10ns, 20ns and so on.
+ *          WIB Power: 0,1 for OFF, ON respectively.
+ */
+
+void MBB::ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6){
+
+     if (PLL_CLOCK_TYPE > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: PLL_CLOCK_TYPE is allowed to be 0 (external), 1 (internal) but is: " << int(PLL_CLOCK_TYPE);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if (PULSE_SOURCE > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: PULSE_SOURCE is allowed to be 0 (LEMO), 1 (MBB) but is: " << int(PULSE_SOURCE);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if (PULSE_PERIOD > 10000000){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: PULSE_PERIOD is allowed to be 0 (0ns), 1 (10ns) and so on.. but is: " << int(PULSE_PERIOD);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if (wib_pwr1 > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: wib_pwr1 is allowed to be 0 (OFF), 1 (ON) but is: " << int(wib_pwr1);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if (wib_pwr2 > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: wib_pwr2 is allowed to be 0 (OFF), 1 (ON) but is: " << int(wib_pwr2);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if (wib_pwr3 > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: wib_pwr3 is allowed to be 0 (OFF), 1 (ON) but is: " << int(wib_pwr3);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+  
+     if (wib_pwr4 > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: wib_pwr4 is allowed to be 0 (OFF), 1 (ON) but is: " << int(wib_pwr4);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if (wib_pwr5 > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: wib_pwr5 is allowed to be 0 (OFF), 1 (ON) but is: " << int(wib_pwr5);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if (wib_pwr6 > 1){
+         MBBException::MBB_BAD_ARGS e;
+         std::stringstream expstr;
+         expstr << "ConfigMBB: wib_pwr6 is allowed to be 0 (OFF), 1 (ON) but is: " << int(wib_pwr6);
+         e.Append(expstr.str().c_str());
+         throw e;
+         }
+
+     if(PLL_CLOCK_TYPE==0){
+        if(Read("PLL_ACTIVE_CLK")==1){
+           Write("PLL_CLOCK_SELECT",0);
+           Write("PLL_CLOCK_SELECT",1);
+           }
+        else if(Read("PLL_ACTIVE_CLK")==0){
+	        Write("PLL_CLOCK_SELECT",0);
+	        }
+        }
+
+     if(PLL_CLOCK_TYPE==1){
+        if(Read("PLL_ACTIVE_CLK")==0){
+	  Write("PLL_CLOCK_SELECT",0);
+	  Write("PLL_CLOCK_SELECT",1);
+          }
+        else if(Read("PLL_ACTIVE_CLK")==1){
+                Write("PLL_CLOCK_SELECT",1);
+	        }
+        } 
+
+     Write("PULSE_SRC_SELECT", PULSE_SOURCE);
+     Write("PULSE_PERIOD",     PULSE_PERIOD);
+
+     //controlling WIB power; default setting is to turn ON all WIBs
+
+     Write("PTC_DATA", 0x3F); // turns off all the WIBs
+     
+     // controlling power on WIB 1
+     if(wib_pwr1==1)  Write("PTC_DATA", 0x3E);//turns ON WIB 1 and all others OFF(implied).
+ 
+     // controlling power on WIB 2 
+     if(wib_pwr2==1){
+           if(wib_pwr1==1)  Write("PTC_DATA", 0x3C);// turns ON WIB 1,2 and all others OFF(implied).
+           if(wib_pwr1==0)  Write("PTC_DATA", 0x3D);// turns ON WIB 2.
+        }
+ 
+     // controlling power on WIB 3
+     if(wib_pwr3==1){
+              if(wib_pwr2==0){
+	                      if(wib_pwr1==0) Write("PTC_DATA", 0x3B);// turns ON WIB 3.
+                              if(wib_pwr1==1) Write("PTC_DATA", 0x3A);// turns ON WIB 1,3.
+                             }
+              if(wib_pwr2==1){
+                              if(wib_pwr1==0) Write("PTC_DATA", 0x39);// turns ON WIB 2,3.                                          
+                              if(wib_pwr1==1) Write("PTC_DATA", 0x38);// turns ON WIB 1,2,3.                                                    
+                             }
+          }
+
+     // controlling power on WIB 4
+     if(wib_pwr4==1){
+            if(wib_pwr3==1){
+	           if(wib_pwr2==1){
+	                           if(wib_pwr1==1) Write("PTC_DATA", 0x30);// turns ON WIB 1,2,3,4.
+	                           if(wib_pwr1==0) Write("PTC_DATA", 0x31);// turns ON WIB 2,3,4.
+	                          }
+         
+	           if(wib_pwr2==0){
+	                           if(wib_pwr1==1) Write("PTC_DATA", 0x32);// turns ON WIB 1,3,4.
+	                           if(wib_pwr1==0) Write("PTC_DATA", 0x33);// turns ON WIB 3,4.
+	                          }
+	  }
+
+	    if(wib_pwr3==0){
+	           if(wib_pwr2==1){
+	                           if(wib_pwr1==1) Write("PTC_DATA", 0x34);// turns ON WIB 1,2,4.                                      
+                                   if(wib_pwr1==0) Write("PTC_DATA", 0x35);// turns ON WIB 2,4.                                          
+                                  }
+	  
+	           if(wib_pwr2==0){
+	                           if(wib_pwr1==1) Write("PTC_DATA", 0x36);// turns ON WIB 1,4.                                           
+                                   if(wib_pwr1==0) Write("PTC_DATA", 0x37);// turns ON WIB 4.                                           
+                                  }
+	      }
+        }
+
+     // controlling power on WIB 5
+     if(wib_pwr5==1){
+            if(wib_pwr4==1){
+	           if(wib_pwr3==1){
+                          if(wib_pwr2==1){
+	                                  if(wib_pwr1==1) Write("PTC_DATA", 0x20);// turns ON WIB 1,2,3,4,5.                                                 
+                                          if(wib_pwr1==0) Write("PTC_DATA", 0x21);// turns ON WIB 2,3,4,5.                                 
+                                          }
+
+                          if(wib_pwr2==0){
+                                          if(wib_pwr1==1) Write("PTC_DATA", 0x22);// turns ON WIB 1,3,4,5.                             
+                                          if(wib_pwr1==0) Write("PTC_DATA", 0x23);// turns ON WIB 3,4,5.                                
+                                         }
+	               }
+
+	           if(wib_pwr3==0){
+                          if(wib_pwr2==1){
+	                                  if(wib_pwr1==1) Write("PTC_DATA", 0x24);// turns ON WIB 1,2,4,5.                               
+                                          if(wib_pwr1==0) Write("PTC_DATA", 0x25);// turns ON WIB 2,4,5.                                  
+                                          }
+
+                          if(wib_pwr2==0){
+	                                  if(wib_pwr1==1) Write("PTC_DATA", 0x26);// turns ON WIB 1,4,5.                                  
+                                          if(wib_pwr1==0) Write("PTC_DATA", 0x27);// turns ON WIB 4,5.                                  
+                                         }
+	              }
+	    }
+
+	    if(wib_pwr4==0){
+	           if(wib_pwr3==1){
+	                  if(wib_pwr2==1){
+	                                  if(wib_pwr1==1) Write("PTC_DATA", 0x28);// turns ON WIB 1,2,3,5.                                                   
+                                          if(wib_pwr1==0) Write("PTC_DATA", 0x29);// turns ON WIB 2,3,5.                                
+                                          } 
+
+	                  if(wib_pwr2==0){
+	                                  if(wib_pwr1==1) Write("PTC_DATA", 0x2A);// turns ON WIB 1,3,5.                               
+                                          if(wib_pwr1==0) Write("PTC_DATA", 0x2B);// turns ON WIB 3,5.                                 
+                                         }  
+	            }
+
+	           if(wib_pwr3==0){
+	                  if(wib_pwr2==1){
+	                                  if(wib_pwr1==1) Write("PTC_DATA", 0x2C);// turns ON WIB 1,2,5.                                
+                                          if(wib_pwr1==0) Write("PTC_DATA", 0x2D);// turns ON WIB 2,5.                                   
+                                         }
+
+	                  if(wib_pwr2==0){
+	                                  if(wib_pwr1==1) Write("PTC_DATA", 0x2E);// turns ON WIB 1,5.                                 
+                                          if(wib_pwr1==0) Write("PTC_DATA", 0x2F);// turns ON WIB 5.                                
+                                         }
+		   }
+	    }
+     }
+             
+     // controlling power on WIB 6
+	if(wib_pwr6==1){
+	      if(wib_pwr5==1){
+	            if(wib_pwr4==1){
+	                  if(wib_pwr3==1){
+		                if(wib_pwr2==1){
+		                                if(wib_pwr1==1) Write("PTC_DATA", 0x00);// turns ON WIB 1,2,3,4,5,6.                                    
+                                                if(wib_pwr1==0) Write("PTC_DATA", 0x01);// turns ON WIB 2,3,4,5,6.                                      
+                                               }
+
+	                        if(wib_pwr2==0){
+		                                if(wib_pwr1==1) Write("PTC_DATA", 0x02);// turns ON WIB 1,3,4,5,6.                                     
+                                                if(wib_pwr1==0) Write("PTC_DATA", 0x03);// turns ON WIB 3,4,5,6.                                      
+                                               }
+		    }
+
+	                 if(wib_pwr3==0){
+		               if(wib_pwr2==1){
+		                               if(wib_pwr1==1) Write("PTC_DATA", 0x04);// turns ON WIB 1,2,4,5,6.                                       
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x05);// turns ON WIB 2,4,5,6.                                          
+                                              }
+
+		               if(wib_pwr2==0){
+		                               if(wib_pwr1==1) Write("PTC_DATA", 0x06);// turns ON WIB 1,4,5,6.                               
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x07);// turns ON WIB 4,5,6.                                        
+                                              }
+	           }
+	      }
+
+	            if(wib_pwr4==0){
+	                  if(wib_pwr3==1){
+		                if(wib_pwr2==1){
+		                                if(wib_pwr1==1) Write("PTC_DATA", 0x08);// turns ON WIB 1,2,3,5,6.                                      
+                                                if(wib_pwr1==0) Write("PTC_DATA", 0x09);// turns ON WIB 2,3,5,6.                                         
+                                               }
+
+		                if(wib_pwr2==0){
+		                                if(wib_pwr1==1) Write("PTC_DATA", 0x0A);// turns ON WIB 1,3,5,6.                                        
+                                                if(wib_pwr1==0) Write("PTC_DATA", 0x0B);// turns ON WIB 3,5,6.                                         
+                                               }
+                  }
+
+	                  if(wib_pwr3==0){
+		                if(wib_pwr2==1){
+		                                if(wib_pwr1==1) Write("PTC_DATA", 0x0C);// turns ON WIB 1,2,5,6.                                             
+                                                if(wib_pwr1==0) Write("PTC_DATA", 0x0D);// turns ON WIB 2,5,6.                                            
+                                                }
+
+		                if(wib_pwr2==0){
+		                                if(wib_pwr1==1) Write("PTC_DATA", 0x0E);// turns ON WIB 1,5,6.                                        
+                                                if(wib_pwr1==0) Write("PTC_DATA", 0x0F);// turns ON WIB 5,6.                                                
+                                               }
+				}
+	      }
+		    }
+	
+
+	     if(wib_pwr5==0){
+	           if(wib_pwr4==1){
+	                 if(wib_pwr3==1){
+		               if(wib_pwr2==1){
+		                               if(wib_pwr1==1) Write("PTC_DATA", 0x10);// turns ON WIB 1,2,3,4,6.                                           
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x11);// turns ON WIB 2,3,4,6.                                          
+                                              }
+
+		               if(wib_pwr2==0){
+		                               if(wib_pwr1==1) Write("PTC_DATA", 0x12);// turns ON WIB 1,3,4,6.                                          
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x13);// turns ON WIB 3,4,6.                                          
+                                              }
+	           }
+
+	                 if(wib_pwr3==0){
+		               if(wib_pwr2==1){
+		                               if(wib_pwr1==1) Write("PTC_DATA", 0x14);// turns ON WIB 1,2,4,6.                                            
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x15);// turns ON WIB 2,4,6.                                                
+                                              }
+
+		               if(wib_pwr2==0){
+		                               if(wib_pwr1==1) Write("PTC_DATA", 0x16);// turns ON WIB 1,4,6.                                         
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x17);// turns ON WIB 4,6.                                                  
+                                              }
+	        }
+	     }
+          
+                   if(wib_pwr4==0){
+		         if(wib_pwr3==1){
+		               if(wib_pwr2==1){
+                                               if(wib_pwr1==1) Write("PTC_DATA", 0x18);// turns ON WIB 1,2,3,6.                                             
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x19);// turns ON WIB 2,3,6.                                              
+                                               }
+
+		               if(wib_pwr2==0){
+                                               if(wib_pwr1==1) Write("PTC_DATA", 0x1A);// turns ON WIB 1,3,6.                                              
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x1B);// turns ON WIB 3,6.                                                  
+                                              }
+		   }
+
+		         if(wib_pwr3==0){
+		               if(wib_pwr2==1){
+                                               if(wib_pwr1==1) Write("PTC_DATA", 0x1C);// turns ON WIB 1,2,6.                                             
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x1D);// turns ON WIB 2,6.                                                  
+                                              }
+
+		               if(wib_pwr2==0){
+                                               if(wib_pwr1==1) Write("PTC_DATA", 0x1E);// turns ON WIB 1,6.                                             
+                                               if(wib_pwr1==0) Write("PTC_DATA", 0x1F);// turns ON WIB 6.                                                  
+                                              }
+			 }
+		   }
+	     }
+	      
+	}
+	
+     
+
+     /*if(Read("FIRMWARE_VERSION") == Read("SYS_RESET")) { // can't read register if equal
+       if(ContinueOnMBBRegReadError){
+           std::cout << "Error: Can't read registers from MBB"<< std::endl;
+           return;
+           }
+        MBBException::MBB_REG_READ_ERROR e;
+        std::stringstream expstr;
+        expstr << " Register Read Error" << std::endl; 
+	e.Append(expstr.str().c_str());
+        throw e;
+        }*/
+
+     //Write("REG_RESET", 1);
+     sleep(1);
+    
+     
+}
+
+
+void MBB::SetContinueOnMBBRegReadError(bool enable){
+  ContinueOnMBBRegReadError = enable;
+}

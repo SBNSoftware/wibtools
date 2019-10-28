@@ -4,12 +4,12 @@
 #include <unistd.h> //usleep
 
 #define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
-#define SI5344_CONFIG_FILENAME "PDTS_SI5344.txt"
+#define SI5344_CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
 
-void WIB::WriteDTS_SI5344(uint16_t address,uint32_t value,uint8_t byte_count){
+void WIB::Write_SI5344(uint16_t address,uint32_t value,uint8_t byte_count){
   WriteI2C("DTS.SI5344.I2C",address,value,byte_count);
 }
-uint32_t WIB::ReadDTS_SI5344(uint16_t address,uint8_t byte_count){
+uint32_t WIB::Read_SI5344(uint16_t address,uint8_t byte_count){
   return ReadI2C("DTS.SI5344.I2C",address,byte_count);
 }
 
@@ -20,18 +20,48 @@ void WIB::ResetSi5344(){
   usleep(100000);
 }
 
-void WIB::SetDTS_SI5344Page(uint8_t page){
-  WriteDTS_SI5344(0x1,page,1);
+void WIB::Set_SI5344Page(uint8_t page){
+  Write_SI5344(0x1,page,1);
 }
 
-uint8_t WIB::GetDTS_SI5344Page(){
-  return uint8_t(ReadDTS_SI5344(0x1,1)&0xFF);
+uint8_t WIB::Get_SI5344Page(){
+  return uint8_t(Read_SI5344(0x1,1)&0xFF);
 }
 
-uint8_t WIB::GetDTS_SI5344AddressPage(uint16_t address){
+uint8_t WIB::Get_SI5344AddressPage(uint16_t address){
   return uint8_t((address >> 8)&0xFF); 
 }
 
+void WIB::LoadConfig_SI5344(std::string const & fileName){
+  std::ifstream confFile(fileName.c_str());
+  WIBException::WIB_BAD_ARGS badFile;
+
+  if(confFile.fail()){
+    //Failed to topen filename, add it to the exception
+    badFile.Append("Bad SI5344 config file name:");
+    badFile.Append(fileName.c_str());
+
+    //Try the default
+    if(getenv(WIB_CONFIG_PATH) != NULL){      
+      std::string envBasedFileName=getenv(WIB_CONFIG_PATH);
+      envBasedFileName+="/";
+      envBasedFileName+=SI5344_CONFIG_FILENAME;
+      confFile.open(envBasedFileName.c_str());
+      if(confFile.fail()){
+	badFile.Append("Bad env based filename:");
+	badFile.Append(envBasedFileName.c_str());
+      }
+    }
+  }
+  
+  if(confFile.fail()){
+    //We are still failing to open our file
+    throw badFile;
+  }
+
+}
+
+/*
 void WIB::LoadConfigDTS_SI5344(std::string const & fileName){
   std::ifstream confFile(fileName.c_str());
   WIBException::WIB_BAD_ARGS badFile;
@@ -135,6 +165,7 @@ void WIB::LoadConfigDTS_SI5344(std::string const & fileName){
   }
   printf("\n");
 }
+*/
 
 void WIB::SelectSI5344(uint64_t input,bool enable){
   Write("DTS.SI5344.INPUT_SELECT", input); 

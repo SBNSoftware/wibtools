@@ -6,15 +6,27 @@
 
 
 
-WIB::WIB(std::string const & address, std::string const & WIBAddressTable, std::string const & FEMBAddressTable, bool fullStart): 
-  WIBBase(address,WIBAddressTable,FEMBAddressTable),DAQMode(UNKNOWN),FEMBStreamCount(4),FEMBCDACount(2),
-  ContinueOnFEMBRegReadError(false),ContinueOnFEMBSPIError(false),ContinueOnFEMBSyncError(true),
-  ContinueIfListOfFEMBClockPhasesDontSync(true){
+WIB::WIB(std::string const & address, 
+	 std::string const & WIBAddressTable, 
+	 std::string const & FEMBAddressTable, 
+	 bool fullStart): 
+  WIBBase(address,WIBAddressTable,FEMBAddressTable),
+  DAQMode(UNKNOWN),
+  FEMBStreamCount(4),
+  FEMBCDACount(2),
+  ContinueOnFEMBRegReadError(false),
+  ContinueOnFEMBSPIError(false),
+  ContinueOnFEMBSyncError(true),
+  ContinueIfListOfFEMBClockPhasesDontSync(true)
+{
 
   if(fullStart)
   {
     // Turn on write acknowledgments
-    wib->SetWriteAck(false);
+    int flag= Read("UDP_EN_WR_RDBK");
+    if ( flag ) wib->SetWriteAck(true);
+    else  wib->SetWriteAck(false);
+
     Write("UDP_EN_WR_RDBK", 1);
     wib->SetWriteAck(true);
     FullStart();
@@ -31,6 +43,70 @@ void WIB::FullStart(){
   //TODO check FEMBStreamCount and FEMCDACount from registers on the WIB
   //TODO create those registers
   started = true;
+}
+
+void WIB::configWIB(uint8_t clockSource){
+  // check communication
+  int fw_version = Read("FW_VERSION");
+  int crate = Read("CRATE_ADDR");
+  int slot = Read("SLOT_ADDR");
+ 
+  std::cout << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << std::dec << std::endl;
+
+  // setup 
+  Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
+  Write(0xF,0); // normal UDP operation
+  Write(0x10,0x7F00); // dunno
+
+  // clock select
+  if(clockSource == 0){
+    std::cout << "  Configure the Si5344 PLL" << std::endl;
+
+    //check PLL status
+    bool lol_flag = false;
+    Write(0xA,0xFF0); // bit 8 resets the Si5344, dunno the others
+
+    usleep(10000);
+
+    // wait for PLL to lock
+    for(int i=0; i<100; i++){
+      usleep(10000);
+
+      if(Read("SI5344_LOL")) lol_flag = true;
+    }
+    if(lol_flag){
+      std::cout << "  Si5344 PLL locked!" << std::endl;
+      Write("FEMB_CLK_SEL",1);
+      Write("FEMB_CMD_SEL",1);
+      Write("FEMB_INT_CLK_SEL",0);
+
+      usleep(10000);
+    }
+    else{
+      // gotta do more complicated stuff to load the Si5344
+    }
+
+    int clk_sel = Read(0x4) & 0xF;
+    std::cout << "  Clock bits (Reg 4) are " << std::hex << clk_sel << std::dec << std::endl;
+  }
+  else if(clockSource == 1){
+    std::cout << "  Using 100MHz from oscillator (bypass Si5344)" << std::endl;
+
+    Write("FEMB_CLK_SEL",0);
+    Write("FEMB_CMD_SEL",0);
+    Write("FEMB_INT_CLK_SEL",0x2);
+
+    usleep(10000);
+
+    int clk_sel = Read(0x4) & 0xF;
+    std::cout << "  Clock bits (Reg 4) are " << std::hex << clk_sel << std::dec << std::endl;
+  }
+  else{
+    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
+    e.Append("Unknown clock source! Use 0 for Si5344 and 1 for local.\n");
+    throw e;
+  }
+
 }
 
 void WIB::EnableDAQLink(uint8_t iDAQLink){
@@ -202,7 +278,7 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
     printf("Configuring DTS\n");
     Write("DTS.PDTS_TGRP",PDTS_TGRP);
     printf("Using timing group 0x%X\n",PDTS_TGRP);
-    InitializeDTS(PDTSsource,0,PDTSAlignment_timeout);
+    //InitializeDTS(PDTSsource,0,PDTSAlignment_timeout);
     sleep(1);
     Write("FEMB_CNC.CNC_CLOCK_SELECT",1);  
     sleep(1);
@@ -317,7 +393,7 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
     if(localClock > 0){
       printf("Configuring local clock\n");
       //Configure the SI5344 to use the local oscillator instead of the PDTS
-      LoadConfigDTS_SI5344("default");
+      LoadConfig_SI5344("default");
       sleep(1);
       SelectSI5344(1,1);
       sleep(1);
@@ -332,7 +408,7 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
       printf("Configuring DTS\n");
       Write("DTS.PDTS_TGRP",PDTS_TGRP);
       printf("Using timing group 0x%X\n",PDTS_TGRP);
-      InitializeDTS(PDTSsource,0,PDTSAlignment_timeout);
+      //InitializeDTS(PDTSsource,0,PDTSAlignment_timeout);
       sleep(1);
       Write("FEMB_CNC.CNC_CLOCK_SELECT",1);  
       sleep(1);
@@ -398,7 +474,7 @@ void WIB::StartStreamToDAQ(){
 
   // Start sending characters from the FEMB
   Write("FEMB_CNC.ENABLE_DTS_CMDS",1);  
-  StartSyncDTS();
+  //StartSyncDTS();
   //  Write("FEMB_CNC.TIMESTAMP_RESET",1);  
   //Write("FEMB_CNC.FEMB_START",1);  
   //  Write("SYSTEM.RESET.FEMB_COUNTER_RESET",1);  

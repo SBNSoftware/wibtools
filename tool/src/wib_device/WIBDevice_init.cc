@@ -1,15 +1,13 @@
 #include <wib_device/WIBDevice.hh>
 
-CommandReturn::status WIBTool::WIBDevice::InitializeDTS(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
-  if(intArg.size() >= 3){
-    wib->InitializeDTS(intArg[0],intArg[1],intArg[2]);
-  }else if(intArg.size() >= 2){
-    wib->InitializeDTS(intArg[0],intArg[1]);
-  }else if(intArg.size() == 1){
-    wib->InitializeDTS(intArg[0]);
+CommandReturn::status WIBTool::WIBDevice::ConfigWIB(std::vector<std::string> /*strArg*/,std::vector<uint64_t> intArg){
+
+  if(intArg.size() == 1){
+    wib->configWIB(intArg[0]);
   }else{
-    wib->InitializeDTS();
+    return CommandReturn::BAD_ARGS;
   }
+
   return CommandReturn::OK;
 }
 

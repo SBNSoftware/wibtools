@@ -21,18 +21,19 @@ class MBB{
   //void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
   void ConfigPTC(uint8_t icrate);
   void ConfigAllPTCs();
+  
+  void ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6 );
 
   // Basic I/O methods
   uint32_t Read(uint16_t address);
   uint32_t Read(std::string const & address);
+  uint32_t ReadPTC(int icrate, uint16_t address);
+  uint32_t ReadPTC(int icrate, std::string const & address);
   void Write(uint16_t address,uint32_t value);
   void Write(std::string const & address,uint32_t value);
   void FullStart();
-  AddressTable *mbb;
-  AddressTable * crate[CRATE_COUNT];
 
-  // uint32_t ReadMBB(int icrate, uint16_t address);
-  //uint32_t ReadMBB(int icrate, std::string const & address);
+  AddressTable * mbb;
 
   std::string GetAddress();
 
@@ -42,16 +43,20 @@ class MBB{
   std::vector<std::string> GetNames(std::string const & regex)
   { return mbb->GetNames(regex); }
   
-  static const int Version; //SVN version
   int GetSVNVersion(){return Version;}
+
+  void SetContinueOnMBBRegReadError(bool enable);
 
  private:
   MBB(); //disallow the default constructor
   // Prevent copying of MBB objects
   MBB( const MBB& other) ; // prevents construction-copy
   MBB& operator=( const MBB&) ; // prevents copying
+
+  static const int Version; //SVN version
   bool started;
-  //const float crateReadSleepTime;
+  //const float PTCReadSleepTime;
+  bool ContinueOnMBBRegReadError;
 };
 
 #endif

@@ -5,6 +5,7 @@
 #include "tool/CommandList.hh"
 #include "tool/DeviceFactory.hh"
 #include <MBB.hh>
+#include <MBBException.hh>
 //#include <WIBEvent.h>
 
 namespace WIBTool{
@@ -39,6 +40,9 @@ private:
   CommandReturn::status TestUDP(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
 
   std::string autoComplete_MBBAddressTable(std::vector<std::string> const & line, std::string const & currentToken , int state);
+
+  //MBB
+  CommandReturn::status ConfigMBB(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
 
   //PTC
   CommandReturn::status ConfigPTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg);

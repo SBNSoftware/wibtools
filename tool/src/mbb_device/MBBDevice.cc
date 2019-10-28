@@ -5,6 +5,7 @@
 #include <fstream>
 #include <time.h> //time
 #include <helpers/StatusDisplay/StatusDisplay.hh>
+#include <MBB.hh>
 
 
 WIBTool::MBBDevice::MBBDevice(std::vector<std::string> arg)
@@ -103,6 +104,11 @@ void WIBTool::MBBDevice::LoadCommandList()
              "Write status display to status-<date>.dump\n"     \
              "  Usage:\n"                                       \
 	     "  file-status <level> <table>\n");
+  
+   AddCommand("configMBB",&MBBDevice::ConfigMBB,
+	     "Configure the MBB\n"				\
+	     "  Usage:\n"					\
+	     "  configMBB <PLL_CLOCK_TYPE 0-1> <PULSE_SOURCE 0-1> <PULSE_PERIOD 0-10000000> <wib_pwr1 0-1> <wib_pwr2 0-1> <wib_pwr3 0-1> <wib_pwr4 0-1> <wib_pwr5 0-1> <wib_pwr6 0-1>\n");
   
 }
 
@@ -413,3 +419,63 @@ CommandReturn::status WIBTool::MBBDevice::StatusDisplayFILE(std::vector<std::str
   }
   return CommandReturn::OK;
   }
+
+CommandReturn::status WIBTool::MBBDevice::ConfigMBB(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
+{
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+
+  if(nArgs < 9){
+    std::cout << "Error: Not enough args to configMBB" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  if(intArg[0] > 1){
+    std::cout << "Error: Pll clock type Setting --  " << intArg[0] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[1] > 1){
+    std::cout << "Error: Invalid Pulse Source Setting --  " << intArg[1] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[2] > 10000000){
+    std::cout << "Error: Invalid Pulse Period Setting --  " << intArg[2] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[3] > 1){
+    std::cout << "Error: Invalid WIB power Setting --  " << intArg[3] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[4] > 1){
+    std::cout << "Error: Invalid WIB power Setting --  " << intArg[4] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[5] > 1){
+    std::cout << "Error: Invalid WIB power Setting --  " << intArg[5] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[6] > 1){
+    std::cout << "Error: Invalid WIB power Setting --  " << intArg[6] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[7] > 1){
+    std::cout << "Error: Invalid WIB power Setting --  " << intArg[7] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+  if(intArg[8] > 1){
+    std::cout << "Error: Invalid WIB power Setting --  " << intArg[8] << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  uint32_t PLL_CLOCK_TYPE = intArg[0];
+  uint32_t PULSE_SOURCE = intArg[1];
+  uint32_t PULSE_PERIOD = intArg[2];
+  uint32_t wib_pwr1 = intArg[3];
+  uint32_t wib_pwr2 = intArg[4];
+  uint32_t wib_pwr3 = intArg[5];
+  uint32_t wib_pwr4 = intArg[6];
+  uint32_t wib_pwr5 = intArg[7];
+  uint32_t wib_pwr6 = intArg[8];
+  mbb->ConfigMBB(PLL_CLOCK_TYPE, PULSE_SOURCE, PULSE_PERIOD, wib_pwr1, wib_pwr2, wib_pwr3, wib_pwr4, wib_pwr5, wib_pwr6);
+  return CommandReturn::OK;
+}

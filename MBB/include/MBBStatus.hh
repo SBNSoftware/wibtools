@@ -5,9 +5,9 @@
 #include <MBBException.hh>
 #include <StatusDisplay.hh>
 
-
 namespace WIBTool{
   class MBBStatus: public StatusDisplay {
+
   public:
       MBBStatus(MBB *_mbb):mbb(NULL){
       if(_mbb == NULL){
@@ -31,8 +31,10 @@ namespace WIBTool{
     uint32_t CRATE_PULSE_PERIOD;                                          
     uint32_t CRATE_CLK_TYPE;
     uint32_t CRATE_CLK_STATUS;
-
-    //int     FIRMWARE_VER[CRATE_COUNT];                                                                              
+    uint32_t FIRMWARE_VER;
+    uint32_t FIRMWARE_TRK;
+    uint32_t COMPILATION_DT;
+    uint32_t COMPILATION_TM;                                                                              
   };
 
 }
