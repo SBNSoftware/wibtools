@@ -530,7 +530,7 @@ void WIB::StartStreamToDAQ(){
 
   // Start sending characters from the FEMB
   Write("FEMB_CNC.ENABLE_DTS_CMDS",1);  
-  StartSyncDTS();
+  //StartSyncDTS();
   //  Write("FEMB_CNC.TIMESTAMP_RESET",1);  
   //Write("FEMB_CNC.FEMB_START",1);  
   //  Write("SYSTEM.RESET.FEMB_COUNTER_RESET",1);  
