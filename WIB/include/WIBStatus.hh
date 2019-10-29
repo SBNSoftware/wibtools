@@ -22,16 +22,15 @@ namespace WIBTool{
     }
   
     std::map<std::string,double> RetrieveStatusVars();
-    void TestFunction();
   
   private:
     void Process(std::string const & option);
-    //void ProcessFEMB(uint8_t iFEMB,std::string const & singleTable);
     void StartPowerMes();
     void ProcessFEMB(uint8_t iFEMB);
     void ProcessWIB();
     void PrintPowerTable();
     void PrintFEMBTable();
+    void PrintWIBClockTable();
     uint32_t ConvertSignedInt(uint32_t in);
     WIB * wib;
     
@@ -54,6 +53,10 @@ namespace WIBTool{
     int     TIME_STAMP[FEMB_COUNT][4];
     int     TS_ERROR_COUNT[FEMB_COUNT][4];
     int     FRAME_ERROR_COUNT[FEMB_COUNT][4];
+    int     FEMB_CLK;
+    int     FEMB_CMD;
+    int     FEMB_INT_CLK; 
+     
 
     // For the FEMBs we want:
     int     ADC_READOUT_EN[FEMB_COUNT];     // 0x08 bit 4
