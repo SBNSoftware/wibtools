@@ -1,4 +1,4 @@
-#include <wib_device/WIBStatus.hh>
+#include <WIBStatus.hh>
 
 void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){  
   // Conversions from Jack: 

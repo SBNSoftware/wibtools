@@ -3,7 +3,7 @@
 
 #include <WIB.hh>
 #include <WIBException.hh>
-#include <helpers/StatusDisplay/StatusDisplay.hh>
+#include <StatusDisplay.hh>
 #include <utility>
 #include <vector>
 

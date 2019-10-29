@@ -1,5 +1,5 @@
-#include <wib_device/WIBStatus.hh>
 #include <wib_device/WIBDevice.hh>
+#include <WIBStatus.hh>
 #include <fstream>
 #include <time.h> //time
 

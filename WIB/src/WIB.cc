@@ -263,7 +263,7 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
   if(localClock > 0){
     printf("Configuring local clock\n");
     //Configure the SI5344 to use the local oscillator instead of the PDTS
-    LoadConfigDTS_SI5344("default"); // still have SI5344, need to modify function (get rid of DTS stuff)
+    LoadConfig_SI5344("default"); 
     sleep(1);
     SelectSI5344(1,1);
     sleep(1);
