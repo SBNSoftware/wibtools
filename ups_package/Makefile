@@ -35,7 +35,7 @@ $(info EXECUTABLES is ${EXECUTABLES})
 $(info EXECUTABLES_FNS is ${EXECUTABLES_FNS})
 $(info EXECUTABLES_DEST is ${EXECUTABLES_DEST})
 
-LIBS = $(wildcard ${WIB_PREFIX}/lib/*.so) $(wildcard ${TOOL_PREFIX}/lib/*.so) $(wildcard ${EXCEPTION_PREFIX}/lib/*.so)
+LIBS = $(wildcard ${WIB_PREFIX}/lib/*.so) $(wildcard ${MBB_PREFIX}/lib/*.so) $(wildcard ${TOOL_PREFIX}/lib/*.so) $(wildcard ${EXCEPTION_PREFIX}/lib/*.so)
 LIBS_FNS = $(notdir ${LIBS})
 LIBS_DEST = $(addprefix ${QUALDIR}/lib/,${LIBS_FNS})
 
