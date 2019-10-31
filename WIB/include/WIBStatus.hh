@@ -57,7 +57,8 @@ namespace WIBTool{
     int     FEMB_CLK;
     int     FEMB_CMD;
     int     FEMB_INT_CLK; 
-     
+    int     PLL_CLK_LOL;
+    int     PLL_CLK_LOS; 
 
     // For the FEMBs we want:
     int     ADC_READOUT_EN[FEMB_COUNT];     // 0x08 bit 4

@@ -169,7 +169,9 @@ void WIBTool::WIBStatus::ProcessWIB(){
   FEMB_CLK      = wib->Read("FEMB_CLK_SEL");
   FEMB_CMD      = wib->Read("FEMB_CMD_SEL");
   FEMB_INT_CLK  = wib->Read("FEMB_INT_CLK_SEL");
-
+  PLL_CLK_LOL   = wib->Read("SI5344_LOL");
+  PLL_CLK_LOS   = wib->Read("SI5344_LOSXAXB");
+  
 }
 
 
@@ -275,6 +277,9 @@ void WIBTool::WIBStatus::PrintWIBClockTable(){
   printf("%20s","SYSTEM CLOCK:");   printf("%10d",FEMB_CLK);      printf("%10s",femb_clk[FEMB_CLK].c_str()); printf("\n");
   printf("%20s","CMD CLOCK:");      printf("%10d",FEMB_CMD);      printf("%10s",femb_cmd[FEMB_CMD].c_str()); printf("\n");
   printf("%20s","INT CLOCK:");      printf("%10d",FEMB_INT_CLK);  printf("%10s",femb_int_clk[FEMB_INT_CLK].c_str()); printf("\n");
+  printf("%20s","PLL CLK LOCK (LOL):");      printf("%10d",PLL_CLK_LOL);  printf("%10s",""); printf("\n");
+  printf("%20s","PLL CLK LOCK (LOS):");      printf("%10d",PLL_CLK_LOS);  printf("%10s",""); printf("\n");
+  
 
 }
 
