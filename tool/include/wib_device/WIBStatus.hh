@@ -24,7 +24,6 @@ namespace WIBTool{
     std::map<std::string,double> RetrieveStatusVars();
     void TestFunction();
   
-  private:
     void Process(std::string const & option);
     //void ProcessFEMB(uint8_t iFEMB,std::string const & singleTable);
     void StartPowerMes();
@@ -33,6 +32,8 @@ namespace WIBTool{
     void PrintPowerTable();
     void PrintFEMBTable();
     uint32_t ConvertSignedInt(uint32_t in);
+
+  protected:
     WIB * wib;
     
     
