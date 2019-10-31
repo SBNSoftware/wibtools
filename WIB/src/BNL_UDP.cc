@@ -39,7 +39,6 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
     ret = (gige_reg_t*)malloc(sizeof(gige_reg_t));
     if (ret == NULL)
         return NULL;
-  
     sprintf(ret->client_ip_addr, "%s", IP_address);
    
     // Recv socket
@@ -207,6 +206,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   writePort = WIB_WR_BASE_PORT   + port_offset;
   replyPort = WIB_RPLY_BASE_PORT + port_offset;
 
+  std::cout << "WritePort: " << writePort << std::endl;
   remoteAddress = address;
   //Get the sockaddr for the address
   struct addrinfo * res;
