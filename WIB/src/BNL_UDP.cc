@@ -299,14 +299,19 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 
 void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_count){
 
+  std::cout<<"BNLUDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<<"\n";
+
   while(retry_count > 1)
   {
     try
     {
       //Do the write
+      std::cout<<"Trying...\n";
       Write(address,value);
+      std::cout<<"Sleeping...\n";
       usleep(10);
       //if everything goes well, return
+      std::cout<<"Return\n";
       return;
     }
     catch(WIBException::BAD_REPLY &e)
@@ -316,9 +321,11 @@ void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_cou
     total_retry_count++;
     retry_count--;
     usleep(10);
+    std::cout<<total_retry_count<<"\n";
   }
   //Last chance we don't catch the exception and let it fall down the stack
   //Do the write
+  std::cout<<"Last chance\n";
   Write(address,value);
   usleep(10);
 }
@@ -326,9 +333,11 @@ void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_cou
 void BNL_UDP::Write(uint16_t address, uint32_t value)
 {
   //Flush this socket
+  std::cout<<"Flushing the socket\n";
   FlushSocket(reg->sock_recv);
 
   //Build the packet to send
+  std::cout<<"Building the send packet\n";
   WIB_packet_t packet;
   packet.key = htonl(WIB_PACKET_KEY);
   packet.reg_addr = htons(address);
@@ -337,6 +346,7 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
   packet.trailer = htons(WIB_REQUEST_PACKET_TRAILER);
 
   //send the packet
+  std::cout<<"Send that packet\n";
   ssize_t send_size = sizeof(packet);
   ssize_t sent_size = sendto( reg->sock_write, &packet,send_size,0,
 			      (struct sockaddr *) &reg->si_write, sizeof(reg->si_write));
@@ -353,15 +363,19 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
     throw e;
   }
 
+  std::cout<<"If configured, capture conf packet\n";
   //If configured, capture confirmation packet
+  // - check if FEMB, and skip if so
   if(writeAck )
   {
+    std::cout<<"writeAck\n";
     size_t reply_size = 0;
     struct sockaddr_in si_other;
     socklen_t len = sizeof(struct sockaddr_in);
-
+    std::cout<<"Getting reply size... "<<reg->sock_recv<<"  "<<buffer<<"  "<<buffer_size<<"\n";
     reply_size = recvfrom(reg->sock_recv, buffer, buffer_size, 0, 
 			  (struct sockaddr *)&si_other, &len);
+    std::cout<<reply_size<<"\n";
     if(-1 == (int)reply_size)
     {
       WIBException::BAD_REPLY e;

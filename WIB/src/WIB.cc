@@ -55,8 +55,8 @@ void WIB::configWIB(uint8_t clockSource){
 
   // setup 
   Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
-  Write(0xF,0); // normal UDP operation
-  Write(0x10,0x7F00); // dunno
+  Write("UDP_BURST_MODE",0); // normal UDP operation
+  Write(0x10,0x7F00); // FIFO size for "burst mode" (N/A)
 
   // clock select
   if(clockSource == 0){
@@ -64,7 +64,10 @@ void WIB::configWIB(uint8_t clockSource){
 
     //check PLL status
     bool lol_flag = false;
-    Write(0xA,0xFF0); // bit 8 resets the Si5344, dunno the others
+    //Write(0xA,0xFF0); // bit 8 resets the Si5344, dunno the others
+    Write("SILABS_RST",1);  // resets the SI5344
+    Write("I2C_WR_STRB",1); // start SI5344 write
+    Write("I2C_RD_STRB",1); // start SI5344 read
 
     usleep(10000);
 
@@ -106,6 +109,13 @@ void WIB::configWIB(uint8_t clockSource){
     e.Append("Unknown clock source! Use 0 for Si5344 and 1 for local.\n");
     throw e;
   }
+
+
+  // now do WIB_PLL_cfg():
+  //   - need to open file wibtools/WIB/config/Si53440-RevD...v2
+  //   -   
+
+  
 
 }
 

@@ -5,7 +5,7 @@
 #include <stdlib.h>  //strtoul & getenv
 #include <boost/regex.hpp> //regex
 #include <boost/algorithm/string/case_conv.hpp> //to_upper
-
+#include <iostream>
 
 uint32_t AddressTable::Read(uint16_t address){
   return io->Read(address);
@@ -86,6 +86,7 @@ void AddressTable::Write(std::string registerName,uint32_t val){
 }
 
 void AddressTable::WriteWithRetry(std::string registerName,uint32_t val){
+  std::cout<<"AddressTable::WriteWithRetry: "<<registerName<<"  "<<val<<"\n";
   std::map<std::string,Item *>::iterator itNameItem = nameItemMap.find(registerName);
   if(itNameItem == nameItemMap.end()){
     WIBException::INVALID_NAME e;
@@ -103,6 +104,7 @@ void AddressTable::WriteWithRetry(std::string registerName,uint32_t val){
     buildingVal &= ~(item->mask);    
   }
   buildingVal |= (item->mask & (val << item->offset));
+  std::cout<<"io->WriteWithRetry: "<<item->address<<" "<<buildingVal<<"\n";
   io->WriteWithRetry(item->address,buildingVal);
 }
 

@@ -3,6 +3,7 @@
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h> // for PRI macros
 #include <BNL_UDP_Exception.hh>
+#include <iostream>
 
 CommandReturn::status WIBTool::WIBDevice::WriteLocalFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused arguments
@@ -433,6 +434,7 @@ CommandReturn::status WIBTool::WIBDevice::FEMBRead(std::vector<std::string> strA
 }
 
 CommandReturn::status WIBTool::WIBDevice::FEMBWrite(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+  std::cout<<"FEMBWrite intArg.size = "<<intArg.size()<<"\n";
   if(intArg.size() == 3){
     //check for FEMB 
     if((0 >= intArg[0]) && (4 < intArg[0])){
@@ -447,6 +449,7 @@ CommandReturn::status WIBTool::WIBDevice::FEMBWrite(std::vector<std::string> str
       printf("FEMB%1"PRId64":0x%04"PRIX64": 0x%08"PRIX64"\n",intArg[0],intArg[1],intArg[2]);
     }else{
       //string
+      std::cout<<"Arghument is string: "<<strArg[0]<<" "<<strArg[1]<<" "<<strArg[2]<<"\n";
       wib->WriteFEMB(intArg[0],strArg[1],intArg[2]);
       printf("FEMB%1"PRId64":%s: 0x%08"PRIX64"\n",intArg[0],strArg[1].c_str(),intArg[2]);      
     }
