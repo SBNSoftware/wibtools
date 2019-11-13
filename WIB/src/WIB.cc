@@ -6,8 +6,7 @@
 #include <fstream>
 
 #define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
-//#define CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
-#define SI5344_CONFIG_FILENAME "FELIX_Si5342-2017-09-07.txt"
+#define SI5344_CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
 
 WIB::WIB(std::string const & address, 
 	 std::string const & WIBAddressTable, 
@@ -68,9 +67,9 @@ void WIB::configWIB(uint8_t clockSource){
     std::cout << " *** Configure the Si5344 PLL ***" << std::endl;
 
     //Write(0xA,0xFF0);     // bit 8 resets the Si5344, dunno the others
-    Write("SILABS_RST",1);  // resets the SI5344
+    Write("SILABS_RST",1);   
     Write("I2C_WR_STRB",1); // start SI5344 write
-    Write("I2C_RD_STRB",1); // start SI5344 read
+    //Write("I2C_RD_STRB",1); // start SI5344 read
 
     // check PLL status; if PLL is not already locked, 
     // then load from the configuration from a file
@@ -169,7 +168,7 @@ void WIB::loadConfig(std::string const & fileName){
       uint16_t address = (strtoul(line.substr(0,line.find(',')).c_str(),NULL,16) & 0xFF);
       uint16_t data    = (strtoul(line.substr(line.find(',')+1).c_str(),NULL,16) & 0xFF);
       //std::cout<<"address: "<<std::hex<<address<<"   data: "<<data<<std::dec<<"\n";
-      
+     
       // Register 11 controls SI5344 I2C
       //  0:3   (0x00000F)  -- Number of bytes to write (should always be 1)
       //  8:15  (0x00FF00)  -- Address to write to
@@ -183,19 +182,17 @@ void WIB::loadConfig(std::string const & fileName){
       // instead, do it manually
       size_t value = 0x1 + (address<<8) + (data<<16);
       Write(0x11,value);
-      usleep(100);
-
       if( Read(0x11) != value ) {
         std::cout
         <<"!!! Set value:     "<<std::hex<<value<<"\n"
         <<"!!! readback :     "<<Read(0x11)<<std::dec<<"\n";
       }
-
-      Write(0x10,1);
-      usleep(100);
-      Write(0x10,0);
-      usleep(200);
-
+      
+      // Toggle to start SI5344 I2C read (this isn't working?)
+      Write("I2C_RD_STRB",1); usleep(1000); 
+      Write("I2C_RD_STRB",0); usleep(1000);
+      //std::cout<<"Readback: "<<std::hex<<Read("I2C_DOUT_S1")<<std::dec<<"\n";
+      
     }
   }
 
