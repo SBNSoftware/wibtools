@@ -3,8 +3,11 @@
 #include <BNL_UDP_Exception.hh>
 #include <stdio.h> //snprintf
 #include <iostream>
+#include <fstream>
 
-
+#define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
+//#define CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
+#define SI5344_CONFIG_FILENAME "FELIX_Si5342-2017-09-07.txt"
 
 WIB::WIB(std::string const & address, 
 	 std::string const & WIBAddressTable, 
@@ -50,8 +53,10 @@ void WIB::configWIB(uint8_t clockSource){
   int fw_version = Read("FW_VERSION");
   int crate = Read("CRATE_ADDR");
   int slot = Read("SLOT_ADDR");
- 
-  std::cout << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << std::dec << std::endl;
+
+  std::cout 
+  << "=============== configWIB ===============\n"
+  << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << std::dec<<"\n"; 
 
   // setup 
   Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
@@ -60,33 +65,29 @@ void WIB::configWIB(uint8_t clockSource){
 
   // clock select
   if(clockSource == 0){
-    std::cout << "  Configure the Si5344 PLL" << std::endl;
+    std::cout << " *** Configure the Si5344 PLL ***" << std::endl;
 
-    //check PLL status
-    bool lol_flag = false;
-    //Write(0xA,0xFF0); // bit 8 resets the Si5344, dunno the others
+    //Write(0xA,0xFF0);     // bit 8 resets the Si5344, dunno the others
     Write("SILABS_RST",1);  // resets the SI5344
     Write("I2C_WR_STRB",1); // start SI5344 write
     Write("I2C_RD_STRB",1); // start SI5344 read
 
-    usleep(10000);
-
-    // wait for PLL to lock
-    for(int i=0; i<100; i++){
-      usleep(10000);
-
-      if(Read("SI5344_LOL")) lol_flag = true;
+    // check PLL status; if PLL is not already locked, 
+    // then load from the configuration from a file
+    bool lol_flag = checkPLLisLocked();
+    if( !lol_flag ){
+      loadConfig(SI5344_CONFIG_FILENAME);
+      lol_flag = checkPLLisLocked();
     }
-    if(lol_flag){
+
+    if( lol_flag ){
       std::cout << "  Si5344 PLL locked!" << std::endl;
       Write("FEMB_CLK_SEL",1);
       Write("FEMB_CMD_SEL",1);
       Write("FEMB_INT_CLK_SEL",0);
-
       usleep(10000);
-    }
-    else{
-      // gotta do more complicated stuff to load the Si5344
+    } else {
+      std::cout<<"PLL failed to lock!!\n";
     }
 
     int clk_sel = Read(0x4) & 0xF;
@@ -94,28 +95,111 @@ void WIB::configWIB(uint8_t clockSource){
   }
   else if(clockSource == 1){
     std::cout << "  Using 100MHz from oscillator (bypass Si5344)" << std::endl;
-
     Write("FEMB_CLK_SEL",0);
     Write("FEMB_CMD_SEL",0);
     Write("FEMB_INT_CLK_SEL",0x2);
-
     usleep(10000);
-
     int clk_sel = Read(0x4) & 0xF;
     std::cout << "  Clock bits (Reg 4) are " << std::hex << clk_sel << std::dec << std::endl;
-  }
-  else{
+  } else {
     WIBException::WIB_FEATURE_NOT_SUPPORTED e;
     e.Append("Unknown clock source! Use 0 for Si5344 and 1 for local.\n");
     throw e;
   }
 
+}
 
-  // now do WIB_PLL_cfg():
-  //   - need to open file wibtools/WIB/config/Si53440-RevD...v2
-  //   -   
+bool WIB::checkPLLisLocked(){
+  bool out = false;
+  for(int i=0; i<100; i++){
+    usleep(10000);
+    if(Read("SI5344_LOL")) {
+      out = true;
+      break;
+    }
+  }
+  return out;
+}
 
+void WIB::loadConfig(std::string const & fileName){
+      
+  // read in configuration file
+  std::string fullPath = getenv(WIB_CONFIG_PATH);
+  fullPath += "/";
+  fullPath += fileName;
+  std::ifstream confFile(fullPath.c_str());
+  WIBException::WIB_BAD_ARGS badFile;
   
+  std::cout<<"Configuring PLL from file: "<<fileName<<"\n";
+  std::cout<<"...";
+  if(confFile.fail()){
+    //Failed to topen filename, add it to the exception
+    badFile.Append("Bad SI5344 config file name:");
+    badFile.Append(fullPath.c_str());
+    //Try the default
+    if(getenv(WIB_CONFIG_PATH) != NULL){      
+      std::string fileDefault = getenv(WIB_CONFIG_PATH);
+      fileDefault += "/";
+      fileDefault += SI5344_CONFIG_FILENAME;
+      confFile.open(fileDefault.c_str());
+      if(confFile.fail()){
+	badFile.Append("Bad env based filename:");
+	badFile.Append(fileDefault.c_str());
+      }
+    }
+  }
+  if(confFile.fail()){ 
+    throw badFile; 
+  }
+  
+  while(!confFile.eof()){
+    std::string line;
+    std::getline(confFile,line);
+    if( line.size() == 0 ) {
+      continue;
+    } else if( line[0] == '#' || line[0] == 'A'){
+      continue;
+    } else{
+      
+      if( line.find(',') == std::string::npos ){
+	printf("Skipping bad line: \"%s\"\n",line.c_str());
+	continue;
+      }
+      
+      uint16_t address = (strtoul(line.substr(0,line.find(',')).c_str(),NULL,16) & 0xFF);
+      uint16_t data    = (strtoul(line.substr(line.find(',')+1).c_str(),NULL,16) & 0xFF);
+      //std::cout<<"address: "<<std::hex<<address<<"   data: "<<data<<std::dec<<"\n";
+      
+      // Register 11 controls SI5344 I2C
+      //  0:3   (0x00000F)  -- Number of bytes to write (should always be 1)
+      //  8:15  (0x00FF00)  -- Address to write to
+      //  16:23 (0xFF0000)  -- Data being written 
+      
+      // This SHOULD work but it doesn't... 
+      //Write("I2C_NUM_BYTES",0x1);
+      //Write("I2C_ADDRESS",address);
+      //Write("I2C_DIN",data);
+      
+      // instead, do it manually
+      size_t value = 0x1 + (address<<8) + (data<<16);
+      Write(0x11,value);
+      usleep(100);
+
+      if( Read(0x11) != value ) {
+        std::cout
+        <<"!!! Set value:     "<<std::hex<<value<<"\n"
+        <<"!!! readback :     "<<Read(0x11)<<std::dec<<"\n";
+      }
+
+      Write(0x10,1);
+      usleep(100);
+      Write(0x10,0);
+      usleep(200);
+
+    }
+  }
+
+  std::cout<<" done.\n";
 
 }
 
@@ -526,38 +610,6 @@ void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
 
 }
 
-//void WIB::PowerOnFEMB(uint8_t iFEMB){
-//  //Turn on power
-//  std::string reg = "POWER.ENABLE.FEMB";
-//  reg.push_back(GetFEMBChar(iFEMB));
-//
-//
-//  const int REG_COUNT = 6;
-//  uint8_t mon_reg_val = 0x1+REG_COUNT*(iFEMB-1); // starts at 0x1 and there are 6 per FEMB
-//  
-//  for(uint8_t iReg=0;iReg < REG_COUNT;iReg++){
-//    //Go measure the reg value
-//    //    int iTries = 0;
-//    //    const int NUM_TRIES = 100;
-//    //Set the value to be read
-//    Write("POWER.MON_CONTROL.ADDRESS",mon_reg_val+iReg);
-//    //Wait till the output is valid
-////    for(;iTries < NUM_TRIES;iTries++){
-////      sleep(1);
-////      if(0x1 == Read("POWER.MON_CONTROL.VALID")){
-////	break;
-////      }
-////    }
-////    if (NUM_TRIES == iTries){
-////      printf("Timeout on reading FEMB: %d power reg %d\n",iFEMB,iReg);
-////    }else{
-//      uint32_t reg_val = Read("POWER.MON_VALUE.MEASUREMENT");
-//      printf("Reg %u 0x%04X 0x%04X\n",iReg,reg_val >> 16,reg_val&0xFFFF);
-//      //    }
-//  }
-//  
-//}
-//
 void WIB::EnableFEMBCNC(){
   //Enable the clock and control stream to the FEMBs
   Write("FEMB_CNC.CNC_CLOCK_SELECT",1);

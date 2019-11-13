@@ -34,6 +34,8 @@ class WIB: public WIBBase {
 
   //initialize hardware
   void configWIB(uint8_t clockSource = 0);
+  void loadConfig(std::string const & fileName );
+  bool checkPLLisLocked();
   void InitializeWIB();
   void ResetWIB(bool reset_udp=false);
   void EnableDAQLink(uint8_t iDAQLink);

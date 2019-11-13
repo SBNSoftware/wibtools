@@ -80,7 +80,6 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
    
 
     // Setup client READ TX
- 
     ret->sock_read = socket(AF_INET, SOCK_DGRAM, 0);
     if (ret->sock_read == -1) 
     {
@@ -89,6 +88,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
         return NULL;
     }
 
+    
     bzero(&ret->si_read, sizeof(ret->si_read));
     ret->si_read.sin_family = AF_INET;
     ret->si_read.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -333,11 +333,9 @@ void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_cou
 void BNL_UDP::Write(uint16_t address, uint32_t value)
 {
   //Flush this socket
-  std::cout<<"Flushing the socket\n";
   FlushSocket(reg->sock_recv);
 
   //Build the packet to send
-  std::cout<<"Building the send packet\n";
   WIB_packet_t packet;
   packet.key = htonl(WIB_PACKET_KEY);
   packet.reg_addr = htons(address);
@@ -346,7 +344,6 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
   packet.trailer = htons(WIB_REQUEST_PACKET_TRAILER);
 
   //send the packet
-  std::cout<<"Send that packet\n";
   ssize_t send_size = sizeof(packet);
   ssize_t sent_size = sendto( reg->sock_write, &packet,send_size,0,
 			      (struct sockaddr *) &reg->si_write, sizeof(reg->si_write));
@@ -363,19 +360,15 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
     throw e;
   }
 
-  std::cout<<"If configured, capture conf packet\n";
   //If configured, capture confirmation packet
   // - check if FEMB, and skip if so
   if(writeAck )
   {
-    std::cout<<"writeAck\n";
     size_t reply_size = 0;
     struct sockaddr_in si_other;
     socklen_t len = sizeof(struct sockaddr_in);
-    std::cout<<"Getting reply size... "<<reg->sock_recv<<"  "<<buffer<<"  "<<buffer_size<<"\n";
     reply_size = recvfrom(reg->sock_recv, buffer, buffer_size, 0, 
 			  (struct sockaddr *)&si_other, &len);
-    std::cout<<reply_size<<"\n";
     if(-1 == (int)reply_size)
     {
       WIBException::BAD_REPLY e;
