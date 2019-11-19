@@ -18,7 +18,7 @@ MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool 
   if(fullStart){
      //Turn on write acknowledgments
      mbb->SetWriteAck(false);
-     Write("UDP_EN_WR_RDBK", 1);
+     Write("UDP_EN_WR_RDBK", 1);//set to enable write echo mode.
      mbb->SetWriteAck(true);                                            
      started = true; 
      }
@@ -73,7 +73,7 @@ void MBB::EnableWIBs(uint8_t icrate,uint32_t value)
 void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value){
   Write("PTC_DATA_ADDRESS", address);
   Write("PTC_CRATE_ADDRESS", icrate);
-  Write("PTC_DATA", value);
+  Write("PTC_DATA", value);//should be set to 0 as per original email by Matt. If set to zero will turn ON all WIBs. 
   Write("PTC_WR_REG", 0);
   usleep(1000);
   Write("PTC_WR_REG", 1);
@@ -81,23 +81,24 @@ void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value){
   Write("PTC_WR_REG", 0);
   }
 
-void MBB::ConfigPTC(uint8_t icrate)
-  {
-    if (icrate < 1 || icrate > CRATE_COUNT)
-       {
+void MBB::ConfigPTC(uint8_t icrate){
+    if (icrate < 1 || icrate > CRATE_COUNT){
 	MBBException::MBB_BAD_ARGS e;
 	std::stringstream expstr;
 	expstr << "ConfigPTC: icrate should be between 1 and CRATE_COUNT: "
 	       << int(icrate);
 	e.Append(expstr.str().c_str());
 	throw e;
-       }
+        }
 
-    std::string reg = "PTC_DATA";
+    /*std::string reg = "PTC_DATA";
     const Item *g = GetItem(reg);
-    WritePTC(icrate, 0x2, g->mask);//passes the mask as the value in WritePTC
-   
-  }
+    WritePTC(icrate, 0x2, g->mask);*/ // this is what I had originally.
+
+    //Doing configMBB and reading PTC_DATA gives different value than doing configAllPTCs and then reading it(0xffff always). This is my proposed solution.
+    uint32_t sol= Read("PTC_DATA");
+    WritePTC(icrate, 0x2, sol);
+}
 
 void MBB::ConfigAllPTCs(){
           for(uint8_t icrate=1; icrate <= CRATE_COUNT; icrate++){
@@ -115,15 +116,7 @@ void MBB::ConfigAllPTCs(){
  *          WIB Power: 0,1 for OFF, ON respectively.
  */
 
-void MBB::ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6){
-
-     if (PLL_CLOCK_TYPE > 1){
-         MBBException::MBB_BAD_ARGS e;
-         std::stringstream expstr;
-         expstr << "ConfigMBB: PLL_CLOCK_TYPE is allowed to be 0 (external), 1 (internal) but is: " << int(PLL_CLOCK_TYPE);
-         e.Append(expstr.str().c_str());
-         throw e;
-         }
+void MBB::ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6){
 
      if (PULSE_SOURCE > 1){
          MBBException::MBB_BAD_ARGS e;
@@ -133,13 +126,15 @@ void MBB::ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PUL
          throw e;
          }
 
-     if (PULSE_PERIOD > 10000000){
+     // 4294967295 the decimal corresponding to 0xFFFFFFFF.
+     if (PULSE_PERIOD > 4294967295){
          MBBException::MBB_BAD_ARGS e;
          std::stringstream expstr;
          expstr << "ConfigMBB: PULSE_PERIOD is allowed to be 0 (0ns), 1 (10ns) and so on.. but is: " << int(PULSE_PERIOD);
          e.Append(expstr.str().c_str());
          throw e;
          }
+
 
      if (wib_pwr1 > 1){
          MBBException::MBB_BAD_ARGS e;
@@ -189,7 +184,7 @@ void MBB::ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PUL
          throw e;
          }
 
-     if(PLL_CLOCK_TYPE==0){
+     /*if(PLL_CLOCK_TYPE==0){
         if(Read("PLL_ACTIVE_CLK")==1){
            Write("PLL_CLOCK_SELECT",0);
            Write("PLL_CLOCK_SELECT",1);
@@ -207,7 +202,7 @@ void MBB::ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PUL
         else if(Read("PLL_ACTIVE_CLK")==1){
                 Write("PLL_CLOCK_SELECT",1);
 	        }
-        } 
+		}*/ 
 
      Write("PULSE_SRC_SELECT", PULSE_SOURCE);
      Write("PULSE_PERIOD",     PULSE_PERIOD);
@@ -456,3 +451,10 @@ void MBB::ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PUL
 void MBB::SetContinueOnMBBRegReadError(bool enable){
   ContinueOnMBBRegReadError = enable;
 }
+
+
+void MBB::TimeStampReset(){
+  Write("TIMESTAMP_RESET", 1);
+  sleep(1);
+  Write("TIMESTAMP_RESET", 0);
+  }
