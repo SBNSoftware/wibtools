@@ -3,8 +3,10 @@
 #include <BNL_UDP_Exception.hh>
 #include <stdio.h> //snprintf
 #include <iostream>
+#include <fstream>
 
-
+#define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
+#define SI5344_CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
 
 WIB::WIB(std::string const & address, 
 	 std::string const & WIBAddressTable, 
@@ -29,22 +31,7 @@ WIB::WIB(std::string const & address,
 
     Write("UDP_EN_WR_RDBK", 1);
     wib->SetWriteAck(true);
-    //Figure out what kind of WIB firmware we are dealing with
-    //FEMBCount = Read("SYSTEM.FEMB_COUNT");
-    //DAQLinkCount = Read("SYSTEM.DAQ_LINK_COUNT");
-    //Hardcoded lookup for RCE and FELIX
-    // Not readable in SBND
-    FEMBCount = 4;
-    DAQLinkCount = 4;
-    if((FEMBCount == 4) && (DAQLinkCount == 4)){
-      DAQMode = RCE;
-    }else if((FEMBCount == 4) && (DAQLinkCount == 2)){
-      DAQMode = FELIX;
-    }
-    //TODO check FEMBStreamCount and FEMCDACount from registers on the WIB
-    //TODO create those registers
-    //Write("POWER.ENABLE.MASTER_BIAS",1);
-    started = true;
+    FullStart();
   }
 }
 
@@ -52,21 +39,11 @@ WIB::~WIB(){
 }
 
 void WIB::FullStart(){
-  //Figure out what kind of WIB firmware we are dealing with
-  //FEMBCount = Read("SYSTEM.FEMB_COUNT");
-  //DAQLinkCount = Read("SYSTEM.DAQ_LINK_COUNT");
-  //Hardcoded lookup for RCE and FELIX
-  // SBND has fixed mode, not readable in firmware (wfb)
+  //SBND has fixed mode, not readable in firmware (wfb)
   FEMBCount = 4;
   DAQLinkCount = 4;
-  if((FEMBCount == 4) && (DAQLinkCount == 4)){
-    DAQMode = RCE;
-  }else if((FEMBCount == 4) && (DAQLinkCount == 2)){
-    DAQMode = FELIX;
-  }
   //TODO check FEMBStreamCount and FEMCDACount from registers on the WIB
   //TODO create those registers
-  //Write("POWER.ENABLE.MASTER_BIAS",1);   
   started = true;
 }
 
@@ -75,40 +52,41 @@ void WIB::configWIB(uint8_t clockSource){
   int fw_version = Read("FW_VERSION");
   int crate = Read("CRATE_ADDR");
   int slot = Read("SLOT_ADDR");
- 
-  std::cout << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << std::dec << std::endl;
+
+  std::cout 
+  << "=============== configWIB ===============\n"
+  << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << std::dec<<"\n"; 
 
   // setup 
   Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
-  Write(0xF,0); // normal UDP operation
-  Write(0x10,0x7F00); // dunno
+  Write("UDP_BURST_MODE",0); // normal UDP operation
+  Write(0x10,0x7F00); // FIFO size for "burst mode" (N/A)
 
   // clock select
   if(clockSource == 0){
-    std::cout << "  Configure the Si5344 PLL" << std::endl;
+    std::cout << " *** Configure the Si5344 PLL ***" << std::endl;
 
-    //check PLL status
-    bool lol_flag = false;
-    Write(0xA,0xFF0); // bit 8 resets the Si5344, dunno the others
+    //Write(0xA,0xFF0);     // bit 8 resets the Si5344, dunno the others
+    Write("SILABS_RST",1);   
+    Write("I2C_WR_STRB",1); // start SI5344 write
+    //Write("I2C_RD_STRB",1); // start SI5344 read
 
-    usleep(10000);
-
-    // wait for PLL to lock
-    for(int i=0; i<100; i++){
-      usleep(10000);
-
-      if(Read("SI5344_LOL")) lol_flag = true;
+    // check PLL status; if PLL is not already locked, 
+    // then load from the configuration from a file
+    bool lol_flag = checkPLLisLocked();
+    if( !lol_flag ){
+      loadConfig(SI5344_CONFIG_FILENAME);
+      lol_flag = checkPLLisLocked();
     }
-    if(lol_flag){
+
+    if( lol_flag ){
       std::cout << "  Si5344 PLL locked!" << std::endl;
       Write("FEMB_CLK_SEL",1);
       Write("FEMB_CMD_SEL",1);
       Write("FEMB_INT_CLK_SEL",0);
-
       usleep(10000);
-    }
-    else{
-      // gotta do more complicated stuff to load the Si5344
+    } else {
+      std::cout<<"PLL failed to lock!!\n";
     }
 
     int clk_sel = Read(0x4) & 0xF;
@@ -116,17 +94,13 @@ void WIB::configWIB(uint8_t clockSource){
   }
   else if(clockSource == 1){
     std::cout << "  Using 100MHz from oscillator (bypass Si5344)" << std::endl;
-
     Write("FEMB_CLK_SEL",0);
     Write("FEMB_CMD_SEL",0);
     Write("FEMB_INT_CLK_SEL",0x2);
-
     usleep(10000);
-
     int clk_sel = Read(0x4) & 0xF;
     std::cout << "  Clock bits (Reg 4) are " << std::hex << clk_sel << std::dec << std::endl;
-  }
-  else{
+  } else {
     WIBException::WIB_FEATURE_NOT_SUPPORTED e;
     e.Append("Unknown clock source! Use 0 for Si5344 and 1 for local.\n");
     throw e;
@@ -134,14 +108,107 @@ void WIB::configWIB(uint8_t clockSource){
 
 }
 
-void WIB::EnableDAQLink(uint8_t iDAQLink){
-  //CHeck if we know how to dael with this firmware
-  if(!((DAQMode == RCE)||(DAQMode == FELIX))){
-    //Not RCE or FELIX firmware, return
-    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
-    e.Append("Automatic DAQLink configuration not supported with this firmware.\n");    
-    throw e;
+bool WIB::checkPLLisLocked(){
+  bool out = false;
+  for(int i=0; i<100; i++){
+    usleep(10000);
+    if(Read("SI5344_LOL")) {
+      out = true;
+      break;
+    }
   }
+  return out;
+}
+
+void WIB::loadConfig(std::string const & fileName){
+      
+  // read in configuration file
+  std::string fullPath = getenv(WIB_CONFIG_PATH);
+  fullPath += "/";
+  fullPath += fileName;
+  std::ifstream confFile(fullPath.c_str());
+  WIBException::WIB_BAD_ARGS badFile;
+  
+  std::cout<<"Configuring PLL from file: "<<fileName<<"\n";
+  std::cout<<"...";
+  if(confFile.fail()){
+    //Failed to topen filename, add it to the exception
+    badFile.Append("Bad SI5344 config file name:");
+    badFile.Append(fullPath.c_str());
+    //Try the default
+    if(getenv(WIB_CONFIG_PATH) != NULL){      
+      std::string fileDefault = getenv(WIB_CONFIG_PATH);
+      fileDefault += "/";
+      fileDefault += SI5344_CONFIG_FILENAME;
+      confFile.open(fileDefault.c_str());
+      if(confFile.fail()){
+	badFile.Append("Bad env based filename:");
+	badFile.Append(fileDefault.c_str());
+      }
+    }
+  }
+  if(confFile.fail()){ 
+    throw badFile; 
+  }
+  
+  while(!confFile.eof()){
+    std::string line;
+    std::getline(confFile,line);
+    if( line.size() == 0 ) {
+      continue;
+    } else if( line[0] == '#' || line[0] == 'A'){
+      continue;
+    } else{
+      
+      if( line.find(',') == std::string::npos ){
+	printf("Skipping bad line: \"%s\"\n",line.c_str());
+	continue;
+      }
+      
+      uint16_t address = (strtoul(line.substr(0,line.find(',')).c_str(),NULL,16) & 0xFF);
+      uint16_t data    = (strtoul(line.substr(line.find(',')+1).c_str(),NULL,16) & 0xFF);
+      //std::cout<<"address: "<<std::hex<<address<<"   data: "<<data<<std::dec<<"\n";
+     
+      // Register 11 controls SI5344 I2C
+      //  0:3   (0x00000F)  -- Number of bytes to write (should always be 1)
+      //  8:15  (0x00FF00)  -- Address to write to
+      //  16:23 (0xFF0000)  -- Data being written 
+      
+      // This SHOULD work but it doesn't... 
+      //Write("I2C_NUM_BYTES",0x1);
+      //Write("I2C_ADDRESS",address);
+      //Write("I2C_DIN",data);
+      
+      // instead, do it manually
+      size_t value = 0x1 + (address<<8) + (data<<16);
+      Write(0x11,value);
+      if( Read(0x11) != value ) {
+        std::cout
+        <<"!!! Set value:     "<<std::hex<<value<<"\n"
+        <<"!!! readback :     "<<Read(0x11)<<std::dec<<"\n";
+      }
+      
+      // Toggle to start SI5344 I2C read (this isn't working?)
+      Write("I2C_RD_STRB",1); usleep(1000); 
+      Write("I2C_RD_STRB",0); usleep(1000);
+      //std::cout<<"Readback: "<<std::hex<<Read("I2C_DOUT_S1")<<std::dec<<"\n";
+      
+    }
+  }
+
+  std::cout<<" done.\n";
+
+}
+
+void WIB::EnableDAQLink(uint8_t iDAQLink){
+
+  // 0x01, bit 3, "SBND_START_DAQ"
+  // 1 = begin sending data from FEMBs->WIB
+  // (must be flipped back to 0)
+  
+  // 0x14, bit 1, "TX_PACK_Stream_EN"
+  // 0 = enable data stream from WIB->Nevis
+
 
   //Build the base string for this DAQLINK
   std::string base("DAQ_LINK_");
@@ -161,14 +228,7 @@ void WIB::EnableDAQLink(uint8_t iDAQLink){
 }
 
 void WIB::EnableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
-  //CHeck if we know how to dael with this firmware
-  if(!((DAQMode == RCE)||(DAQMode == FELIX))){
-    //Not RCE or FELIX firmware, return
-    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
-    e.Append("Automatic DAQLink configuration not supported with this firmware.\n");    
-    throw e;
-  }
-
+  
   //Build the base string for this DAQLINK
   std::string base("DAQ_LINK_");
   base.push_back(GetDAQLinkChar(iDAQLink));
@@ -184,34 +244,6 @@ void WIB::EnableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
   Write(base+"ENABLE",enable);
 }
 
-/*void WIB::DisableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
-  //CHeck if we know how to dael with this firmware
-  if(!((DAQMode == RCE)||(DAQMode == FELIX))){
-    //Not RCE or FELIX firmware, return
-    WIBException::WIB_FEATURE_NOT_SUPPORTED e;
-    e.Append("Automatic DAQLink configuration not supported with this firmware.\n");    
-    throw e;
-  }
-
-  //Build the base string for this DAQLINK
-  std::string base("DAQ_LINK_");
-  base.push_back(GetDAQLinkChar(iDAQLink));
-  base.append(".CONTROL.");
-  
-  uint8_t stream = 0;
-  if(DAQMode == RCE) stream = 0xF;
-  else stream = 0xFF; 
-  
-  if(enable){
-    Write(base+"ENABLE_CDA_STREAM",stream);
-
-    Write(base+"ENABLE",enable);  
-  }
-  else{
-    Write(base+"ENABLE_CDA_STREAM",0);
-    Write(base+"ENABLE",0);
-  }
-}*/
 
 void WIB::InitializeWIB(){
   //run resets
@@ -285,6 +317,7 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
     WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
   }
+ // retain localClock input, get rid of DAQ mode stuff
   if(localClock > 1){
     WIBException::WIB_BAD_ARGS e;
     e.Append("localClock > 1; must be 0 (for DTS) or 1 (for local clock)\n");
@@ -302,10 +335,10 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
   }
 
   // get this register so we can leave it in the state it started in
-  uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
+  //uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
  
   ResetWIB();
-  Write("SYSTEM.SLOW_CONTROL_DND",1);
+  //Write("SYSTEM.SLOW_CONTROL_DND",1);
   sleep(1);
  
   for (size_t iFEMB=1; iFEMB<=4; iFEMB++){
@@ -321,13 +354,13 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
   if(localClock > 0){
     printf("Configuring local clock\n");
     //Configure the SI5344 to use the local oscillator instead of the PDTS
-    LoadConfig_SI5344("default");
+    LoadConfig_SI5344("default"); 
     sleep(1);
     SelectSI5344(1,1);
     sleep(1);
     Write("DTS.CONVERT_CONTROL.EN_FAKE",1);  
     Write("DTS.CONVERT_CONTROL.LOCAL_TIMESTAMP",1);  
-    Write("FEMB_CNC.CNC_CLOCK_SELECT",1);  
+    Write("FEMB_CNC.CNC_CLOCK_SELECT",1);  // <-- change to proper reg name? 0x3? (external = 0)
     //    Write("FEMB_CNC.ENABLE_DTS_CMDS",1);  
     sleep(1);
   }
@@ -351,7 +384,7 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
   Write("FEMB3.DAQ.ENABLE",0);  
   Write("FEMB4.DAQ.ENABLE",0);  
  
-  Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
+  //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
 
 }
 
@@ -433,10 +466,10 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
 
   if(reset_check){
     // get this register so we can leave it in the state it started in
-    uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
+//    uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
   
     ResetWIB();
-    Write("SYSTEM.SLOW_CONTROL_DND",1);
+    //Write("SYSTEM.SLOW_CONTROL_DND",1);
   
     for (size_t iFEMB=1; iFEMB<=4; iFEMB++){
       FEMBPower(iFEMB,0);
@@ -476,7 +509,7 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
     }
   
   
-    Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
+    //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
   }
   //Now we have the 128MHz clock
   std::cout << "Resetting DAQ Links" << std::endl;
@@ -495,15 +528,16 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
 }
 
 void WIB::StartStreamToDAQ(){
-  if(DAQMode == UNKNOWN){
+  /*if(DAQMode == UNKNOWN){
     WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
   }
   WriteWithRetry("DTS.CONVERT_CONTROL.HALT",1);
   WriteWithRetry("DTS.CONVERT_CONTROL.ENABLE",0);
-
+*/
 
   // get this register so we can leave it in the state it started in
+  /*
   uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
   Write("SYSTEM.SLOW_CONTROL_DND",1);
 
@@ -512,14 +546,15 @@ void WIB::StartStreamToDAQ(){
   sleep(1);
   Write("SYSTEM.RESET.DAQ_PATH_RESET",1);  
   sleep(1);
+  */
 
   // Enable DAQ links
   size_t nLinks = 4;
-  if (DAQMode == FELIX){
-    nLinks = 2;
-  }
+  //if (DAQMode == FELIX){
+  //  nLinks = 2;
+  //}
   for (size_t iLink=1; iLink <= nLinks; iLink++){
-    EnableDAQLink_Lite(iLink,1);
+    EnableDAQLink_Lite(iLink,1); // TX_PAC_STREAM_EN?
   }
 
   // Enable the FEMB to align to idle and wait for convert
@@ -535,8 +570,7 @@ void WIB::StartStreamToDAQ(){
   //Write("FEMB_CNC.FEMB_START",1);  
   //  Write("SYSTEM.RESET.FEMB_COUNTER_RESET",1);  
 
-  Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
-
+  //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
 }
 
 
@@ -573,38 +607,6 @@ void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
 
 }
 
-//void WIB::PowerOnFEMB(uint8_t iFEMB){
-//  //Turn on power
-//  std::string reg = "POWER.ENABLE.FEMB";
-//  reg.push_back(GetFEMBChar(iFEMB));
-//
-//
-//  const int REG_COUNT = 6;
-//  uint8_t mon_reg_val = 0x1+REG_COUNT*(iFEMB-1); // starts at 0x1 and there are 6 per FEMB
-//  
-//  for(uint8_t iReg=0;iReg < REG_COUNT;iReg++){
-//    //Go measure the reg value
-//    //    int iTries = 0;
-//    //    const int NUM_TRIES = 100;
-//    //Set the value to be read
-//    Write("POWER.MON_CONTROL.ADDRESS",mon_reg_val+iReg);
-//    //Wait till the output is valid
-////    for(;iTries < NUM_TRIES;iTries++){
-////      sleep(1);
-////      if(0x1 == Read("POWER.MON_CONTROL.VALID")){
-////	break;
-////      }
-////    }
-////    if (NUM_TRIES == iTries){
-////      printf("Timeout on reading FEMB: %d power reg %d\n",iFEMB,iReg);
-////    }else{
-//      uint32_t reg_val = Read("POWER.MON_VALUE.MEASUREMENT");
-//      printf("Reg %u 0x%04X 0x%04X\n",iReg,reg_val >> 16,reg_val&0xFFFF);
-//      //    }
-//  }
-//  
-//}
-//
 void WIB::EnableFEMBCNC(){
   //Enable the clock and control stream to the FEMBs
   Write("FEMB_CNC.CNC_CLOCK_SELECT",1);

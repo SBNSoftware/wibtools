@@ -39,7 +39,6 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
     ret = (gige_reg_t*)malloc(sizeof(gige_reg_t));
     if (ret == NULL)
         return NULL;
-  
     sprintf(ret->client_ip_addr, "%s", IP_address);
    
     // Recv socket
@@ -81,7 +80,6 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
    
 
     // Setup client READ TX
- 
     ret->sock_read = socket(AF_INET, SOCK_DGRAM, 0);
     if (ret->sock_read == -1) 
     {
@@ -90,6 +88,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
         return NULL;
     }
 
+    
     bzero(&ret->si_read, sizeof(ret->si_read));
     ret->si_read.sin_family = AF_INET;
     ret->si_read.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -207,6 +206,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   writePort = WIB_WR_BASE_PORT   + port_offset;
   replyPort = WIB_RPLY_BASE_PORT + port_offset;
 
+  std::cout << "WritePort: " << writePort << std::endl;
   remoteAddress = address;
   //Get the sockaddr for the address
   struct addrinfo * res;
@@ -299,14 +299,19 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 
 void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_count){
 
+  std::cout<<"BNLUDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<<"\n";
+
   while(retry_count > 1)
   {
     try
     {
       //Do the write
+      std::cout<<"Trying...\n";
       Write(address,value);
+      std::cout<<"Sleeping...\n";
       usleep(10);
       //if everything goes well, return
+      std::cout<<"Return\n";
       return;
     }
     catch(WIBException::BAD_REPLY &e)
@@ -316,9 +321,11 @@ void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_cou
     total_retry_count++;
     retry_count--;
     usleep(10);
+    std::cout<<total_retry_count<<"\n";
   }
   //Last chance we don't catch the exception and let it fall down the stack
   //Do the write
+  std::cout<<"Last chance\n";
   Write(address,value);
   usleep(10);
 }
@@ -354,12 +361,12 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
   }
 
   //If configured, capture confirmation packet
+  // - check if FEMB, and skip if so
   if(writeAck )
   {
     size_t reply_size = 0;
     struct sockaddr_in si_other;
     socklen_t len = sizeof(struct sockaddr_in);
-
     reply_size = recvfrom(reg->sock_recv, buffer, buffer_size, 0, 
 			  (struct sockaddr *)&si_other, &len);
     if(-1 == (int)reply_size)

@@ -190,7 +190,9 @@ void WIBBase::WriteFEMB(int iFEMB,std::string const & address,uint32_t value){
     e.Append("In WIBBase::WriteFEMB\n");
     throw e;
   }
+  std::cout<<"WriteWithRetry: "<<iFEMB-1<<"  "<<address<<"  "<<value<<"\n";
   FEMB[iFEMB-1]->WriteWithRetry(address,value);    
+  std::cout<<"Sleeping for "<<FEMBWriteSleepTime<<"\n";
   usleep((useconds_t) FEMBWriteSleepTime * 1e6);
 }
 

@@ -1,4 +1,4 @@
-#include <wib_device/WIBStatus.hh>
+#include <WIBStatus.hh>
 
 void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){  
   // Conversions from Jack: 
@@ -100,7 +100,8 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
     TS_ERROR_COUNT[iFEMB][i]      = wib->Read("TS_ERROR"); 
     FRAME_ERROR_COUNT[iFEMB][i]   = wib->Read("FRAME_ERROR"); 
   }
- 
+
+
   // Get everything else we care to look at 
   ADC_READOUT_EN[iFEMB] = wib->ReadFEMB(FEMB, "ADC_DISABLE_REG");
   CLOCK_SWITCH[iFEMB]   = wib->ReadFEMB(FEMB, "FEMB_SYSTEM_CLOCK_SWITCH");
@@ -154,19 +155,27 @@ void WIBTool::WIBStatus::ProcessWIB(){
     if( iv==3 ) WIB_C[i]  = double(lowerBits) * 1.9075 * 1e-3; // convert mA -> A
     else        WIB_C[i]  = double(lowerBits) * 190.75 * 1e-6; // convert uA --> A
   }
-
+  
+  // WIB clock status (register 0x04, bits 0:3)
+  //    b0 ("FEMB_CLK_SEL") controls system clock (100MHz)
+  //      = 0 --> from WIB FPGA (default)
+  //      = 1 --> from SI5344
+  //    b1 ("FEMB_CMD_SEL") controls system CMD clock (2MHz)
+  //      = 0 --> from WIB FPGA (default)
+  //      = 1 --> from PTC (MBB->PTC->WIB)
+  //    b2-3 ("FEMB_INT_CLK_SEL") 
+  //      = 00 or 01 --> select SBND_CLK from SI5344
+  //      = 10 --> select CLK_100MHz from PLL driven by onboard 50MHz osc 
+  FEMB_CLK      = wib->Read("FEMB_CLK_SEL");
+  FEMB_CMD      = wib->Read("FEMB_CMD_SEL");
+  FEMB_INT_CLK  = wib->Read("FEMB_INT_CLK_SEL");
+  PLL_CLK_LOL   = wib->Read("SI5344_LOL");
+  PLL_CLK_LOS   = wib->Read("SI5344_LOSXAXB");
+  
 }
 
 
-//void WIBTool::WIBStatus::Process(std::string const & singleTable){  
 void WIBTool::WIBStatus::Process(std::string const & option){  
-  // Main control function for the 'status' command in wibtools.
-  // Need to output:
-  //  [x] FEMB V and C readout for each board (PWR_MES_SEL, read out by 0x06 PWR_MES_OUT 31:0)
-  //  [x] WIB parameters (Vcc, V1-4)
-  //  [-] FE Vcc / temp (what is this?)
-  //  [-] Bias Vcc / temp 
-  //  [x] FEMB link status + data options
  
   //Prompt measurements
   StartPowerMes();
@@ -175,8 +184,11 @@ void WIBTool::WIBStatus::Process(std::string const & option){
   ProcessWIB();
   for(uint8_t i=1; i<=FEMB_COUNT;i++) ProcessFEMB(i);
 
-  if( option == "power" || option == "pwr" || option == "" )
+  if( option == "power" || option == "pwr" || option == "p" || option == "" )
     PrintPowerTable();
+
+  if( option == "clk" || option == "c" || option == "" )
+    PrintWIBClockTable();
 
   if( option == "femb" || option == "" ) 
     PrintFEMBTable();
@@ -246,6 +258,29 @@ void WIBTool::WIBStatus::PrintPowerTable(){
   printf("\n");
   }
   printf("\n");
+}
+
+void WIBTool::WIBStatus::PrintWIBClockTable(){
+  
+  // =======================================================================================
+  // WIB clock parameters
+  // =======================================================================================
+  
+  std::string femb_clk[2]       ={"WIB FPGA", "SI5344"};
+  std::string femb_cmd[2]       ={"WIB FPGA", "PTC"};
+  std::string femb_int_clk[3]   ={"SI5344","SI5344","PLL"};
+  if( FEMB_INT_CLK > 2 ) FEMB_INT_CLK = 2;
+  
+  printf("\n\n");   
+  printf("%20s","WIB clock settings"); printf("%20s",""); printf("\n");
+  printf("========================================\n");
+  printf("%20s","SYSTEM CLOCK:");   printf("%10d",FEMB_CLK);      printf("%10s",femb_clk[FEMB_CLK].c_str()); printf("\n");
+  printf("%20s","CMD CLOCK:");      printf("%10d",FEMB_CMD);      printf("%10s",femb_cmd[FEMB_CMD].c_str()); printf("\n");
+  printf("%20s","INT CLOCK:");      printf("%10d",FEMB_INT_CLK);  printf("%10s",femb_int_clk[FEMB_INT_CLK].c_str()); printf("\n");
+  printf("%20s","PLL CLK LOCK (LOL):");      printf("%10d",PLL_CLK_LOL);  printf("%10s",""); printf("\n");
+  printf("%20s","PLL CLK LOCK (LOS):");      printf("%10d",PLL_CLK_LOS);  printf("%10s",""); printf("\n");
+  
+
 }
 
 void WIBTool::WIBStatus::PrintFEMBTable(){
@@ -344,18 +379,10 @@ void WIBTool::WIBStatus::PrintFEMBTable(){
     printf(" -------------------\n");
   }
   
-  
-  /*
-  // Get everything else we care to look at 
-  FIRMWARE_VER[iFEMB]   = wib->ReadFEMB(FEMB, "VERSION_ID");
-  ID[iFEMB]             = wib->ReadFEMB(FEMB, "BOARD_ID");
-  COMPILED_VER[iFEMB]   = wib->ReadFEMB(FEMB, "COMPILED_VERSION");
-  DATE_COMPILED[iFEMB]  = wib->ReadFEMB(FEMB, "DATE_COMPILED"); 
-  TIME_COMPILED[iFEMB]  = wib->ReadFEMB(FEMB, "TIME_COMPILED"); 
-*/
 
 }
 
+// Returns status variables for archiver
 std::map<std::string,double> WIBTool::WIBStatus::RetrieveStatusVars(){
   StartPowerMes();
   ProcessWIB();
@@ -422,6 +449,3 @@ std::map<std::string,double> WIBTool::WIBStatus::RetrieveStatusVars(){
 
 }
 
-void WIBTool::WIBStatus::TestFunction(){
-  printf("Hello!\n");
-}
