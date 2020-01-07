@@ -181,6 +181,7 @@ void WIB::loadConfig(std::string const & fileName){
       
       // instead, do it manually
       size_t value = 0x1 + (address<<8) + (data<<16);
+      std::cout<<"writing value "<<std::hex<<value<<std::dec<<" to 0x11\n";
       Write(0x11,value);
       if( Read(0x11) != value ) {
         std::cout
@@ -191,7 +192,7 @@ void WIB::loadConfig(std::string const & fileName){
       // Toggle to start SI5344 I2C read (this isn't working?)
       Write("I2C_RD_STRB",1); usleep(1000); 
       Write("I2C_RD_STRB",0); usleep(1000);
-      //std::cout<<"Readback: "<<std::hex<<Read("I2C_DOUT_S1")<<std::dec<<"\n";
+      std::cout<<"Readback: "<<std::hex<<Read("I2C_DOUT_S1")<<std::dec<<"\n";
       
     }
   }
