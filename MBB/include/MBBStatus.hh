@@ -31,6 +31,7 @@ namespace WIBTool{
     uint32_t CRATE_PULSE_PERIOD;                                          
     uint32_t CRATE_CLK_TYPE;
     uint32_t CRATE_CLK_STATUS;
+    uint32_t WIB_PWR;                 // 0=0ff, 1=on
     uint32_t FIRMWARE_VER;
     uint32_t FIRMWARE_TRK;
     uint32_t COMPILATION_DT;

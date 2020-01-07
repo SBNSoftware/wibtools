@@ -22,7 +22,8 @@ class MBB{
   void ConfigPTC(uint8_t icrate);
   void ConfigAllPTCs();
   
-  void ConfigMBB(uint32_t PLL_CLOCK_TYPE, uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6 );
+  void ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6 );
+  void TimeStampReset();
 
   // Basic I/O methods
   uint32_t Read(uint16_t address);
