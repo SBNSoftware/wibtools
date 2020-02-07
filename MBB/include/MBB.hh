@@ -17,7 +17,7 @@ class MBB{
   //PTC 
   void WIBPower(uint8_t icrate,bool turnOn); //to be used to extract bit mask for PTC_DATA
   void EnableWIBs(uint8_t icrate, uint32_t value);
-  void WritePTC(uint8_t icrate, uint16_t address, uint32_t value);
+  void WritePTC(uint8_t icrate, uint16_t address/*, uint32_t value*/);
   //void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
   void ConfigPTC(uint8_t icrate);
   void ConfigAllPTCs();
@@ -33,6 +33,13 @@ class MBB{
   void Write(uint16_t address,uint32_t value);
   void Write(std::string const & address,uint32_t value);
   void FullStart();
+
+  //for storing wib power values.
+  uint32_t crate_num;
+  uint32_t p1;
+  uint32_t p2;
+  uint32_t p3;
+  uint32_t p4;
 
   AddressTable * mbb;
 

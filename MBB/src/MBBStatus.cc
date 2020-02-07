@@ -3,8 +3,6 @@
 #include <iostream>
 
 void WIBTool::MBBStatus::ProcessPTC(uint8_t crate){
-    
-  // int icrate = crate-1;
     CRATE_PULSE_SRC  = 0;
     PERIOD = 0;
     CRATE_PULSE_PERIOD   = 0;
@@ -20,13 +18,18 @@ void WIBTool::MBBStatus::ProcessPTC(uint8_t crate){
              }
 	     }*/
 
-    // get type of pulse, pulse period, Clock type, Clock Status and Wib Power.
+    // get type of pulse, pulse period, Clock type, Clock Status.
     CRATE_PULSE_SRC = mbb->Read("PULSE_SRC_SELECT");
     PERIOD = mbb->Read("PULSE_PERIOD");
     CRATE_PULSE_PERIOD = PERIOD*10;
     CRATE_CLK_TYPE = mbb->Read("PLL_ACTIVE_CLK");
     CRATE_CLK_STATUS = mbb->Read("PLL_CLK_STATUS");
-    WIB_PWR = mbb->Read("PTC_DATA");
+   
+    //Calling WIB Power values stored in configMBB and storing them to print out later.
+    p11 = mbb->p1;
+    p22 = mbb->p2;
+    p33 = mbb->p3;
+    p44 = mbb->p4;
 
     // get everything else
     FIRMWARE_VER  = mbb->Read("FIRMWARE_VERSION");
@@ -47,11 +50,10 @@ void WIBTool::MBBStatus::Process(std::string const & singleTable){
   std::cout<<singleTable<<"\n";
   std::cout<<"Building MBB table\n";
   
-  //get the PTC power measurements
+  //Storing and printing the values.
   for(uint8_t i=1; i<=CRATE_COUNT;i++){
       ProcessPTC(i);
       }
- 
   // Printing the MBB table
   // ========================================================================================================================================
   printf("   ======================================================================================================="); printf("\n");
@@ -77,23 +79,62 @@ void WIBTool::MBBStatus::Process(std::string const & singleTable){
   printf("%20s","COMPILATION DATE:");   printf("%20x",COMPILATION_DT); printf("\n");
   printf("%20s","COMPILATION TIME:");   printf("%20x",COMPILATION_TM); printf("\n");
   printf("   ======================================================================================================="); printf("\n");
-
-
-  for(uint8_t v=0; v<CRATE_COUNT; v++){
-      printf("\n%20s","PTC Num:"); printf("%14d",v+1);
-      printf("\n%20s","WIB Num:"); for(uint8_t i=0;i<WIB_COUNT;i++) printf("%14d",i+1); printf("\n");
-      printf("   ======================================================================================================="); printf("\n");
-      printf("%20s","ON/OFF");
-      WIB_PWR = mbb->Read("PTC_DATA");//without this line only power of 6 wibs. may be used for printing out different power for different ptcs.
-      int n=6;
-      while(n>0){
-                 if(WIB_PWR&1) printf("%14d", 0);
-                 else printf("%14d" ,1);
-                 WIB_PWR>>=1;
-	         n--;
-                }
-      printf("\n");
-      printf("   ======================================================================================================="); printf("\n\n\n");
-  }
+  
+  printf("\n%20s","PTC Num:"); printf("%14d",1);
+  printf("\n%20s","WIB Num:"); for(uint8_t z=0;z<WIB_COUNT;z++) printf("%14d",z+1); printf("\n");
+  printf("   ======================================================================================================="); printf("\n");
+  printf("%20s","ON/OFF");
+  int m=6;
+  while(m>0){
+	if(p11&1) printf("%14d", 0);
+	else printf("%14d" ,1);
+	p11>>=1;
+	m--;
+	}
+  printf("\n");
+  printf("   ======================================================================================================="); printf("\n\n\n");
+      
+  printf("\n%20s","PTC Num:"); printf("%14d",2);
+  printf("\n%20s","WIB Num:"); for(uint8_t z=0;z<WIB_COUNT;z++) printf("%14d",z+1); printf("\n");
+  printf("   ======================================================================================================="); printf("\n");
+  printf("%20s","ON/OFF");
+  int n=6;
+  while(n>0){
+	if(p22&1) printf("%14d", 0);
+	else printf("%14d" ,1);
+	p22>>=1;
+	n--;
+	}
+  printf("\n");
+  printf("   ======================================================================================================="); printf("\n\n\n");
+       
+  printf("\n%20s","PTC Num:"); printf("%14d",3);
+  printf("\n%20s","WIB Num:"); for(uint8_t z=0;z<WIB_COUNT;z++) printf("%14d",z+1); printf("\n");
+  printf("   ======================================================================================================="); printf("\n");
+  printf("%20s","ON/OFF");
+  int o=6;
+  while(o>0){
+	if(p33&1) printf("%14d", 0);
+	else printf("%14d" ,1);
+	p33>>=1;
+	o--;
+	}
+  printf("\n");
+  printf("   ======================================================================================================="); printf("\n\n\n");
+       
+  printf("\n%20s","PTC Num:"); printf("%14d",4);
+  printf("\n%20s","WIB Num:"); for(uint8_t z=0;z<WIB_COUNT;z++) printf("%14d",z+1); printf("\n");
+  printf("   ======================================================================================================="); printf("\n");
+  printf("%20s","ON/OFF");
+  int p=6;
+  while(p>0){
+	if(p44&1) printf("%14d", 0);
+	else printf("%14d" ,1);
+	p44>>=1;
+	p--;
+	}
+  printf("\n");
+  printf("   ======================================================================================================="); printf("\n\n\n");
 }
+
         

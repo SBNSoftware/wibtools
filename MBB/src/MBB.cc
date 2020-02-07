@@ -66,26 +66,27 @@ void MBB::ResetMBB(bool reset_udp)
 
 void MBB::EnableWIBs(uint8_t icrate,uint32_t value)
 {
-  WritePTC(icrate,2,value);
+  WritePTC(icrate,2/*,value*/);
 }
 
 //MBB defaults to send the correct signals to the WIBs on power up.
-void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value){
+void MBB::WritePTC(uint8_t icrate, uint16_t address/*, uint32_t value*/){
   Write("PTC_DATA_ADDRESS", address);
   Write("PTC_CRATE_ADDRESS", icrate);
-  Write("PTC_DATA", value);//should be set to 0 as per original email by Matt. If set to zero will turn ON all WIBs. 
+  //Write("PTC_DATA", value);//should be set to 0 as per original email by Matt. If set to zero will turn ON all WIBs. 
   Write("PTC_WR_REG", 0);
   usleep(1000);
   Write("PTC_WR_REG", 1);
   usleep(1000);
   Write("PTC_WR_REG", 0);
   }
+// WritePTC should only have two arguments. We should write into PTC_DATA via configMBB.
 
 void MBB::ConfigPTC(uint8_t icrate){
-    if (icrate < 1 || icrate > CRATE_COUNT){
+  if (/*icrate < 0 || to allow for d0 PTC*/ icrate > CRATE_COUNT){
 	MBBException::MBB_BAD_ARGS e;
 	std::stringstream expstr;
-	expstr << "ConfigPTC: icrate should be between 1 and CRATE_COUNT: "
+	expstr << "ConfigPTC: icrate should be between 0 and CRATE_COUNT: "
 	       << int(icrate);
 	e.Append(expstr.str().c_str());
 	throw e;
@@ -96,8 +97,8 @@ void MBB::ConfigPTC(uint8_t icrate){
     WritePTC(icrate, 0x2, g->mask);*/ // this is what I had originally.
 
     //Doing configMBB and reading PTC_DATA gives different value than doing configAllPTCs and then reading it(0xffff always). This is my proposed solution.
-    uint32_t sol= Read("PTC_DATA");
-    WritePTC(icrate, 0x2, sol);
+    //uint32_t sol= Read("PTC_DATA");
+  WritePTC(icrate, 0x2/*, sol*/);
 }
 
 void MBB::ConfigAllPTCs(){
@@ -115,7 +116,7 @@ void MBB::ConfigAllPTCs(){
  *          Pulse Period: 0,1,2 for 0ns, 10ns, 20ns and so on.
  *          WIB Power: 0,1 for OFF, ON respectively.
  */
-
+// adding a comment just to push.
 void MBB::ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6){
 
      if (PULSE_SOURCE > 1){
@@ -427,6 +428,24 @@ void MBB::ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_p
 	      
 	}
 	
+
+	//storing the WIB Power values corresponding to each PTC.
+        crate_num = Read("PTC_CRATE_ADDRESS");
+	if(crate_num == 1){
+	   p1 = Read("PTC_DATA");
+          }
+   
+        if(crate_num == 2){
+           p2 = Read("PTC_DATA");
+	}
+
+        if(crate_num == 3){
+           p3 = Read("PTC_DATA");
+	}
+
+        if(crate_num == 4){
+           p4 = Read("PTC_DATA");
+	}
      
 
      /*if(Read("FIRMWARE_VERSION") == Read("SYS_RESET")) { // can't read register if equal

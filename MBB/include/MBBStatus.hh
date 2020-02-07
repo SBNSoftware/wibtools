@@ -20,8 +20,7 @@ namespace WIBTool{
     }
 
   private:
-    void Process(std::string const & singleTable);
-    //void ProcessPTC(uint8_t iFEMB,std::string const & singleTable);        
+    void Process(std::string const & singleTable);        
     void ProcessPTC(uint8_t icrate);
     MBB * mbb;
     
@@ -31,11 +30,14 @@ namespace WIBTool{
     uint32_t CRATE_PULSE_PERIOD;                                          
     uint32_t CRATE_CLK_TYPE;
     uint32_t CRATE_CLK_STATUS;
-    uint32_t WIB_PWR;                 // 0=0ff, 1=on
     uint32_t FIRMWARE_VER;
     uint32_t FIRMWARE_TRK;
     uint32_t COMPILATION_DT;
-    uint32_t COMPILATION_TM;                                                                              
+    uint32_t COMPILATION_TM;
+    uint32_t p11;                     // 0=off,  1=on
+    uint32_t p22;   
+    uint32_t p33;
+    uint32_t p44;                                                                              
   };
 
 }
