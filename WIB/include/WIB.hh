@@ -35,12 +35,14 @@ class WIB: public WIBBase {
   //initialize hardware
   void configWIB(uint8_t clockSource = 0);
   void loadConfig(std::string const & fileName );
-  bool checkPLLisLocked();
+  bool PLL_check();
+  void PLL_write(uint16_t addr, uint16_t data);
+  void UDP_control(bool enable=false);
   void InitializeWIB();
   void ResetWIB(bool reset_udp=false);
   void EnableDAQLink(uint8_t iDAQLink);
   void EnableDAQLink_Lite(uint8_t iDAQLink,uint8_t enable);
-  void StartSyncDTS();
+//  void StartSyncDTS();
   void ResetWIBAndCfgDTS(uint8_t localClock,uint8_t PDTS_TGRP, uint8_t PDTSsource = 0, uint32_t PDTSAlignment_timeout = 0);
   void CheckedResetWIBAndCfgDTS(uint8_t localClock,uint8_t PDTS_TGRP, uint8_t PDTSsource = 0, uint32_t PDTSAlignment_timeout = 0);
   void StartStreamToDAQ();

@@ -52,31 +52,42 @@ void WIB::configWIB(uint8_t clockSource){
   int fw_version = Read("FW_VERSION");
   int crate = Read("CRATE_ADDR");
   int slot = Read("SLOT_ADDR");
+  
 
   std::cout 
   << "=============== configWIB ===============\n"
   << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << std::dec<<"\n"; 
 
   // setup 
+  UDP_control(true); 
   Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
+  Write("UDP_SAMP_TO_SAVE",0x7F00);
   Write("UDP_BURST_MODE",0); // normal UDP operation
-  Write(0x10,0x7F00); // FIFO size for "burst mode" (N/A)
+  UDP_control(false); 
+  //Write(0x10,0x7F00); // FIFO size for "burst mode" (N/A)
+
+   
 
   // clock select
   if(clockSource == 0){
     std::cout << " *** Configure the Si5344 PLL ***" << std::endl;
 
     //Write(0xA,0xFF0);     // bit 8 resets the Si5344, dunno the others
-    Write("SILABS_RST",1);   
-    Write("I2C_WR_STRB",1); // start SI5344 write
+    //Write("SILABS_RST",1);   
+    //Write("I2C_WR_STRB",1); // start SI5344 write
     //Write("I2C_RD_STRB",1); // start SI5344 read
+
+    ResetSi5344();
+    //Write(10,0xFF0);
+    //Write(10,0xFF0);
+    
 
     // check PLL status; if PLL is not already locked, 
     // then load from the configuration from a file
-    bool lol_flag = checkPLLisLocked();
+    bool lol_flag = PLL_check();
     if( !lol_flag ){
       loadConfig(SI5344_CONFIG_FILENAME);
-      lol_flag = checkPLLisLocked();
+      lol_flag = PLL_check();
     }
 
     if( lol_flag ){
@@ -106,18 +117,39 @@ void WIB::configWIB(uint8_t clockSource){
     throw e;
   }
 
+  UDP_control(false);
 }
 
-bool WIB::checkPLLisLocked(){
+bool WIB::PLL_check(){
   bool out = false;
-  for(int i=0; i<100; i++){
-    usleep(10000);
+  for(int i=0; i<5; i++){
+    std::cout<<"Checking PLL status, please wait...\n";
+    sleep(1);
+    std::cout<<"reg 12 = "<<std::hex<<Read(12)<<std::dec<<"\n";
     if(Read("SI5344_LOL")) {
       out = true;
+      std::cout<<"LOL\n";
       break;
     }
   }
   return out;
+}
+
+void WIB::UDP_control(bool enable){
+  usleep(10000);
+  std::cout<<"UDP_DISABLE = "<<Read("UDP_DISABLE")<<"\n";
+  if( enable == true )  Write("UDP_DISABLE",0);
+  else                  Write("UDP_DISABLE",1);
+  std::cout<<"UDP_DISABLE = "<<Read("UDP_DISABLE")<<"\n";
+}
+
+void WIB::ResetSi5344(){
+  Write(10,0x0);
+  std::cout<<"Resetting Si5344...\n";
+  Write("SILABS_RST",1);   
+  Write("SILABS_RST",0);   
+  usleep(100000);
+  std::cout<<std::hex<<Read(10)<<std::dec<<"\n";
 }
 
 void WIB::loadConfig(std::string const & fileName){
@@ -130,7 +162,6 @@ void WIB::loadConfig(std::string const & fileName){
   WIBException::WIB_BAD_ARGS badFile;
   
   std::cout<<"Configuring PLL from file: "<<fileName<<"\n";
-  std::cout<<"...";
   if(confFile.fail()){
     //Failed to topen filename, add it to the exception
     badFile.Append("Bad SI5344 config file name:");
@@ -150,56 +181,131 @@ void WIB::loadConfig(std::string const & fileName){
   if(confFile.fail()){ 
     throw badFile; 
   }
-  
+
+  std::vector<uint16_t> adrs_h;
+  std::vector<uint16_t> adrs_l;
+  std::vector<uint16_t> datass;
+//  std::vector<std::pair<uint16_t,uint16_t> > writes;
+
   while(!confFile.eof()){
     std::string line;
     std::getline(confFile,line);
+    uint16_t tmp = line.find(',');
     if( line.size() == 0 ) {
       continue;
     } else if( line[0] == '#' || line[0] == 'A'){
       continue;
     } else{
-      
-      if( line.find(',') == std::string::npos ){
+      if( tmp == std::string::npos ){
 	printf("Skipping bad line: \"%s\"\n",line.c_str());
 	continue;
       }
-      
-      uint16_t address = (strtoul(line.substr(0,line.find(',')).c_str(),NULL,16) & 0xFF);
-      uint16_t data    = (strtoul(line.substr(line.find(',')+1).c_str(),NULL,16) & 0xFF);
-      //std::cout<<"address: "<<std::hex<<address<<"   data: "<<data<<std::dec<<"\n";
      
-      // Register 11 controls SI5344 I2C
-      //  0:3   (0x00000F)  -- Number of bytes to write (should always be 1)
-      //  8:15  (0x00FF00)  -- Address to write to
-      //  16:23 (0xFF0000)  -- Data being written 
-      
-      // This SHOULD work but it doesn't... 
-      //Write("I2C_NUM_BYTES",0x1);
-      //Write("I2C_ADDRESS",address);
-      //Write("I2C_DIN",data);
-      
-      // instead, do it manually
-      size_t value = 0x1 + (address<<8) + (data<<16);
-      std::cout<<"writing value "<<std::hex<<value<<std::dec<<" to 0x11\n";
-      Write(0x11,value);
-      if( Read(0x11) != value ) {
-        std::cout
-        <<"!!! Set value:     "<<std::hex<<value<<"\n"
-        <<"!!! readback :     "<<Read(0x11)<<std::dec<<"\n";
+      std::cout
+      <<"--------------------------------------------\n" 
+      <<line<<"\n";
+      uint16_t address = strtoul(line.substr(0,tmp).c_str(),NULL,16);
+      uint16_t data    = strtoul(line.substr(tmp+1).c_str(),NULL,16);
+      std::cout<<"address: "<<std::hex<<address<<"   data: "<<data<<std::dec<<"\n";
+      //writes.push_back(std::pair<uint16_t,uint16_t>(address,data));
+    
+      uint16_t  adr     = strtoul(line.substr(2,tmp).c_str(),NULL,16);
+      adrs_h.push_back((adr&0xFF00)>>8);
+      adrs_l.push_back(adr&0xFF);
+      datass.push_back(data&0xFF);
+      int i = adrs_h.size()-1;
+      std::cout<<"adrs_h = "<<std::hex<<adrs_h.at(i)<<"   adrs_l = "<<adrs_l.at(i)<<"    datass = "<<datass.at(i)<<std::dec<<"\n";
+     
       }
-      
-      // Toggle to start SI5344 I2C read (this isn't working?)
-      Write("I2C_RD_STRB",1); usleep(1000); 
-      Write("I2C_RD_STRB",0); usleep(1000);
-      std::cout<<"Readback: "<<std::hex<<Read("I2C_DOUT_S1")<<std::dec<<"\n";
-      
     }
-  }
-
-  std::cout<<" done.\n";
-
+   
+//    std::cout<<"Total ----- "<<writes.size()<<"\n";
+   
+    // Copying procedure from Shanshan's script, ce_runs.py
+  UDP_control(true);
+    
+    uint16_t p_addr = 1;
+    // Step 1
+    uint16_t page4  = adrs_h[0];
+    PLL_write(p_addr, page4 );
+    PLL_write(adrs_l[0], datass[0]);
+    // Step 2
+    page4 = adrs_h[1];
+    PLL_write(p_addr, page4);
+    PLL_write(adrs_l[1], datass[1]);
+    // Step 2
+    page4 = adrs_h[2];
+    PLL_write(p_addr, page4);
+    PLL_write(adrs_l[2], datass[2]);
+    usleep(500000);
+    // Step 4
+    for(size_t i=3; i<adrs_h.size(); i++){
+      std::cout<<std::hex<<adrs_h[i]<<"   "<<adrs_l[i]<<"   "<<datass[i]<<std::dec<<"\n";
+      if( page4 == adrs_h[i] ){
+        PLL_write(adrs_l[i],datass[i]);
+      } else {
+        std::cout<<"new page\n";
+        page4 = adrs_h[i];
+        PLL_write(p_addr,page4);
+        PLL_write(adrs_l[i],datass[i]);
+      }
+    }
+ 
 }
+
+void WIB::PLL_write(uint16_t addr, uint16_t data){  
+  // Register 11 controls SI5344 I2C
+  //  0:3   (0x00000F)  -- Number of bytes to write (set to 1 when writing data, 0 when setting address)
+  //  8:15  (0x00FF00)  -- Address to write to
+  //  16:23 (0xFF0000)  -- Data being written 
+     
+  std::cout<<std::hex<<"Addr: "<<addr<<"   data: "<<data<<"\n";
+  
+  // This SHOULD work by utilizing the table files
+  //Write("I2C_NUM_BYTES",0x1);
+  //Write("I2C_ADDRESS",(addr&0xFF));
+  //Write("I2C_DIN",(data&0xFF));
+  //std::cout<<std::hex<<"Reg 0x0B (11): "<<Read(0x0B)<<std::dec<<"\n";
+      
+  // instead, do it manually
+  size_t value = 0x01 + ((addr&0xFF)<<8) + ((data&0x00FF)<<16);
+  std::cout<<"writing value "<<value<<std::dec<<" to reg 11\n";
+  Write(0x0B,value);
+ 
+  usleep(10000);
+  Write("I2C_WR_STRB",1); 
+  usleep(10000); 
+  Write("I2C_WR_STRB",0);
+  usleep(20000);
+  /* 
+  usleep(1000);
+  Write("I2C_RD_STRB",1); 
+  usleep(1000); 
+  Write("I2C_RD_STRB",0);
+  */
+
+  /*
+  std::cout<<"Now trying readback...\n";
+  Write("I2C_NUM_BYTES",0x0);
+  Write("I2C_ADDRESS",(addr&0xFF));
+  usleep(10000);
+  Write("I2C_WR_STRB",1); 
+  usleep(10000); 
+  Write("I2C_WR_STRB",0);
+  usleep(20000);
+  Write("I2C_NUM_BYTES",0x1);
+  usleep(10000);
+  Write("I2C_RD_STRB",1); 
+  usleep(10000);
+  std::cout<<"reg 0x0A set to "<<std::hex<<Read(0x0A)<<std::dec<<"\n";
+  Write("I2C_RD_STRB",0); 
+  usleep(10000);
+  std::cout<<"reg 0x0A set to "<<std::hex<<Read(0x0A)<<std::dec<<"\n";
+  std::cout<<"Readback: "<<std::hex<<Read("I2C_DOUT_S1")<<std::dec<<"\n";
+  //std::cout<<"Readback: "<<std::hex<<Read(0x0C)<<std::dec<<"\n";
+  */
+}
+
 
 void WIB::EnableDAQLink(uint8_t iDAQLink){
 
