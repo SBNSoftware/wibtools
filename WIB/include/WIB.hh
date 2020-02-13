@@ -35,9 +35,9 @@ class WIB: public WIBBase {
   //initialize hardware
   void configWIB(uint8_t clockSource = 0);
   void loadConfig(std::string const & fileName );
-  bool PLL_check();
+  bool PLL_check(int iTries=5);
   void PLL_write(uint16_t addr, uint16_t data);
-  void UDP_control(bool enable=false);
+  void UDP_enable(bool enable=true);
   void InitializeWIB();
   void ResetWIB(bool reset_udp=false);
   void EnableDAQLink(uint8_t iDAQLink);
