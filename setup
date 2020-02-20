@@ -1,9 +1,9 @@
 source /daq/software/products/setup
-setup gcc v7_3_0 
-setup boost v1_69_0 -q e17:prof
+setup gcc v8_2_0 
+setup boost v1_70_0 -q e19:prof
 #
 # Uncomment QUALIFIER and VERSION only if you want to build a ups vesion
-# export QUALIFIER="e17"
-# export VERSION="0_01_03"
+# export QUALIFIER="e19"
+# export VERSION="0_02_00"
 #
 source ./env.sh
