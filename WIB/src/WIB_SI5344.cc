@@ -14,11 +14,6 @@ uint32_t WIB::Read_SI5344(uint16_t address,uint8_t byte_count){
 }
 
 
-void WIB::ResetSi5344(){
-  Write("DTS.SI5344.RESET",0x1);
-  Write("DTS.SI5344.RESET",0x0);
-  usleep(100000);
-}
 
 void WIB::Set_SI5344Page(uint8_t page){
   Write_SI5344(0x1,page,1);
