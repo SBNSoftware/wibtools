@@ -17,11 +17,12 @@ class MBB{
   //PTC 
   void WIBPower(uint8_t icrate,bool turnOn); //to be used to extract bit mask for PTC_DATA
   void EnableWIBs(uint8_t icrate, uint32_t value);
-  void WritePTC(uint8_t icrate, uint16_t address/*, uint32_t value*/);
-  //void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
+  void WritePTC(uint8_t icrate, uint16_t address, uint32_t value);
+  void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
   void ConfigPTC(uint8_t icrate);
   void ConfigAllPTCs();
   
+  uint32_t mask;
   void ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6 );
   void TimeStampReset();
 

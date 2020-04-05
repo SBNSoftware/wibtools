@@ -21,10 +21,10 @@ namespace WIBTool{
 
   private:
     void Process(std::string const & singleTable);        
-    void ProcessPTC(uint8_t icrate);
+    void ProcessPTC();
     MBB * mbb;
     
-    uint32_t CRATE_PWR[CRATE_COUNT];   // 0=off, 1=on
+    //uint32_t CRATE_PWR[CRATE_COUNT];   // 0=off, 1=on
     uint32_t CRATE_PULSE_SRC;
     uint32_t PERIOD;                                         
     uint32_t CRATE_PULSE_PERIOD;                                          
@@ -34,7 +34,7 @@ namespace WIBTool{
     uint32_t FIRMWARE_TRK;
     uint32_t COMPILATION_DT;
     uint32_t COMPILATION_TM;
-    uint32_t p11;                     // 0=off,  1=on
+    uint32_t p11;          
     uint32_t p22;   
     uint32_t p33;
     uint32_t p44;                                                                              
