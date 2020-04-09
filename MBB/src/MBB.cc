@@ -208,7 +208,7 @@ void MBB::ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_p
      mask = (~mask) & 0x3F;
      std::cout<<" *************mask = "<<mask<<std::endl;
      Write("PTC_DATA", mask);
-     Write("PTC_CRATE_ADDRESS", 0); 
+     Write("PTC_CRATE_ADDRESS", 0); // Temporary for testing, must fix
      Write("PTC_DATA_ADDRESS", 0x2); // Only one register awailable
      
      //Transition from 0 to 1 in PTC_WR_REG will send data to the PTC.
