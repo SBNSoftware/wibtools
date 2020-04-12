@@ -148,6 +148,58 @@ void MBB::ConfigPTC(uint8_t icrate, uint32_t wib_pwr0, uint32_t wib_pwr1, uint32
   wibpoweroncrate[icrate] = mask; //storing the mask to be printed out in status table.
 }
 
+<<<<<<< HEAD
+=======
+     if(PLL_CLOCK_TYPE==1){
+        if(Read("PLL_ACTIVE_CLK")==0){
+	  Write("PLL_CLOCK_SELECT",0);
+	  Write("PLL_CLOCK_SELECT",1);
+          }
+        else if(Read("PLL_ACTIVE_CLK")==1){
+                Write("PLL_CLOCK_SELECT",1);
+	        }
+		}*/ 
+
+
+     Write("PULSE_SRC_SELECT", PULSE_SOURCE);
+     Write("PULSE_PERIOD", PULSE_PERIOD);
+
+     // controlling power on WIBs.
+     mask = (wib_pwr6<<5)|(wib_pwr5<<4)|(wib_pwr4<<3)|(wib_pwr3<<2)|(wib_pwr2<<1)|(wib_pwr1);
+     mask = (~mask) & 0x3F;
+     std::cout<<" *************mask = "<<mask<<std::endl;
+     Write("PTC_DATA", mask);
+     Write("PTC_CRATE_ADDRESS", 0); // Temporary for testing, must fix
+     Write("PTC_DATA_ADDRESS", 0x2); // Only one register awailable
+     
+     //Transition from 0 to 1 in PTC_WR_REG will send data to the PTC.
+     Write("PTC_WR_REG", 0);
+     usleep(1000);
+     Write("PTC_WR_REG", 1);
+     usleep(1000);
+     Write("PTC_WR_REG", 0);       
+
+  //storing the WIB Power values corresponding to each PTC.
+     crate_num = Read("PTC_CRATE_ADDRESS");
+     if(crate_num == 0x1){p1 = Read("PTC_DATA");}
+     if(crate_num == 0x2){p2 = Read("PTC_DATA");}
+     if(crate_num == 0x3){p3 = Read("PTC_DATA");}
+     if(crate_num == 0x4){p4 = Read("PTC_DATA");}
+     
+	/*
+     if(Read("FIRMWARE_VERSION") == Read("SYS_RESET")) { // can't read register if equal
+       if(ContinueOnMBBRegReadError){
+           std::cout << "Error: Can't read registers from MBB"<< std::endl;
+           return;
+           }
+        MBBException::MBB_REG_READ_ERROR e;
+        std::stringstream expstr;
+        expstr << " Register Read Error" << std::endl; 
+	e.Append(expstr.str().c_str());
+        throw e;
+        }
+     */
+>>>>>>> dff10961a44abc922f119f9e8c613210a27d9806
 
 // ----------------------------------------------------------------------------------------------------------                                               
 // ----------------------------------------------------------------------------------------------------------                                               
