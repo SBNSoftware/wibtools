@@ -34,10 +34,7 @@ namespace WIBTool{
     uint32_t FIRMWARE_TRK;
     uint32_t COMPILATION_DT;
     uint32_t COMPILATION_TM;
-    uint32_t p11;          
-    uint32_t p22;   
-    uint32_t p33;
-    uint32_t p44;                                                                              
+    uint32_t power;                                                                              
   };
 
 }

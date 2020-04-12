@@ -71,21 +71,14 @@ void WIBTool::MBBDevice::LoadCommandList()
   AddCommand("configPTC",&MBBDevice::ConfigPTC,
              "Configure one PTC \n"              \
              "  Usage:\n"                        \
-             "  configPTC <crate_number 1...4>\n",
-             &MBBDevice::autoComplete_MBBAddressTable);
-  //AddCommandAlias("","");
-
-  AddCommand("configAllPTCs",&MBBDevice::ConfigAllPTCs,
-             "Configure All PTCs\n"              \
-             "  Usage:\n"                        \
-             "  configAllPTCs <>\n",
+             "  configPTC <crate_number 0-3 and 15> <wib_pwr0 0-1> <wib_pwr1 0-1> <wib_pwr2 0-1> <wib_pwr3 0-1> <wib_pwr4 0-1> <wib_pwr5 0-1>\n",
              &MBBDevice::autoComplete_MBBAddressTable);
   //AddCommandAlias("",""); 
 
   AddCommand("writePTC",&MBBDevice::WritePTC,
              "Write to PTC\n"                    \
              "  Usage:\n"                        \
-             "  writePTC <crate_number 1...4> <address> <value>\n",
+             "  writePTC <crate_number 0-3 and 15> <address> <value>\n",
              &MBBDevice::autoComplete_MBBAddressTable);
   //AddCommandAlias("","");
 
@@ -108,7 +101,8 @@ void WIBTool::MBBDevice::LoadCommandList()
    AddCommand("configMBB",&MBBDevice::ConfigMBB,
 	     "Configure the MBB\n"				\
 	     "  Usage:\n"					\
-	      "  configMBB  <PULSE_SOURCE 0-1> <PULSE_PERIOD 0-10000000> <wib_pwr1 0-1> <wib_pwr2 0-1> <wib_pwr3 0-1> <wib_pwr4 0-1> <wib_pwr5 0-1> <wib_pwr6 0-1>\n");
+	      "  configMBB  <PULSE_SOURCE 0-1> <PULSE_PERIOD 0-0xffffffff>\n",
+	      &MBBDevice::autoComplete_MBBAddressTable);
   
 }
 
@@ -258,45 +252,64 @@ CommandReturn::status WIBTool::MBBDevice::Write(std::vector<std::string> strArg,
   return CommandReturn::BAD_ARGS;
 }
 
-CommandReturn::status WIBTool::MBBDevice::ConfigPTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg)
+CommandReturn::status WIBTool::MBBDevice::ConfigPTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+  
+  (void) strArg; // to make the compiler not complain about unused arguments.
+  const size_t nArgs = intArg.size();
 
-{
-  (void) strArg; // to make compiler not complain about unused args
-  if(intArg.size() == 1)
-    {
-      //crate number is first and only argument
-      mbb->ConfigPTC(intArg[0]);
-
-      return CommandReturn::OK;
+  if(nArgs < 7){
+    std::cout << "Error: Not enough args to configMBB" << std::endl;
+    return CommandReturn::BAD_ARGS;
     }
-  return CommandReturn::BAD_ARGS;
-}
-
-
-CommandReturn::status WIBTool::MBBDevice::ConfigAllPTCs(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
-
-{
-  (void) strArg; // to make compiler not complain about unused args 
-  if(intArg.size() == 0)
-    {
-      //NO argument                                   
-      mbb->ConfigAllPTCs();
-
-      return CommandReturn::OK;
+  if(intArg[0] > 15){
+    std::cout << "Error: Invalid crate number --  " << intArg[0] << std::endl;
+    return CommandReturn::BAD_ARGS;
     }
-  return CommandReturn::BAD_ARGS;
+  if(intArg[1] > 1){
+    std::cout << "Error: Invalid WIB0 power Setting --  " << intArg[1] << std::endl;
+    return CommandReturn::BAD_ARGS;
+    }
+  if(intArg[2] > 1){
+    std::cout << "Error: Invalid WIB1 power Setting --  " << intArg[2] << std::endl;
+    return CommandReturn::BAD_ARGS;
+    }
+  if(intArg[3] > 1){
+    std::cout << "Error: Invalid WIB2 power Setting --  " << intArg[3] << std::endl;
+    return CommandReturn::BAD_ARGS;
+    }
+  if(intArg[4] > 1){
+    std::cout << "Error: Invalid WIB3 power Setting --  " << intArg[4] << std::endl;
+    return CommandReturn::BAD_ARGS;
+    }
+  if(intArg[5] > 1){
+    std::cout << "Error: Invalid WIB4 power Setting --  " << intArg[5] << std::endl;
+    return CommandReturn::BAD_ARGS;
+    }
+  if(intArg[6] > 1){
+    std::cout << "Error: Invalid WIB5 power Setting --  " << intArg[6] << std::endl;
+    return CommandReturn::BAD_ARGS;
+    }
+
+  uint8_t icrate = intArg[0];
+  uint32_t wib_pwr0 = intArg[1];
+  uint32_t wib_pwr1 = intArg[2];
+  uint32_t wib_pwr2 = intArg[3];
+  uint32_t wib_pwr3 = intArg[4];
+  uint32_t wib_pwr4 = intArg[5];
+  uint32_t wib_pwr5 = intArg[6];
+  mbb->ConfigPTC(icrate, wib_pwr0, wib_pwr1, wib_pwr2, wib_pwr3, wib_pwr4, wib_pwr5);
+  return CommandReturn::OK;
 }
 
 CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
 {
-  if(intArg.size() == 3)
-    {
-     //check for CRATE
-       if((0 >= intArg[0]) && (4 < intArg[0]))
-          {
+  if(intArg.size() == 3){
+      if(intArg[0] != 15){
+         if((0 >= intArg[0]) && (4 < intArg[0])){
 	   printf("Bad CRATE#: %02LX",(long long unsigned int)intArg[0]);
 	   return CommandReturn::OK;
           }
+      }
       //Check if the argument is a numerical address or string                             
       if(isdigit(strArg[1][0]))
 	{
@@ -420,15 +433,15 @@ CommandReturn::status WIBTool::MBBDevice::StatusDisplayFILE(std::vector<std::str
   return CommandReturn::OK;
   }
 
-CommandReturn::status WIBTool::MBBDevice::ConfigMBB(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
-{
+CommandReturn::status WIBTool::MBBDevice::ConfigMBB(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+  
   (void) strArg;
   const size_t nArgs = intArg.size();
 
-  if(nArgs < 8){
+  if(nArgs < 2){
     std::cout << "Error: Not enough args to configMBB" << std::endl;
     return CommandReturn::BAD_ARGS;
-  }
+    }
 
   /*if(intArg[0] > 1){
     std::cout << "Error: Pll clock type Setting --  " << intArg[0] << std::endl;
@@ -437,44 +450,14 @@ CommandReturn::status WIBTool::MBBDevice::ConfigMBB(std::vector<std::string> str
   if(intArg[0] > 1){
     std::cout << "Error: Invalid Pulse Source Setting --  " << intArg[1] << std::endl;
     return CommandReturn::BAD_ARGS;
-  }
+    }
   if(intArg[1] > 4294967295){
-    std::cout << "Error: Invalid Pulse Period Setting --  " << intArg[2] << std::endl;
+    std::cout << "Error: Invalid Pulse Period Setting --  " << intArg[1] << std::endl;
     return CommandReturn::BAD_ARGS;
-  }
-  if(intArg[2] > 1){
-    std::cout << "Error: Invalid WIB1 power Setting --  " << intArg[3] << std::endl;
-    return CommandReturn::BAD_ARGS;
-  }
-  if(intArg[3] > 1){
-    std::cout << "Error: Invalid WIB2 power Setting --  " << intArg[4] << std::endl;
-    return CommandReturn::BAD_ARGS;
-  }
-  if(intArg[4] > 1){
-    std::cout << "Error: Invalid WIB3 power Setting --  " << intArg[5] << std::endl;
-    return CommandReturn::BAD_ARGS;
-  }
-  if(intArg[5] > 1){
-    std::cout << "Error: Invalid WIB4 power Setting --  " << intArg[6] << std::endl;
-    return CommandReturn::BAD_ARGS;
-  }
-  if(intArg[6] > 1){
-    std::cout << "Error: Invalid WIB5 power Setting --  " << intArg[7] << std::endl;
-    return CommandReturn::BAD_ARGS;
-  }
-  if(intArg[7] > 1){
-    std::cout << "Error: Invalid WIB6 power Setting --  " << intArg[8] << std::endl;
-    return CommandReturn::BAD_ARGS;
-  }
+    }
 
   uint32_t PULSE_SOURCE = intArg[0];
   uint32_t PULSE_PERIOD = intArg[1];
-  uint32_t wib_pwr1 = intArg[2];
-  uint32_t wib_pwr2 = intArg[3];
-  uint32_t wib_pwr3 = intArg[4];
-  uint32_t wib_pwr4 = intArg[5];
-  uint32_t wib_pwr5 = intArg[6];
-  uint32_t wib_pwr6 = intArg[7];
-  mbb->ConfigMBB(PULSE_SOURCE, PULSE_PERIOD, wib_pwr1, wib_pwr2, wib_pwr3, wib_pwr4, wib_pwr5, wib_pwr6);
+  mbb->ConfigMBB(PULSE_SOURCE, PULSE_PERIOD);
   return CommandReturn::OK;
 }

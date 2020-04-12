@@ -19,11 +19,10 @@ class MBB{
   void EnableWIBs(uint8_t icrate, uint32_t value);
   void WritePTC(uint8_t icrate, uint16_t address, uint32_t value);
   void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
-  void ConfigPTC(uint8_t icrate);
-  void ConfigAllPTCs();
+  void ConfigPTC(uint8_t icrate, uint32_t wib_pwr0, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5);
   
   uint32_t mask;
-  void ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6 );
+  void ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD);
   void TimeStampReset();
 
   // Basic I/O methods
@@ -36,11 +35,7 @@ class MBB{
   void FullStart();
 
   //for storing wib power values.
-  uint32_t crate_num;
-  uint32_t p1;
-  uint32_t p2;
-  uint32_t p3;
-  uint32_t p4;
+  uint32_t wibpoweroncrate[16];
 
   AddressTable * mbb;
 
@@ -64,7 +59,6 @@ class MBB{
 
   static const int Version; //SVN version
   bool started;
-  //const float PTCReadSleepTime;
   bool ContinueOnMBBRegReadError;
 };
 
