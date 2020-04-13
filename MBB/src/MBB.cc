@@ -194,14 +194,7 @@ void MBB::ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD){
 	 }*/
 
  Write("PULSE_SRC_SELECT", PULSE_SOURCE);
- Write("PULSE_PERIOD", PULSE_PERIOD);
-     
- //Transition from 0 to 1 in PTC_WR_REG will send data to the PTC.
- Write("PTC_WR_REG", 0);
- usleep(1000);
- Write("PTC_WR_REG", 1);
- usleep(1000);
- Write("PTC_WR_REG", 0);       
+ Write("PULSE_PERIOD", PULSE_PERIOD);       
 
  //Write("REG_RESET", 1);
  sleep(1);
