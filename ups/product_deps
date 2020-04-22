@@ -1,0 +1,50 @@
+# The parent line must be the first non-comment line in the file
+# This line defines the product name and version
+parent wibtools  v0_02_02
+defaultqual	e19:s94
+
+# These optional lines define the installed directories where
+# headers, libraries, and executables will be found
+# Use them only if your product does not conform to the defaults
+# Format: directory_type directory_path directory_name
+# The only recognized values of the first field are incdir, libdir, and bindir
+# The only recognized values of the second field are product_dir and fq_dir
+# The third field is not constrained
+# The examples here reflect the defaults
+incdir      product_dir include
+libdir      fq_dir      lib
+bindir      fq_dir      bin
+fcldir      -
+perllib  product_dir
+
+#
+product         version         optional
+boost           v1_70_0         s94
+boost           v1_70_0         s95
+boost           v1_70_0         s96
+cetbuildtools   v7_15_01        -       only_for_build
+end_product_list
+
+# -nq- means there is no qualifier
+# a "-" means the dependent product is not required by the parent and will not be setup
+qualifier          boost        notes
+e19:s94:debug      e19:debug    -std=c++17
+e19:s94:prof       e19:prof     -std=c++17
+e19:s95:debug      e19:debug    -std=c++17
+e19:s95:prof       e19:prof     -std=c++17
+e19:s96:debug      e19:debug    -std=c++17
+e19:s96:prof       e19:prof     -std=c++17
+end_qualifier_list
+
+
+table_fragment_begin
+
+table_fragment_end
+
+# Preserve tabs and formatting in emacs and vi / vim:
+
+### Local Variables:
+### tab-width: 2
+### End:
+
+# vi:set ts=2 expandtab:
