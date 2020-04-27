@@ -25,6 +25,7 @@ boost           v1_70_0         s96
 cetbuildtools   v7_15_01        -       only_for_build
 end_product_list
 
+
 # -nq- means there is no qualifier
 # a "-" means the dependent product is not required by the parent and will not be setup
 qualifier          boost        notes
@@ -38,7 +39,10 @@ end_qualifier_list
 
 
 table_fragment_begin
-addalias(wib, 'WIBTool.exe')
+addAlias(wib,WIBTool.exe)
+envSet(WIBTOOLS_BIN,  ${${UPS_PROD_NAME_UC}_FQ_DIR}/bin)
+envSet(WIB_ADDRESS_TABLE_PATH, ${UPS_PROD_DIR}/tables)
+envSet(WIB_CONFIG_PATH,   ${UPS_PROD_DIR}/config)
 table_fragment_end
 
 # Preserve tabs and formatting in emacs and vi / vim:
