@@ -39,7 +39,7 @@ end_qualifier_list
 
 
 table_fragment_begin
-addAlias(wib,WIBTool.exe)
+addAlias(wib,'WIBTool.exe %s')
 envSet(WIBTOOLS_BIN,  ${${UPS_PROD_NAME_UC}_FQ_DIR}/bin)
 envSet(WIB_ADDRESS_TABLE_PATH, ${UPS_PROD_DIR}/tables)
 envSet(WIB_CONFIG_PATH,   ${UPS_PROD_DIR}/config)
