@@ -38,6 +38,8 @@ cet_make_exec(WIBTool.exe
   LIBRARIES
 	ToolException
 	WIBTool
+        WIBTool_WIBDevice
+        WIBTool_MBBDevice
 	-lreadline
   )
   
