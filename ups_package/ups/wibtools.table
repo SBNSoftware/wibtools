@@ -6,8 +6,8 @@ Product=wibtools
 Group:
 
 Flavor=ANY
-Qualifiers=e17
-      _qualstr=e17
+Qualifiers=e19
+      _qualstr=e19
 
 Common:
    Action=DefineFQ
@@ -16,8 +16,8 @@ Common:
    Action=setup
       setupenv()
       proddir()
-      setupRequired("gcc v7_3_0")
-      setupRequired("boost v1_69_0 -q e17:prof")
+      setupRequired("gcc v8_2_0")
+      setupRequired("boost v1_70_0 -q e19:prof")
       ExeActionRequired(DefineFQ)
       envSet(WIB_ADDRESS_TABLE_PATH, ${UPS_PROD_DIR}/tables)
       envSet(WIB_CONFIG_PATH, ${UPS_PROD_DIR}/config)
@@ -31,5 +31,6 @@ Common:
       addAlias(wib,WIBTool.exe)
 
 End:
+
 # End Group definition
 #*************************************************

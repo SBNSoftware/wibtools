@@ -18,11 +18,11 @@ class MBB{
   void WIBPower(uint8_t icrate,bool turnOn); //to be used to extract bit mask for PTC_DATA
   void EnableWIBs(uint8_t icrate, uint32_t value);
   void WritePTC(uint8_t icrate, uint16_t address, uint32_t value);
-  //void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
-  void ConfigPTC(uint8_t icrate);
-  void ConfigAllPTCs();
+  void WritePTC(uint8_t icrate, std::string const & address, uint32_t value);  
+  void ConfigPTC(uint8_t icrate, uint32_t wib_pwr0, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5);
   
-  void ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5, uint32_t wib_pwr6 );
+  uint32_t mask;
+  void ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD);
   void TimeStampReset();
 
   // Basic I/O methods
@@ -33,6 +33,9 @@ class MBB{
   void Write(uint16_t address,uint32_t value);
   void Write(std::string const & address,uint32_t value);
   void FullStart();
+
+  //for storing wib power values.
+  uint32_t wibpoweroncrate[16];
 
   AddressTable * mbb;
 
@@ -56,7 +59,6 @@ class MBB{
 
   static const int Version; //SVN version
   bool started;
-  //const float PTCReadSleepTime;
   bool ContinueOnMBBRegReadError;
 };
 
