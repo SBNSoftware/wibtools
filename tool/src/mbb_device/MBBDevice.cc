@@ -71,7 +71,7 @@ void WIBTool::MBBDevice::LoadCommandList()
   AddCommand("configPTC",&MBBDevice::ConfigPTC,
              "Configure one PTC \n"              \
              "  Usage:\n"                        \
-             "  configPTC <crate_number 0-3 and 15> <wib_pwr0 0-1> <wib_pwr1 0-1> <wib_pwr2 0-1> <wib_pwr3 0-1> <wib_pwr4 0-1> <wib_pwr5 0-1>\n",
+             "  configPTC <crate_number 0-4 and 15> <wib_pwr0 0-1> <wib_pwr1 0-1> <wib_pwr2 0-1> <wib_pwr3 0-1> <wib_pwr4 0-1> <wib_pwr5 0-1>\n",
              &MBBDevice::autoComplete_MBBAddressTable);
   //AddCommandAlias("",""); 
 
