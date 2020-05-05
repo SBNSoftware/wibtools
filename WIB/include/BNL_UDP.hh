@@ -13,9 +13,12 @@
 #include <fcntl.h>
 
 #define WIB_RESPONSE_PACKET_BUFFER_SIZE 4048
-#define WIB_WR_BASE_PORT 32000
-#define WIB_RD_BASE_PORT 32001
-#define WIB_RPLY_BASE_PORT 32002
+//#define WIB_WR_BASE_PORT   0x7D00 
+//#define WIB_RD_BASE_PORT   0x7D01 
+//#define WIB_RPLY_BASE_PORT 0x7D10
+#define WIB_WR_BASE_PORT   0x7900 
+#define WIB_RD_BASE_PORT   0x7901 
+#define WIB_RPLY_BASE_PORT 0x7942
 
 
 // Struct copied from FW_PRGM (gige.h)
@@ -35,6 +38,12 @@ typedef struct
 class BNL_UDP 
 {
 public:
+
+  enum 
+  {
+    N_FEMBS_PER_WIB = 4
+  }:
+
   BNL_UDP():reg(NULL),buffer_size(0),buffer(NULL),total_retry_count(0) { buffer_size = 0; buffer= NULL;};
   ~BNL_UDP();
 
@@ -86,6 +95,9 @@ private:
   size_t buffer_size;
   uint8_t *buffer;
   uint64_t total_retry_count;
+
+  // FEMBs never return a write response, too hard to implement (Jack)
+  bool isFEMB;
 };
 
 
