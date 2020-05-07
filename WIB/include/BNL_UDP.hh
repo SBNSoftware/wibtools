@@ -42,7 +42,7 @@ public:
   enum 
   {
     N_FEMBS_PER_WIB = 4
-  }:
+  };
 
   BNL_UDP():reg(NULL),buffer_size(0),buffer(NULL),total_retry_count(0) { buffer_size = 0; buffer= NULL;};
   ~BNL_UDP();
