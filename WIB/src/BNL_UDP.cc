@@ -39,7 +39,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
   ret = (gige_reg_t*)malloc(sizeof(gige_reg_t));
   if (ret == NULL) 
   { 
-    printf("*** Fatal malloc error %s ***\n", strerror(erno));
+    printf("*** Fatal malloc error %s ***\n", strerror(errno));
     return NULL;
   }
   sprintf(ret->client_ip_addr, "%s", IP_address);
