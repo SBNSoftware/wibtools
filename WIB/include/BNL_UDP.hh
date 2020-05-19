@@ -13,12 +13,12 @@
 #include <fcntl.h>
 
 #define WIB_RESPONSE_PACKET_BUFFER_SIZE 4048
-//#define WIB_WR_BASE_PORT   0x7D00 
-//#define WIB_RD_BASE_PORT   0x7D01 
-//#define WIB_RPLY_BASE_PORT 0x7D10
-#define WIB_WR_BASE_PORT   0x7900 
-#define WIB_RD_BASE_PORT   0x7901 
-#define WIB_RPLY_BASE_PORT 0x7942
+#define WIB_WR_BASE_PORT   0x7D00 
+#define WIB_RD_BASE_PORT   0x7D01 
+#define WIB_RPLY_BASE_PORT 0x7D10
+//#define WIB_WR_BASE_PORT   0x7900 
+//#define WIB_RD_BASE_PORT   0x7901 
+//#define WIB_RPLY_BASE_PORT 0x7942
 
 
 // Struct copied from FW_PRGM (gige.h)
@@ -41,7 +41,15 @@ public:
 
   enum 
   {
-    N_FEMBS_PER_WIB = 4
+    N_FEMBS_PER_WIB  = 4,
+    FEMB1_RW_BASE    = 0x7900,
+    FEMB2_RW_BASE    = 0x7A00,
+    FEMB3_RW_BASE    = 0x7B00,
+    FEMB4_RW_BASE    = 0x7C00,
+    FEMB1_REPLY_BASE = 0x7910,
+    FEMB2_REPLY_BASE = 0x7A10,
+    FEMB3_REPLY_BASE = 0x7B10,
+    FEMB4_REPLY_BASE = 0x7C10,
   };
 
   BNL_UDP():reg(NULL),buffer_size(0),buffer(NULL),total_retry_count(0) { buffer_size = 0; buffer= NULL;};

@@ -22,23 +22,20 @@ WIB::WIB(std::string const & address,
   ContinueIfListOfFEMBClockPhasesDontSync(true)
 {
 
-  if(fullStart)
-  {
-    // Turn on write acknowledgments
-    int flag= Read("UDP_EN_WR_RDBK");
-    if ( flag ) wib->SetWriteAck(true);
-    else  wib->SetWriteAck(false);
+  wib->SetWriteAck(false);
+  // Select new style reply port numbering scheme and write read backs
+  // This must be a direct Write, otherwise Write issues a Read first
+  Write(0x1E,0x3);
 
-    Write("UDP_EN_WR_RDBK", 1);
-    wib->SetWriteAck(true);
-    FullStart();
-  }
+  wib->SetWriteAck(true);
+  FullStart();
 }
 
 WIB::~WIB(){
 }
 
-void WIB::FullStart(){
+void WIB::FullStart()
+{
   //SBND has fixed mode, not readable in firmware (wfb)
   FEMBCount = 4;
   DAQLinkCount = 4;
@@ -312,19 +309,6 @@ void WIB::ResetWIB(bool reset_udp){
   //Reset the control register
   WriteWithRetry("SYSTEM.RESET.CONTROL_REGISTER_RESET",1);
   usleep(1000);
-
-  //If this is felix, make sure we configure the SI5342
-  if(DAQMode == FELIX){
-    Write("DAQ.SI5342.RESET",1);
-    usleep(10000);
-    Write("DAQ.SI5342.RESET",0);
-    usleep(10000);
-    printf("Configuring SI5342 for FELIX\n");
-    LoadConfigDAQ_SI5342("default"); //use the default config file for the SI5342
-    usleep(10000);      // Wait for 
-    SelectSI5342(1,     // Set input to be local oscillator for FELIX clock
-		 1);    // enable the output of the SI5342
-  }
 
   //Reset the Eventbuilder PLL
   Write("SYSTEM.RESET.EB_PLL_RESET",1);

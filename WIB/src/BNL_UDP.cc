@@ -221,14 +221,48 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   sscanf(address.c_str(), "%d.%d.%d.%d", &b3,&b2,&b1,&b0);
   std::cout << "Decoded IP Address: " << b3 << "." << b2 << "." << b1 << "." << b0 <<std::endl;
 
-  //Set the ports for this device (FEMBs are iFEMB*0x10 above the base)
-  readPort  = WIB_RD_BASE_PORT   + port_offset;
-  writePort = WIB_WR_BASE_PORT   + port_offset;
-  b0 = 0;
-  replyPort = WIB_RPLY_BASE_PORT + port_offset + b0;
+  if (isFEMB )
+  {
+    switch ( port_offset )
+    {
+      case 1:
+	replyPort = FEMB1_REPLY_BASE + b0;
+	writePort = FEMB1_RW_BASE;
+	readPort  = FEMB1_RW_BASE + 1;
+      break;
 
-  std::cout << "ReadPort:     " << std::hex << readPort << std::endl;
-  std::cout << "WritePort:    " << writePort << std::endl;
+      case 2:
+	replyPort = FEMB2_REPLY_BASE + b0;
+	writePort = FEMB2_RW_BASE;
+	readPort  = FEMB2_RW_BASE + 1;
+      break;
+
+      case 3:
+	replyPort = FEMB3_REPLY_BASE + b0;
+	writePort = FEMB3_RW_BASE;
+	readPort  = FEMB3_RW_BASE + 1;
+      break;
+
+      case 4:
+	replyPort = FEMB4_REPLY_BASE + b0;
+	writePort = FEMB4_RW_BASE;
+	readPort  = FEMB4_RW_BASE + 1;
+      break;
+    }
+    std::cout << "FEMB " << port_offset << std::endl;
+  }
+  else
+  {
+    std::cout << "WIB " << std::endl;
+    //WIB: Set the ports for this device (FEMBs are iFEMB*0x10 above the base)
+    writePort = WIB_WR_BASE_PORT   + port_offset;
+    readPort  = WIB_RD_BASE_PORT   + port_offset;
+
+    // Add least byte of IP address to get unique reply port
+    replyPort = WIB_RPLY_BASE_PORT + port_offset + b0;
+  }
+  std::cout << "WritePort:    " << std::hex << writePort << std::endl;
+  std::cout << "ReadPort:     " << readPort << std::endl;
   std::cout << "ResponsePort: " << replyPort << std::dec << std::endl;
 
   remoteAddress = address;
