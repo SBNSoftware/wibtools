@@ -68,7 +68,7 @@ void WIBTool::MBBStatus::Process(std::string const & singleTable){
   printf("%20s","COMPILATION TIME:");   printf("%20x",COMPILATION_TM); printf("\n");
   printf("   ======================================================================================================="); printf("\n");
 
-  for(uint32_t b = 0; b < CRATE_COUNT; b++){ 
+  for(uint32_t b = 0; b <= CRATE_COUNT; b++){ 
       power = mbb->wibpoweroncrate[b];
       std::cout<<" *******mask value = "<<power<<std::endl; 
       printf("\n%20s","PTC Num:"); printf("%14d",b);
@@ -88,9 +88,9 @@ void WIBTool::MBBStatus::Process(std::string const & singleTable){
   }
 
   // treating the D0 PTC separately.
-  power = mbb->wibpoweroncrate[15];
+  power = mbb->wibpoweroncrate[14];
   std::cout<<" *******mask value = "<<power<<std::endl;
-  printf("\n%20s","PTC Num(D0 PTC):"); printf("%14d",15);
+  printf("\n%20s","PTC Num(D0 PTC):"); printf("%14d",14);
   printf("\n%20s","WIB Num:"); for(uint8_t z=0;z<WIB_COUNT;z++) printf("%14d",z); printf("\n");
   printf("   ======================================================================================================="); printf("\n");
   printf("%20s","ON/OFF");
