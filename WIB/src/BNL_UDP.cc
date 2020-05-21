@@ -251,7 +251,15 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
     }
     std::cout << "FEMB " << port_offset << std::endl;
   }
-  else
+  else if ( isMBB )
+  {
+    std::cout << "MBB " << std::endl;
+    // MBB still uses old scheme
+    writePort = MBB_WR_BASE_PORT;
+    readPort  = MBB_RD_BASE_PORT;
+    replyPort = MBB_RPLY_BASE_PORT;
+  }
+  else // Only WIBs left
   {
     std::cout << "WIB " << std::endl;
     //WIB: Set the ports for this device (FEMBs are iFEMB*0x10 above the base)
@@ -554,7 +562,8 @@ uint32_t BNL_UDP::Read(uint16_t address)
 }
 
 
-BNL_UDP::~BNL_UDP(){
+BNL_UDP::~BNL_UDP()
+{
   Clear();
 }
 

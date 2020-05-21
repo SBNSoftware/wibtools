@@ -10,17 +10,15 @@
 
 #define sleep(x) usleep((useconds_t) x * 1e6)
 
-MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false), ContinueOnMBBRegReadError(false){
-  
-  mbb = new AddressTable(MBBAddressTable,address,0);
+MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false), ContinueOnMBBRegReadError(false)
+{
+  mbb = new AddressTable(MBBAddressTable,address,0,true);
 
-  if(fullStart){
-     //Turn on write acknowledgments
-     mbb->SetWriteAck(false);
-     Write("UDP_EN_WR_RDBK", 1);//set to enable write echo mode.
-     mbb->SetWriteAck(true);                                            
-     started = true; 
-     }
+  //Turn on write acknowledgments
+  mbb->SetWriteAck(false);
+  Write("UDP_EN_WR_RDBK", 1);//set to enable write echo mode.
+  mbb->SetWriteAck(true);                                            
+  started = true; 
 }
 
 std::string MBB::GetAddress(){
