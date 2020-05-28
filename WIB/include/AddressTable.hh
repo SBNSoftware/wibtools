@@ -25,7 +25,7 @@ public:
 
 class AddressTable{
  public:
-  AddressTable(std::string const & addressTableName, std::string const & deviceAddress,uint16_t offset);
+  AddressTable(std::string const & addressTableName, std::string const & deviceAddress,uint16_t offset, bool isMBB=false);
   uint32_t Read(uint16_t);
   uint32_t Read(std::string registerName);
   uint32_t ReadWithRetry(uint16_t);
@@ -66,6 +66,7 @@ class AddressTable{
   //Map of names to Items
   std::map<std::string,Item*> nameItemMap;
 
+  bool isMBB;
   BNL_UDP * io;
 };
 #endif

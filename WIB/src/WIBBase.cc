@@ -10,14 +10,15 @@ WIBBase::WIBBase(std::string const & address,
 {
   //Make sure all pointers and NULL before any allocation
 
-  for(size_t iFEMB = 0; iFEMB < FEMB_COUNT;iFEMB++){
+  for(size_t iFEMB = 0; iFEMB < FEMB_COUNT;iFEMB++)
+  {
     FEMB[iFEMB] = NULL;
   }
 
   //Create the wib address table interface
   wib = new AddressTable(WIBAddressTable,address,0);
   for(size_t iFEMB = 0; iFEMB < FEMB_COUNT;iFEMB++){
-    FEMB[iFEMB] = new AddressTable(FEMBAddressTable,address,(iFEMB+1)*0x10);
+    FEMB[iFEMB] = new AddressTable(FEMBAddressTable,address,iFEMB+1);
   }
 }
 
@@ -136,7 +137,9 @@ void WIBBase::WriteWithRetry(uint16_t address,uint32_t value){
 void WIBBase::Write(uint16_t address,uint32_t value){
   wib->Write(address,value);    
 }
-void WIBBase::WriteWithRetry(std::string const & address,uint32_t value){
+void WIBBase::WriteWithRetry(std::string const & address,uint32_t value)
+{
+  std::cout << "Writing " << address << " " << std::hex << value << std::dec << std::endl;
   wib->WriteWithRetry(address,value);    
 }
 void WIBBase::Write(std::string const & address,uint32_t value){

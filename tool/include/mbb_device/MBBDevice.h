@@ -46,7 +46,6 @@ private:
 
   //PTC
   CommandReturn::status ConfigPTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
-  CommandReturn::status ConfigAllPTCs(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
   CommandReturn::status WritePTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
 };
   RegisterDevice(MBBDevice,

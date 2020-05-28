@@ -10,17 +10,15 @@
 
 #define sleep(x) usleep((useconds_t) x * 1e6)
 
-MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false), ContinueOnMBBRegReadError(false){
-  
-  mbb = new AddressTable(MBBAddressTable,address,0);
+MBB::MBB(std::string const & address, std::string const & MBBAddressTable, bool fullStart): started(false), ContinueOnMBBRegReadError(false)
+{
+  mbb = new AddressTable(MBBAddressTable,address,0,true);
 
-  if(fullStart){
-     //Turn on write acknowledgments
-     mbb->SetWriteAck(false);
-     Write("UDP_EN_WR_RDBK", 1);//set to enable write echo mode.
-     mbb->SetWriteAck(true);                                            
-     started = true; 
-     }
+  //Turn on write acknowledgments
+  mbb->SetWriteAck(false);
+  Write("UDP_EN_WR_RDBK", 1);//set to enable write echo mode.
+  mbb->SetWriteAck(true);                                            
+  started = true; 
 }
 
 std::string MBB::GetAddress(){
@@ -79,11 +77,11 @@ void MBB::WritePTC(uint8_t icrate, uint16_t address, uint32_t value){
 
 void MBB::ConfigPTC(uint8_t icrate, uint32_t wib_pwr0, uint32_t wib_pwr1, uint32_t wib_pwr2, uint32_t wib_pwr3, uint32_t wib_pwr4, uint32_t wib_pwr5){
   
-  if(icrate !=15){
-     if(icrate < 0 || icrate >= CRATE_COUNT){
+  if(icrate !=14){
+     if(icrate < 0 || icrate > CRATE_COUNT){
         MBBException::MBB_BAD_ARGS e;
         std::stringstream expstr;
-        expstr << "ConfigPTC: icrate should be between 0 and 3, or 15 but is: "
+        expstr << "ConfigPTC: icrate should be between 0 and 4, or 14 but is: "
 	    <<  int(icrate);
         e.Append(expstr.str().c_str());
         throw e;

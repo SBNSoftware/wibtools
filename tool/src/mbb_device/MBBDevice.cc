@@ -71,14 +71,14 @@ void WIBTool::MBBDevice::LoadCommandList()
   AddCommand("configPTC",&MBBDevice::ConfigPTC,
              "Configure one PTC \n"              \
              "  Usage:\n"                        \
-             "  configPTC <crate_number 0-3 and 15> <wib_pwr0 0-1> <wib_pwr1 0-1> <wib_pwr2 0-1> <wib_pwr3 0-1> <wib_pwr4 0-1> <wib_pwr5 0-1>\n",
+             "  configPTC <crate_number 0-4 and 14> <wib_pwr0 0-1> <wib_pwr1 0-1> <wib_pwr2 0-1> <wib_pwr3 0-1> <wib_pwr4 0-1> <wib_pwr5 0-1>\n",
              &MBBDevice::autoComplete_MBBAddressTable);
   //AddCommandAlias("",""); 
 
   AddCommand("writePTC",&MBBDevice::WritePTC,
              "Write to PTC\n"                    \
              "  Usage:\n"                        \
-             "  writePTC <crate_number 0-3 and 15> <address> <value>\n",
+             "  writePTC <crate_number 0-4 and 14> <address> <value>\n",
              &MBBDevice::autoComplete_MBBAddressTable);
   //AddCommandAlias("","");
 
@@ -304,7 +304,7 @@ CommandReturn::status WIBTool::MBBDevice::ConfigPTC(std::vector<std::string> str
 CommandReturn::status WIBTool::MBBDevice::WritePTC(std::vector<std::string> strArg, std::vector<uint64_t> intArg)
 {
   if(intArg.size() == 3){
-      if(intArg[0] != 15){
+      if(intArg[0] != 14){
          if((0 >= intArg[0]) && (4 < intArg[0])){
 	   printf("Bad CRATE#: %02LX",(long long unsigned int)intArg[0]);
 	   return CommandReturn::OK;

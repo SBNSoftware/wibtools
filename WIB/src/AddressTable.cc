@@ -9,10 +9,11 @@
 
 AddressTable::AddressTable(std::string const & addressTableName, 
 			   std::string const & deviceAddress,
-			   uint16_t offset)
+			   uint16_t offset,
+			   bool isMBB)
 {
   fileLevel = 0;
-  io = new BNL_UDP;
+  io = new BNL_UDP(isMBB);
   io->Setup(deviceAddress,offset);
   io->SetWriteAck(true);
   LoadFile(addressTableName);
