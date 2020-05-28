@@ -520,5 +520,8 @@ status
 
 read 512
 read 768
+<<<<<<< HEAD
 
 write 9 0x10
+=======
+>>>>>>> 7d92d45a50dcfc402dd248cc46567049f01daa31
