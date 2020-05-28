@@ -520,3 +520,5 @@ status
 
 read 512
 read 768
+
+write 9 0x10
