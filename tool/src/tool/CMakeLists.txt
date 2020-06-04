@@ -20,7 +20,7 @@ add_custom_command(
  	)
 
 add_library(WIBBase_version STATIC ${CMAKE_CURRENT_BINARY_DIR}/WIBBase_version.cc)
-
+set_property(TARGET WIBBase_version PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 cet_make(
 	LIBRARY_NAME
