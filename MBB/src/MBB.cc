@@ -209,3 +209,21 @@ void MBB::TimeStampReset(){
   sleep(1);
   Write("TIMESTAMP_RESET", 0);
   }
+
+void MBB::StartFEMBDaq(){//Transition from 0 to 1 will start all FEMBs generating data(Synchronous Start)                                                   
+  Write("START_FEMB_DAQ", 1);
+  sleep(1);
+  Write("START_FEMB_DAQ", 0);
+  }
+
+void MBB::StopFEMBDaq(){//Transition from 0 to 1 will stop all FEMBs generating data(Synchronous Stop)
+  Write("STOP_FEMB_DAQ", 1);
+  sleep(1);
+  Write("STOP_FEMB_DAQ", 0);
+  }
+
+void MBB::CalibrationPulse(){//Transition from 0 to 1 will generate a calibration signal sent to all FEMBs.                                               
+  Write("CALIBRATION_PULSE", 1);
+  sleep(1);
+  Write("CALIBRATION_PULSE", 0);
+  }
