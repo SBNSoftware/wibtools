@@ -1,23 +1,25 @@
 #!/bin/bash
 
 #parameters
+PROJECT_NAME=wibtools
 
-PRODUCTS=/cvmfs/fermilab.opensciencegrid.org/products/artdaq:/cvmfs/fermilab.opensciencegrid.org/products/larsoft
+PROJECT_SOURCE_GIT_PREFIX=${PROJECT_SOURCE_GIT_PREFIX:-'https://github.com/sbnsoftware'}
+PRODUCTS=${PRODUCTS:-'/cvmfs/fermilab.opensciencegrid.org/products/artdaq:/cvmfs/fermilab.opensciencegrid.org/products/larsoft'}
 
-artdaq_version="v3_08_00"
-
-project_name=wibtools
-project_url=https://cdcvs.fnal.gov/projects/${project_name}
-
+ARTDAQ_VERSION=${ARTDAQ_VERSION:-"v3_08_00"}
 
 #main script
+PRODUCTS=$(for d in $(echo $PRODUCTS | tr ":" " "); do [[ -d $d ]] && echo -n "$d:"; done)
+PRODUCTS=${PRODUCTS::-1}
 export PRODUCTS
+
+PROJECT_SOURCE_GIT=${PROJECT_SOURCE_GIT:-${PROJECT_SOURCE_GIT_PREFIX}/${PROJECT_NAME}$( [[ ${PROJECT_SOURCE_GIT_PREFIX} =~ github ]] && echo ".git")}
 
 usage() {
   cat 1>&2 <<EOF
 Usage: $(basename ${0}) [-h]
        $(basename ${0})  <branchtag> <qual_set> <buildtype>
-       env WORKSPACE=<workspace> BRANCHTAG=<develop|master|vN_NN_NN> QUAL=<qualifiers> BUILDTYPE=<debug|prof> $(basename ${0})
+       WORKSPACE=<workspace> BRANCHTAG=<develop|master|vN_NN_NN> QUAL=<qualifiers> BUILDTYPE=<debug|prof> $(basename ${0})
 EOF
 }
 
@@ -65,12 +67,8 @@ for onequal in "${quals[@]}"; do
   esac
 done
 
-qual_set="${basequal}"
+qual_set="${squal}:${basequal}"
 [[ ! -z "${pyqual+x}" ]] && qual_set="${qual_set}:${pyqual}"
-qual_set="${qual_set}:${squal}"
-
-manifest_qual_set="${squal}:${basequal}"
-[[ ! -z "${pyqual+x}" ]] &&  manifest_qual_set="${manifest_qual_set}:${pyqual}"
 
 case ${build_type} in
   debug) build_type_flag="-d" ;;
@@ -110,7 +108,7 @@ echo " flvr=${flvr}"
 
 #set -x
 
-product_name=${project_name//-/_}
+product_name=${PROJECT_NAME//-/_}
 
 src_dir=${working_dir}/source
 build_dir=${working_dir}/build
@@ -120,7 +118,7 @@ copyback_dir=${working_dir}/copyBack
 
 
 # start with clean directories
-(cd "${working_dir}"; ls -l; du -sh *)
+cd ${working_dir}
 rm -rf ${build_dir}
 rm -rf ${src_dir}
 rm -rf ${copyback_dir}
@@ -128,7 +126,6 @@ rm -rf ${copyback_dir}
 mkdir -p ${src_dir} || exit 1
 mkdir -p ${build_dir} || exit 1
 mkdir -p ${copyback_dir} || exit 1
-(cd "${working_dir}"; ls -l; du -sh *)
 
 
 
@@ -136,8 +133,7 @@ echo
 echo "checkout source"
 echo
 cd ${src_dir} || exit 1
-ls -la
-git clone ${project_url} ${product_name}
+git clone ${PROJECT_SOURCE_GIT} ${product_name}
 cd ${product_name} || exit 1
 git checkout ${branchtag}
 
@@ -151,7 +147,7 @@ echo
 cd ${products_dir} || exit 1
 curl --fail --silent --location --insecure -O http://scisoft.fnal.gov/scisoft/bundles/tools/pullProducts || exit 1
 chmod +x pullProducts
-./pullProducts ${products_dir} ${flvr} artdaq-${artdaq_version} ${manifest_qual_set//:/-} ${build_type} 2>&1 |tee ${products_dir}/pullproducts.log
+./pullProducts ${products_dir} ${flvr} artdaq-${ARTDAQ_VERSION} ${qual_set//:/-} ${build_type} 2>&1 |tee ${products_dir}/pullproducts.log
 
 
 
