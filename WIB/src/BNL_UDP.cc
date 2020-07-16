@@ -13,6 +13,7 @@
 
 #include <errno.h>
 #include <algorithm> //STD::COUNT
+#include "trace.h"
 
 #define WIB_PACKET_KEY 0xDEADBEEF
 #define WIB_REQUEST_PACKET_TRAILER 0xFFFF
@@ -32,7 +33,8 @@ struct WIB_packet_t
 
 gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 {
-  std::cout<<"IP address is " << IP_address << std::endl;
+  const std::string identification = "BNL_UDP::gige_reg_init";
+  TLOG_INFO(identification)<<"IP address is " << IP_address << TLOG_ENDL;
   int rc = 0;
 
   gige_reg_t *ret;
@@ -200,6 +202,7 @@ void BNL_UDP::Clear()
 
 void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 {
+  const std::string identification = "BNL_UDP::Setup";
   //Reset the network structures
   Clear();
 
@@ -219,7 +222,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   //   response addresses
   int32_t b3,b2,b1,b0;
   sscanf(address.c_str(), "%d.%d.%d.%d", &b3,&b2,&b1,&b0);
-  std::cout << "Decoded IP Address: " << b3 << "." << b2 << "." << b1 << "." << b0 <<std::endl;
+  TLOG_INFO(identification) << "Decoded IP Address: " << b3 << "." << b2 << "." << b1 << "." << b0 <<TLOG_ENDL;
 
   if (isFEMB )
   {
@@ -249,11 +252,11 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 	readPort  = FEMB4_RW_BASE + 1;
       break;
     }
-    std::cout << "FEMB " << port_offset << std::endl;
+    TLOG_INFO(identification) << "FEMB " << port_offset << TLOG_ENDL;
   }
   else if ( isMBB )
   {
-    std::cout << "MBB " << std::endl;
+    TLOG_INFO(identification) << "MBB " << TLOG_ENDL;
     // MBB still uses old scheme
     writePort = MBB_WR_BASE_PORT;
     readPort  = MBB_RD_BASE_PORT;
@@ -261,7 +264,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   }
   else // Only WIBs left
   {
-    std::cout << "WIB " << std::endl;
+    TLOG_INFO(identification) << "WIB " << TLOG_ENDL;
     //WIB: Set the ports for this device (FEMBs are iFEMB*0x10 above the base)
     writePort = WIB_WR_BASE_PORT   + port_offset;
     readPort  = WIB_RD_BASE_PORT   + port_offset;
@@ -269,9 +272,9 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
     // Add least byte of IP address to get unique reply port
     replyPort = WIB_RPLY_BASE_PORT + port_offset + b0;
   }
-  std::cout << "WritePort:    " << std::hex << writePort << std::endl;
-  std::cout << "ReadPort:     " << readPort << std::endl;
-  std::cout << "ResponsePort: " << replyPort << std::dec << std::endl;
+  TLOG_INFO(identification)<< "WritePort:    " << std::hex << writePort << TLOG_ENDL;
+  TLOG_INFO(identification) << "ReadPort:     " << readPort << TLOG_ENDL;
+  TLOG_INFO(identification) << "ResponsePort: " << replyPort << std::dec << TLOG_ENDL;
 
   remoteAddress = address;
 
@@ -336,20 +339,21 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 
 void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_count)
 {
-  std::cout<<"BNLUDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<<"\n";
+  const std::string identification = "WIB:WIB";
+  TLOG_INFO(identification)<<"BNLUDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<< TLOG_ENDL;
 
   while(retry_count > 1)
   {
     try
     {
       //Do the write
-      std::cout<<"Trying...\n";
+      TLOG_INFO(identification) <<"Trying..." << TLOG_ENDL;
       Write(address,value);
-      std::cout<<"Sleeping...\n";
+      TLOG_INFO(identification)<<"Sleeping..." << TLOG_ENDL;
       usleep(10);
 
       //if everything goes well, return
-      std::cout<<"Return\n";
+      TLOG_INFO(identification)<<"Return" << TLOG_ENDL;
       return;
     }
     catch(WIBException::BAD_REPLY &e)
@@ -359,12 +363,12 @@ void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_cou
     total_retry_count++;
     retry_count--;
     usleep(10);
-    std::cout<<total_retry_count<<"\n";
+    TLOG_INFO(identification)<<total_retry_count<<TLOG_ENDL;
   }
 
   //Last chance we don't catch the exception and let it fall down the stack
   //Do the write
-  std::cout<<"Last chance\n";
+  TLOG_INFO(identification)<<"Last chance" << TLOG_ENDL;
   Write(address,value);
   usleep(10);
 }

@@ -1,5 +1,6 @@
 #include <FE_ASIC_reg_mapping.hh>
 #include <iostream>
+#include "trace.h"
 
 FE_ASIC_reg_mapping::FE_ASIC_reg_mapping(): BITS()
 {
@@ -94,7 +95,8 @@ void FE_ASIC_reg_mapping::set_collection_baseline(uint8_t snc)
 
 void FE_ASIC_reg_mapping::print() const
 {
-  std::cout << "FE_ASIC_reg_mapping (binary):" << std::endl;
+  const std::string identification = "FE_ASIC_reg_mapping::print";
+  TLOG_INFO(identification) << "FE_ASIC_reg_mapping (binary):" << TLOG_ENDL;
   std::string bitString = BITS.to_string<char,std::string::traits_type,std::string::allocator_type>();
   for(size_t iLine=0; iLine < 36; iLine++)
   {
@@ -102,11 +104,11 @@ void FE_ASIC_reg_mapping::print() const
     {
       for(size_t iBit=0; iBit < 8; iBit++)
       {
-        std::cout << bitString[iLine*32+iByte*8+iBit];
+        TLOG_INFO(identification) << bitString[iLine*32+iByte*8+iBit];
       }
-      std::cout << ' ';
+      TLOG_INFO(identification) << ' ';
     }
-    std::cout << std::endl;
+    TLOG_INFO(identification) << TLOG_ENDL;
   }
   //std::cout << BITS << std::endl;
 }

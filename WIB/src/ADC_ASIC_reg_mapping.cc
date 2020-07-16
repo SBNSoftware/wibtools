@@ -1,5 +1,6 @@
 #include <ADC_ASIC_reg_mapping.hh>
 #include <iostream>
+#include "trace.h"
 
 ADC_ASIC_reg_mapping::ADC_ASIC_reg_mapping(): BITS()
 {
@@ -98,7 +99,8 @@ std::bitset<1152> ADC_ASIC_reg_mapping::get_bits() const
 
 void ADC_ASIC_reg_mapping::print() const
 {
-  std::cout << "ADC_ASIC_reg_mapping (binary):" << std::endl;
+  const std::string identification = "ADC_ASIC_reg_mapping::print";
+  TLOG_INFO(identification) << "ADC_ASIC_reg_mapping (binary):" << TLOG_ENDL;
   std::string bitString = BITS.to_string<char,std::string::traits_type,std::string::allocator_type>();
   for(size_t iLine=0; iLine < 36; iLine++)
   {
@@ -106,11 +108,11 @@ void ADC_ASIC_reg_mapping::print() const
     {
       for(size_t iBit=0; iBit < 8; iBit++)
       {
-        std::cout << bitString[iLine*32+iByte*8+iBit];
+        TLOG_INFO(identification) << bitString[iLine*32+iByte*8+iBit];
       }
-      std::cout << ' ';
+      TLOG_INFO(identification) << ' ';
     }
-    std::cout << std::endl;
+    TLOG_INFO(identification) << TLOG_ENDL;
   }
   //std::cout << BITS << std::endl;
 }

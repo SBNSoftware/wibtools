@@ -6,6 +6,7 @@
 #include <boost/regex.hpp> //regex
 #include <boost/algorithm/string/case_conv.hpp> //to_upper
 #include <iostream>
+#include "trace.h"
 
 uint32_t AddressTable::Read(uint16_t address){
   return io->Read(address);
@@ -86,7 +87,8 @@ void AddressTable::Write(std::string registerName,uint32_t val){
 }
 
 void AddressTable::WriteWithRetry(std::string registerName,uint32_t val){
-  std::cout<<"AddressTable::WriteWithRetry: "<<registerName<<"  "<<val<<"\n";
+  const std::string identification = "AddressTable::WriteWithRetry";
+  TLOG_INFO(identification)<<"AddressTable::WriteWithRetry: "<<registerName<<"  "<<val<<TLOG_ENDL;
   std::map<std::string,Item *>::iterator itNameItem = nameItemMap.find(registerName);
   if(itNameItem == nameItemMap.end()){
     WIBException::INVALID_NAME e;
@@ -104,7 +106,7 @@ void AddressTable::WriteWithRetry(std::string registerName,uint32_t val){
     buildingVal &= ~(item->mask);    
   }
   buildingVal |= (item->mask & (val << item->offset));
-  std::cout<<"io->WriteWithRetry: "<<item->address<<" "<<buildingVal<<"\n";
+  TLOG_INFO(identification)<<"io->WriteWithRetry: "<<item->address<<" "<<buildingVal<<TLOG_ENDL;
   io->WriteWithRetry(item->address,buildingVal);
 }
 
