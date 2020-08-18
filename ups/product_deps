@@ -22,8 +22,8 @@ product         version         optional
 boost           v1_70_0         s94
 boost           v1_70_0         s95
 boost           v1_70_0         s96
-TRACE           v3_15_07        -       only_for_build
-cetbuildtools   v7_15_01        -       only_for_build
+TRACE           v3_15_09        -       only_for_build
+cetbuildtools   v7_17_01        -       only_for_build
 end_product_list
 
 
