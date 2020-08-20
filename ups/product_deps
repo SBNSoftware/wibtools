@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent wibtools  v0_03_05
+parent wibtools  v0_03_06
 defaultqual	e19:s94
 
 # These optional lines define the installed directories where
@@ -22,8 +22,8 @@ product         version         optional
 boost           v1_70_0         s94
 boost           v1_70_0         s95
 boost           v1_70_0         s96
-TRACE           v3_15_07        -       only_for_build
-cetbuildtools   v7_15_01        -       only_for_build
+TRACE           v3_15_09        -       only_for_build
+cetbuildtools   v7_17_01        -       only_for_build
 end_product_list
 
 
@@ -36,6 +36,12 @@ e19:s95:debug      e19:debug  -nq-   -std=c++17
 e19:s95:prof       e19:prof   -nq-   -std=c++17
 e19:s96:debug      e19:debug  -nq-   -std=c++17
 e19:s96:prof       e19:prof   -nq-   -std=c++17
+e19:s94:py2:debug  e19:debug  -nq-   -std=c++17
+e19:s94:py2:prof   e19:prof   -nq-   -std=c++17
+e19:s95:py2:debug  e19:debug  -nq-   -std=c++17
+e19:s95:py2:prof   e19:prof   -nq-   -std=c++17
+e19:s96:py2:debug  e19:debug  -nq-   -std=c++17
+e19:s96:py2:prof   e19:prof   -nq-   -std=c++17
 end_qualifier_list
 
 
