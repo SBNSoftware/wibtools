@@ -36,6 +36,12 @@ e19:s95:debug      e19:debug  -nq-   -std=c++17
 e19:s95:prof       e19:prof   -nq-   -std=c++17
 e19:s96:debug      e19:debug  -nq-   -std=c++17
 e19:s96:prof       e19:prof   -nq-   -std=c++17
+e19:s94:py2:debug  e19:debug  -nq-   -std=c++17
+e19:s94:py2:prof   e19:prof   -nq-   -std=c++17
+e19:s95:py2:debug  e19:debug  -nq-   -std=c++17
+e19:s95:py2:prof   e19:prof   -nq-   -std=c++17
+e19:s96:py2:debug  e19:debug  -nq-   -std=c++17
+e19:s96:py2:prof   e19:prof   -nq-   -std=c++17
 end_qualifier_list
 
 
