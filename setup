@@ -1,7 +1,7 @@
 source /daq/software/products/setup
 setup gcc v8_2_0 
 setup boost v1_70_0 -q e19:prof
-setup TRACE v3_15_07
+setup TRACE v3_16_00
 #
 # Uncomment QUALIFIER and VERSION only if you want to build a ups vesion
 # export QUALIFIER="e19"
