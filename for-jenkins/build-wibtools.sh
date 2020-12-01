@@ -67,8 +67,9 @@ for onequal in "${quals[@]}"; do
   esac
 done
 
-qual_set="${squal}:${basequal}"
+qual_set="${basequal}"
 [[ ! -z "${pyqual+x}" ]] && qual_set="${qual_set}:${pyqual}"
+qual_set="${qual_set}:${squal}"
 
 case ${build_type} in
   debug) build_type_flag="-d" ;;
