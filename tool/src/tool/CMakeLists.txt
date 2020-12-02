@@ -14,8 +14,9 @@ list(GET WIBTOOLS_VERSION_LIST 2 WIBTOOLS_PATCH)
 add_custom_command(
 	PRE_BUILD
 	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/WIBBase_version.cc
-	COMMAND  ${BASH} -c  "echo \"#include <WIBBase.hh>\" > ${CMAKE_CURRENT_BINARY_DIR}/WIBBase_version.cc"
-	COMMAND  ${BASH} -c  "echo \"const int WIBBase::Version(${WIBTOOLS_MAJOR}${WIBTOOLS_MINOR}${WIBTOOLS_PATCH});\" >> ${CMAKE_CURRENT_BINARY_DIR}/WIBBase_version.cc"
+	COMMAND  ${BASH} -c  "echo -e '#include <WIBBase.hh>' > ${CMAKE_CURRENT_BINARY_DIR}/WIBBase_version.cc"
+	COMMAND  ${BASH} -c  "echo -e '#include <string>' >> ${CMAKE_CURRENT_BINARY_DIR}/WIBBase_version.cc"
+	COMMAND  ${BASH} -c  "echo -e 'const int WIBBase::Version(std::stoi(\"${WIBTOOLS_MAJOR}${WIBTOOLS_MINOR}${WIBTOOLS_PATCH}\"));' >>	${CMAKE_CURRENT_BINARY_DIR}/WIBBase_version.cc"
 	VERBATIM 
  	)
 
