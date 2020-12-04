@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent wibtools  v0_03_07
+parent wibtools  v0_03_08
 defaultqual	e19:s97
 
 # These optional lines define the installed directories where
@@ -23,7 +23,7 @@ boost           v1_70_0         s94
 boost           v1_70_0         s95
 boost           v1_70_0         s96
 boost           v1_70_0         s97
-TRACE           v3_16_00        -       only_for_build
+TRACE           v3_16_02        -       only_for_build
 cetbuildtools   v7_17_01        -       only_for_build
 end_product_list
 
