@@ -17,10 +17,11 @@ function publishscisoft(){
  ./copyFromJenkins \
 -m SLF7 \
 -q s97-e19 \
+-q s106-e19 \
  wibtools-build
 
 
-find ./ -name "*bz2" |xargs -n 1 -I {} ./copyToSciSoft --node scisoftportal.fnal.gov {}
+find ./ -name "*bz2" |xargs -n 1 -I {} ./copyToSciSoft  {}
 }
 
 publishscisoft
