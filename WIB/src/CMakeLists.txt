@@ -1,4 +1,4 @@
-cet_add_compiler_flags( -Wno-unused -Wno-non-virtual-dtor -Wno-type-limits )
+cet_add_compiler_flags( -Wno-unused -Wno-non-virtual-dtor -Wno-type-limits -Wno-format-truncation )
 
 include_directories( ../include )
 
