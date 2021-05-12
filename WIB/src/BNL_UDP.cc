@@ -13,7 +13,6 @@
 
 #include <errno.h>
 #include <algorithm> //STD::COUNT
-#include "trace.h"
 
 #define WIB_PACKET_KEY 0xDEADBEEF
 #define WIB_REQUEST_PACKET_TRAILER 0xFFFF
@@ -33,8 +32,7 @@ struct WIB_packet_t
 
 gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 {
-  const std::string identification = "BNL_UDP::gige_reg_init";
-  TLOG_INFO(identification)<<"IP address is " << IP_address << TLOG_ENDL;
+  std::cout<<"IP address is " << IP_address << std::endl;
   int rc = 0;
 
   gige_reg_t *ret;
@@ -67,6 +65,18 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
     return NULL;
   }
     
+  // Sometimes reply packets disappear, so we need to set a finite timeout
+  struct timeval zeitZuGehen;
+  zeitZuGehen.tv_sec = 1;
+  zeitZuGehen.tv_sec = 0;
+  rc = setsockopt(ret->sock_recv,SOL_SOCKET, SO_RCVTIMEO, (const void *)&zeitZuGehen,sizeof(zeitZuGehen));
+  if ( rc < 0 )
+  {
+    printf("Setting timeout failed! %s\n",strerror(errno));
+    perror(__func__);
+    return NULL;
+  }
+
   // Recv Port Setup
   bzero(&ret->si_recv, sizeof(ret->si_recv));
   ret->si_recv.sin_family = AF_INET;
@@ -202,7 +212,6 @@ void BNL_UDP::Clear()
 
 void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 {
-  const std::string identification = "BNL_UDP::Setup";
   //Reset the network structures
   Clear();
 
@@ -222,7 +231,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   //   response addresses
   int32_t b3,b2,b1,b0;
   sscanf(address.c_str(), "%d.%d.%d.%d", &b3,&b2,&b1,&b0);
-  TLOG_INFO(identification) << "Decoded IP Address: " << b3 << "." << b2 << "." << b1 << "." << b0 <<TLOG_ENDL;
+  std::cout << "Decoded IP Address: " << b3 << "." << b2 << "." << b1 << "." << b0 <<std::endl;
 
   if (isFEMB )
   {
@@ -252,11 +261,11 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 	readPort  = FEMB4_RW_BASE + 1;
       break;
     }
-    TLOG_INFO(identification) << "FEMB " << port_offset << TLOG_ENDL;
+    std::cout << "FEMB " << port_offset << std::endl;
   }
   else if ( isMBB )
   {
-    TLOG_INFO(identification) << "MBB " << TLOG_ENDL;
+    std::cout << "MBB " << std::endl;
     // MBB still uses old scheme
     writePort = MBB_WR_BASE_PORT;
     readPort  = MBB_RD_BASE_PORT;
@@ -264,17 +273,17 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   }
   else // Only WIBs left
   {
-    TLOG_INFO(identification) << "WIB " << TLOG_ENDL;
+    std::cout << "WIB " << std::endl;
     //WIB: Set the ports for this device (FEMBs are iFEMB*0x10 above the base)
-    writePort = WIB_WR_BASE_PORT   + port_offset;
-    readPort  = WIB_RD_BASE_PORT   + port_offset;
+    writePort = WIB_WR_BASE_PORT;
+    readPort  = WIB_RD_BASE_PORT;
 
     // Add least byte of IP address to get unique reply port
-    replyPort = WIB_RPLY_BASE_PORT + port_offset + b0;
+    replyPort = WIB_RPLY_BASE_PORT + b0;
   }
-  TLOG_INFO(identification)<< "WritePort:    " << std::hex << writePort << TLOG_ENDL;
-  TLOG_INFO(identification) << "ReadPort:     " << readPort << TLOG_ENDL;
-  TLOG_INFO(identification) << "ResponsePort: " << replyPort << std::dec << TLOG_ENDL;
+  std::cout << "WritePort:    " << std::hex << writePort << std::endl;
+  std::cout << "ReadPort:     " << readPort << std::endl;
+  std::cout << "ResponsePort: " << replyPort << std::dec << std::endl;
 
   remoteAddress = address;
 
@@ -337,46 +346,38 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   ResizeBuffer();
 }
 
-void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_count)
+uint32_t BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_count)
 {
-  const std::string identification = "WIB:WIB";
-  TLOG_INFO(identification)<<"BNLUDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<< TLOG_ENDL;
-
-  while(retry_count > 1)
+  std::cout<<"BNL_UDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<<"\n";
+  uint32_t retcod = -1;
+  uint8_t ctr = retry_count;
+  while( (ctr > 1) && ( retcod < 0 ))
   {
     try
     {
       //Do the write
-      TLOG_INFO(identification) <<"Trying..." << TLOG_ENDL;
-      Write(address,value);
-      TLOG_INFO(identification)<<"Sleeping..." << TLOG_ENDL;
+      std::cout<<"Trying...\n";
+      retcod = Write(address,value);
+      std::cout<<"Sleeping...\n";
       usleep(10);
-
-      //if everything goes well, return
-      TLOG_INFO(identification)<<"Return" << TLOG_ENDL;
-      return;
     }
     catch(WIBException::BAD_REPLY &e)
     {
       //eat the exception
     }
     total_retry_count++;
-    retry_count--;
+    ctr--;
     usleep(10);
-    TLOG_INFO(identification)<<total_retry_count<<TLOG_ENDL;
+    std::cout<<total_retry_count<<"\n";
   }
-
-  //Last chance we don't catch the exception and let it fall down the stack
-  //Do the write
-  TLOG_INFO(identification)<<"Last chance" << TLOG_ENDL;
-  Write(address,value);
-  usleep(10);
+  return(retcod);
 }
 
-void BNL_UDP::Write(uint16_t address, uint32_t value)
+uint32_t BNL_UDP::Write(uint16_t address, uint32_t value)
 {
   //Flush this socket
   FlushSocket(reg->sock_recv);
+  size_t reply_size = 0;
 
   //Build the packet to send
   WIB_packet_t packet;
@@ -407,7 +408,6 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
   // - check if FEMB, and skip if so
   if(writeAck && !isFEMB )
   {
-    size_t reply_size = 0;
     struct sockaddr_in si_other;
     socklen_t len = sizeof(struct sockaddr_in);
     reply_size = recvfrom(reg->sock_recv, buffer, buffer_size, 0, 
@@ -445,33 +445,37 @@ void BNL_UDP::Write(uint16_t address, uint32_t value)
       throw e;    
     }    
   }
-}
-void BNL_UDP::Write(uint16_t address, std::vector<uint32_t> const & values)
-{
-  Write(address,values.data(),values.size());
+  return(reply_size);
 }
 
-void BNL_UDP::Write(uint16_t address, uint32_t const * values, size_t word_count)
+uint32_t BNL_UDP::Write(uint16_t address, std::vector<uint32_t> const & values)
 {
+  return(Write(address,values.data(),values.size()));
+}
+
+uint32_t BNL_UDP::Write(uint16_t address, uint32_t const * values, size_t word_count)
+{
+  uint32_t retcod = -1;
   for(size_t iWrite = 0; iWrite < word_count;iWrite++)
   {
-    WriteWithRetry(address,values[iWrite]);
+    retcod = WriteWithRetry(address,values[iWrite]);
     address++;
   }
+  return(retcod);
 }
 
-uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint8_t retry_count)
+uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint32_t *value,uint8_t retry_count)
 {
-  uint32_t val;
-  while(retry_count > 1)
+  uint32_t retcod = -1;
+  uint8_t ctr = retry_count;
+  while( (ctr > 1) && ( retcod < 0 ))
   {
     try
     {
       //Do the write
-      val = Read(address);
+      retcod = Read(address,value);
       usleep(10);
       //if everything goes well, return
-      return val;
     }
     catch(WIBException::BAD_REPLY &e)
     {
@@ -479,16 +483,12 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint8_t retry_count)
     }
     usleep(10);
     total_retry_count++;
-    retry_count--;
+    ctr--;
   }
-
-  //Last chance we don't catch the exception and let it fall down the stack
-  val = Read(address);  
-  usleep(10);
-  return val;
+  return retcod;
 }
 
-uint32_t BNL_UDP::Read(uint16_t address)
+uint32_t BNL_UDP::Read(uint16_t address, uint32_t *value)
 {
   //Flush the socket
   FlushSocket(reg->sock_recv);
@@ -557,12 +557,12 @@ uint32_t BNL_UDP::Read(uint16_t address)
     throw e;    
   }
   
-  uint32_t ret = ( (uint32_t(buffer[2]) << 24) | 
-		   (uint32_t(buffer[3]) << 16) | 
-		   (uint32_t(buffer[4]) <<  8) | 
-		   (uint32_t(buffer[5]) <<  0));
+  *value = ( (uint32_t(buffer[2]) << 24) | 
+	     (uint32_t(buffer[3]) << 16) | 
+	     (uint32_t(buffer[4]) <<  8) | 
+	     (uint32_t(buffer[5]) <<  0));
 
-  return ret;
+  return reply_size;
 }
 
 
