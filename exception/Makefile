@@ -18,6 +18,10 @@ ifdef BOOST_LIB
 LIBRARY_PATH +=-L$(BOOST_LIB)
 endif
 
+ifdef TRACE_INC
+INCLUDE_PATH +=-I$(TRACE_INC)
+endif
+
 LIBRARIES = -lboost_regex
 
 

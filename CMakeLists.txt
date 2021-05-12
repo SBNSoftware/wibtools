@@ -34,12 +34,22 @@ IF (SANITIZE_ADDRESS)
   endif()
 ENDIF()
 
+#exception stack trace
+if(DEFINED ENV{USE_EXCEPTIONSTACKTRACE})
+        if($ENV{USE_EXCEPTIONSTACKTRACE} GREATER 0)
+                message("!!! Exception StackTrace Activated!!!")
+                add_definitions(-D EXCEPTIONSTACKTRACE)
+                set( EXCEPTIONSTACKTRACE_LIB  artdaq-core_Utilities_ExceptionStackTrace )
+                cet_add_compiler_flags( -rdynamic )
+        endif()
+endif()
 
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
 find_ups_boost  ( v1_70_0 )
-find_ups_product( cetbuildtools v7_15_01 )
+find_ups_product( TRACE v3_16_02 )
+find_ups_product( cetbuildtools v7_17_01 )
 find_ups_product( cetpkgsupport v1_14_01 )
 
 

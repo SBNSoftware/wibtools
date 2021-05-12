@@ -8,6 +8,11 @@ PACKAGES = \
 # This does not prevent the contents of each package from building in parallel
 .NOTPARALLEL:
 
+
+ifdef TRACE_INC
+INCLUDE_PATH +=-I$(TRACE_INC)
+endif
+
 ifndef WIB_PREFIX
 $(error source environment script before building)
 endif

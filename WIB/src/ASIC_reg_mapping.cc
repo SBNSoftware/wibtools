@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <limits>
+#include "trace.h"
 
 ASIC_reg_mapping::ASIC_reg_mapping(): REGS(72)
 {
@@ -58,12 +59,13 @@ std::vector<uint32_t> ASIC_reg_mapping::get_regs() const
 
 void ASIC_reg_mapping::print() const
 {
-  std::cout << "ASIC_reg_mapping (hex):" << std::endl;
+  const std::string identification = "ASIC_reg_mapping::print";
+  TLOG_INFO(identification) << "ASIC_reg_mapping (hex):" << TLOG_ENDL;
 
   for(uint32_t i = 0; i < REGS.size(); ++i) 
   {
     uint32_t reg = REGS[i];
-    std::cout << std::hex << std::setfill('0') << std::setw(8) << reg << std::endl;
+    TLOG_INFO(identification) << std::hex << std::setfill('0') << std::setw(8) << reg << TLOG_ENDL;
     //std::cout << reg << std::endl;
   }
 }

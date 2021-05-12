@@ -24,6 +24,9 @@ class MBB{
   uint32_t mask;
   void ConfigMBB(uint32_t PULSE_SOURCE, uint32_t PULSE_PERIOD);
   void TimeStampReset();
+  void StartFEMBDaq();
+  void StopFEMBDaq();
+  void CalibrationPulse();
 
   // Basic I/O methods
   uint32_t Read(uint16_t address);

@@ -2,6 +2,7 @@
 #include <WIBException.hh>
 #include <BNL_UDP_Exception.hh>
 #include <iostream>
+#include "trace.h"
 
 WIBBase::WIBBase(std::string const & address, 
 		 std::string const & WIBAddressTable, 
@@ -139,7 +140,8 @@ void WIBBase::Write(uint16_t address,uint32_t value){
 }
 void WIBBase::WriteWithRetry(std::string const & address,uint32_t value)
 {
-  std::cout << "Writing " << address << " " << std::hex << value << std::dec << std::endl;
+  const std::string identification = "WIBBase::WriteWithRetry";
+  TLOG_INFO(identification) << "Writing " << address << " " << std::hex << value << std::dec << TLOG_ENDL;
   wib->WriteWithRetry(address,value);    
 }
 void WIBBase::Write(std::string const & address,uint32_t value){
@@ -188,14 +190,15 @@ void WIBBase::WriteFEMB(int iFEMB,uint16_t address,uint32_t value){
   usleep((useconds_t) FEMBWriteSleepTime * 1e6);
 }
 void WIBBase::WriteFEMB(int iFEMB,std::string const & address,uint32_t value){
+  const std::string identification = "WIBBase::WriteFEMB";
   if((iFEMB > 4) || (iFEMB <1)){
     WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("In WIBBase::WriteFEMB\n");
     throw e;
   }
-  std::cout<<"WriteWithRetry: "<<iFEMB-1<<"  "<<address<<"  "<<value<<"\n";
+  TLOG_INFO(identification)<<"WriteWithRetry: "<<iFEMB-1<<"  "<<address<<"  "<<value<< TLOG_ENDL;
   FEMB[iFEMB-1]->WriteWithRetry(address,value);    
-  std::cout<<"Sleeping for "<<FEMBWriteSleepTime<<"\n";
+  TLOG_INFO(identification)<<"Sleeping for "<<FEMBWriteSleepTime<<TLOG_ENDL;
   usleep((useconds_t) FEMBWriteSleepTime * 1e6);
 }
 

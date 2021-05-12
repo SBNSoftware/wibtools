@@ -4,6 +4,7 @@
 #include <stdio.h> //snprintf
 #include <iostream>
 #include <fstream>
+#include "trace.h"
 
 #define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
 #define SI5344_CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
@@ -29,6 +30,8 @@ WIB::WIB(std::string const & address,
 
   wib->SetWriteAck(true);
   FullStart();
+  const std::string identification = "WIB:WIB";
+  TLOG_INFO("WIB CONSTRUCTOR") << "Constructor for WIB class finished" << TLOG_ENDL; 
 }
 
 WIB::~WIB(){
@@ -49,10 +52,8 @@ void WIB::configWIB(uint8_t clockSource){
   int fw_version = Read("FW_VERSION");
   int crate = Read("CRATE_ADDR");
   int slot = Read("SLOT_ADDR");
-  
-  std::cout 
-  << "=============== configWIB ===============\n"
-  << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << std::dec<<"\n"; 
+  const std::string identification = "WIB::configWIB";
+  TLOG_INFO(identification) << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << " clockSource " << clockSource << TLOG_ENDL; 
 
   // setup
   UDP_enable(true); 
@@ -63,7 +64,7 @@ void WIB::configWIB(uint8_t clockSource){
 
   // clock select
   if(clockSource == 0){
-    std::cout << "--> configuring Si5344 PLL..." << std::endl;
+    TLOG_INFO(identification)  << "--> configuring Si5344 PLL...";
 
     ResetSi5344();
 
@@ -76,20 +77,20 @@ void WIB::configWIB(uint8_t clockSource){
     }
 
     if( lol_flag ){
-      std::cout << "** Si5344 PLL locked!! :) **" << std::endl;
+      TLOG_INFO(identification)  << "** Si5344 PLL locked!! :) **";
       Write("FEMB_CLK_SEL",1);
       Write("FEMB_CMD_SEL",1);
       Write("FEMB_INT_CLK_SEL",0);
       usleep(10000);
     } else {
-      std::cout<<"PLL failed to lock.\n";
+      TLOG_INFO(identification) <<"PLL failed to lock.";
     }
 
     //int clk_sel = Read(0x4) & 0xF;
     //std::cout << "  Clock bits (reg 4) are " << std::hex << clk_sel << std::dec << std::endl;
   }
   else if(clockSource == 1){
-    std::cout << "--> using 100MHz from oscillator (bypass Si5344)" << std::endl;
+    TLOG_INFO(identification)  << "--> using 100MHz from oscillator (bypass Si5344)";
     Write("FEMB_CLK_SEL",0);
     Write("FEMB_CMD_SEL",0);
     Write("FEMB_INT_CLK_SEL",0x2);
@@ -103,10 +104,11 @@ void WIB::configWIB(uint8_t clockSource){
   }
 
   UDP_enable(false);
-  std::cout<< "=========================================\n";
+  TLOG_INFO(identification) << "configureing WIB is finished" << TLOG_ENDL;
 }
 
 bool WIB::PLL_check(int iTries){
+  const std::string identification = "WIB::PLL_check"; 
   bool out = false;
   for(int i=0; i<iTries; i++){
     printf("Checking PLL status... (attempt %d/%d)\n",i+1,iTries);
@@ -125,7 +127,8 @@ void WIB::UDP_enable(bool enable){
 }
 
 void WIB::ResetSi5344(){
-  std::cout<<"Resetting Si5344\n";
+  const std::string identification = "WIB::ResetSi5344"; 
+  TLOG_INFO(identification)<<"Resetting Si5344\n";
   Write(10,0x0);
   Write("SILABS_RST",1);   
   Write("SILABS_RST",0);   
@@ -133,7 +136,7 @@ void WIB::ResetSi5344(){
 }
 
 void WIB::loadConfig(std::string const & fileName){
-      
+   const std::string identification = "WIB::loadConfig";   
   // read in configuration file
   std::string fullPath = getenv(WIB_CONFIG_PATH);
   fullPath += "/";
@@ -141,7 +144,7 @@ void WIB::loadConfig(std::string const & fileName){
   std::ifstream confFile(fullPath.c_str());
   WIBException::WIB_BAD_ARGS badFile;
   
-  std::cout<<"Configuring PLL from file: "<<fileName<<"\n";
+  TLOG_INFO(identification)<<"Configuring PLL from file: "<<fileName<<TLOG_ENDL;
   if(confFile.fail()){
     //Failed to topen filename, add it to the exception
     badFile.Append("Bad SI5344 config file name:");
@@ -209,13 +212,14 @@ void WIB::loadConfig(std::string const & fileName){
           PLL_write(adrs_l[i],data_v[i]);
         }
       }
-      std::cout<<"Finished.\n";
+      TLOG_INFO(identification)<<"Finished."<<TLOG_ENDL;
       sleep(1);
     }
  
 }
 
 void WIB::PLL_write(uint16_t addr, uint16_t data){  
+   const std::string identification = "WIB::PLL_write";
   // Register 11 controls SI5344 I2C
   //  0:3   (0x00000F)  -- Number of bytes to write (set to 1 when writing data, 0 when setting address)
   //  8:15  (0x00FF00)  -- Address to write to
@@ -233,7 +237,7 @@ void WIB::PLL_write(uint16_t addr, uint16_t data){
 
 
 void WIB::EnableDAQLink(uint8_t iDAQLink){
-
+  const std::string identification = "WIB::EnableDAQLink";
   // 0x01, bit 3, "SBND_START_DAQ"
   // 1 = begin sending data from FEMBs->WIB
   // (must be flipped back to 0)
@@ -260,7 +264,7 @@ void WIB::EnableDAQLink(uint8_t iDAQLink){
 }
 
 void WIB::EnableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
-  
+  const std::string identification = "WIB::EnableDAQLink_Lite";
   //Build the base string for this DAQLINK
   std::string base("DAQ_LINK_");
   base.push_back(GetDAQLinkChar(iDAQLink));
@@ -278,6 +282,7 @@ void WIB::EnableDAQLink_Lite(uint8_t iDAQLink, uint8_t enable){
 
 
 void WIB::InitializeWIB(){
+  const std::string identification = "WIB::InitializeWIB";
   //run resets
   Write("SYSTEM.RESET",0xFF);  
   //Set clock settings
@@ -286,7 +291,7 @@ void WIB::InitializeWIB(){
 
 //void WIB::ResetWIB(bool cntrlRegister=true, bool global=false, bool daq_path=false, bool udp=false){
 void WIB::ResetWIB(bool reset_udp){
-
+  const std::string identification = "WIB::ResetWIB";
   if(reset_udp){
     //Resetting the UDP will stop the reply packet which will cause an error. 
     try{
@@ -332,6 +337,7 @@ void WIB::ResetWIB(bool reset_udp){
 }
 
 void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSsource, uint32_t PDTSAlignment_timeout){
+  const std::string identification = "WIB::ResetWIBAndCfgDTS";
   if(DAQMode == UNKNOWN){
     WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
@@ -408,6 +414,7 @@ void WIB::ResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSs
 }
 
 void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_t PDTSsource,  uint32_t PDTSAlignment_timeout){
+  const std::string identification = "WIB::CheckedResetWIBAndCfgDTS";
   if(DAQMode == UNKNOWN){
     WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
@@ -531,11 +538,12 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
     //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
   }
   //Now we have the 128MHz clock
-  std::cout << "Resetting DAQ Links" << std::endl;
+  TLOG_INFO(identification)<<"Finished."<<TLOG_ENDL; 
+  TLOG_INFO(identification)<< "Resetting DAQ Links" << TLOG_ENDL;
   size_t nLinks = 4;
   if(DAQMode == FELIX){ nLinks = 2; }
   for (size_t iLink=1; iLink <= nLinks; ++iLink){
-    std::cout << iLink << std::endl;
+    TLOG_INFO(identification) << iLink << TLOG_ENDL;
     EnableDAQLink_Lite(iLink, 0);
   }
 
@@ -547,6 +555,7 @@ void WIB::CheckedResetWIBAndCfgDTS(uint8_t localClock, uint8_t PDTS_TGRP, uint8_
 }
 
 void WIB::StartStreamToDAQ(){
+  const std::string identification = "WIB::StartStreamToDAQ";
   /*if(DAQMode == UNKNOWN){
     WIBException::WIB_DAQMODE_UNKNOWN e;
     throw e;    
@@ -594,7 +603,7 @@ void WIB::StartStreamToDAQ(){
 
 
 void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
-  
+  const std::string identification = "WIB::FEMBPower";
   std::string reg = "PWR_EN_BRD";
   reg.push_back(GetFEMBChar(iFEMB));
   const Item *g = GetItem(reg);
@@ -627,17 +636,20 @@ void WIB::FEMBPower(uint8_t iFEMB,bool turnOn){
 }
 
 void WIB::EnableFEMBCNC(){
+  const std::string identification = "WIB::EnableFEMBCNC"; 
   //Enable the clock and control stream to the FEMBs
   Write("FEMB_CNC.CNC_CLOCK_SELECT",1);
   Write("FEMB_CNC.CNC_COMMAND_SELECT",1);
 }
 void WIB::DisableFEMBCNC(){
+  const std::string identification = "WIB::DisableFEMBCNC";
   //Enable the clock and control stream to the FEMBs
   Write("FEMB_CNC.CNC_CLOCK_SELECT",0);
   Write("FEMB_CNC.CNC_COMMAND_SELECT",0);
 }
 
 bool WIB::CheckDAQLinkInRange(uint8_t iDAQLink){
+  const std::string identification = "WIB::CheckDAQLinkInRange";
   if(!((iDAQLink > 0) && (iDAQLink <= DAQLinkCount))){
     WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("DAQ Link\n");
@@ -647,6 +659,7 @@ bool WIB::CheckDAQLinkInRange(uint8_t iDAQLink){
 }
 
 char WIB::GetDAQLinkChar(uint8_t iDAQLink){
+  const std::string identification = "WIB::GetDAQLinkChar";
   char c = '0';
   //Check if the link is in range given DAQLinkCount (throws)
   CheckDAQLinkInRange(iDAQLink);
@@ -676,6 +689,7 @@ char WIB::GetDAQLinkChar(uint8_t iDAQLink){
 }
 
 bool WIB::CheckFEMBInRange(uint8_t iFEMB){
+  const std::string identification = "WIB::CheckFEMBInRange";
   if(!((iFEMB > 0) && (iFEMB <= FEMBCount))){
     WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("FEMB\n");
@@ -685,6 +699,7 @@ bool WIB::CheckFEMBInRange(uint8_t iFEMB){
 }
 
 char WIB::GetFEMBChar(uint8_t iFEMB){
+  const std::string identification = "WIB::GetFEMBChar";
   char c = '0';
   //Check if the link is in range given FEMBCount (throws)
   CheckFEMBInRange(iFEMB);
@@ -714,6 +729,7 @@ char WIB::GetFEMBChar(uint8_t iFEMB){
 }
 
 bool WIB::CheckFEMBStreamInRange(uint8_t iStream){
+  const std::string identification = "WIB::CheckFEMBStreamInRange";
   if(!((iStream > 0) && (iStream <= FEMBStreamCount))){
     WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("FEMB Stream");
@@ -723,6 +739,7 @@ bool WIB::CheckFEMBStreamInRange(uint8_t iStream){
 }
 
 bool WIB::CheckFEMBCDInRange(uint8_t iCDA){
+  const std::string identification = "WIB::CheckFEMBCDInRange";
   if(!((iCDA > 0) && (iCDA <= FEMBCDACount))){
     WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("FEMB CDA");
@@ -732,6 +749,7 @@ bool WIB::CheckFEMBCDInRange(uint8_t iCDA){
 }
 
 char WIB::GetFEMBCDChar(uint8_t iCD){
+  const std::string identification = "WIB::GetFEMBCDChar";
   char c = '0';
   //Check if the link is in range given FEMBCount (throws)
   CheckFEMBCDInRange(iCD);
@@ -755,6 +773,7 @@ char WIB::GetFEMBCDChar(uint8_t iCD){
 }
 
 void WIB::SourceFEMB(uint64_t iFEMB, uint64_t real){
+  const std::string identification = "WIB::SourceFEMB";
   if(iFEMB < 1){
     printf("FEMB index out of range < 1\n");
     return;

@@ -11,6 +11,10 @@ ifdef BOOST_INC
 CXXFLAGS +=-I${BOOST_INC}
 endif
 
+ifdef TRACE_INC
+CXXFLAGS +=-I$(TRACE_INC)
+endif
+
 BUILD_PATH=./build
 SRC_PATH=./src
 INCLUDE_PATH=./include
