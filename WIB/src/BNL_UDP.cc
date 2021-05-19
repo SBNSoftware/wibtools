@@ -478,6 +478,10 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint32_t *value,uint8_t retry_c
       retcod = Read(address,value);
       usleep(10);
       //if everything goes well, return
+      if ( retcod < 0 )
+      {
+	std::cout << "BNL_UDP ERROR on Read(), retrying" << std::endl;
+      }
     }
     catch(WIBException::BAD_REPLY &e)
     {
