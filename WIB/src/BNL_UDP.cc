@@ -346,7 +346,8 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   ResizeBuffer();
 }
 
-uint32_t BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_count)
+uint32_t BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, 
+				 uint8_t retry_count)
 {
   std::cout<<"BNL_UDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<<"\n";
   uint32_t retcod = -1;
@@ -364,6 +365,7 @@ uint32_t BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry
     catch(WIBException::BAD_REPLY &e)
     {
       //eat the exception
+      retcod = -1;
     }
     total_retry_count++;
     ctr--;
@@ -480,6 +482,7 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint32_t *value,uint8_t retry_c
     catch(WIBException::BAD_REPLY &e)
     {
       //eat the exception
+      retcod = -1;
     }
     usleep(10);
     total_retry_count++;
