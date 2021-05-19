@@ -68,7 +68,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
   // Sometimes reply packets disappear, so we need to set a finite timeout
   struct timeval zeitZuGehen;
   zeitZuGehen.tv_sec = 1;
-  zeitZuGehen.tv_sec = 0;
+  zeitZuGehen.tv_usec = 0;
   rc = setsockopt(ret->sock_recv,SOL_SOCKET, SO_RCVTIMEO, (const void *)&zeitZuGehen,sizeof(zeitZuGehen));
   if ( rc < 0 )
   {
