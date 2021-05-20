@@ -6,10 +6,13 @@
 #  buildtool -bp -j$(nproc)
 # ======================================================================
 
-# use cmake 3.2 or later
-cmake_minimum_required (VERSION 3.2)
 
-project(wibtools)
+
+cmake_minimum_required (VERSION 3.16)
+
+find_package(cetbuildtools)
+
+project(wibtools VERSION 0.4.00)
 
 SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
 IF (NOT CETBUILDTOOLS_VERSION)
@@ -25,6 +28,12 @@ include(CetCMakeEnv)
 cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS VIGILANT WERROR NO_UNDEFINED EXTRA_FLAGS )
+
+cet_add_compiler_flags( -Wimplicit-fallthrough=0 )
+cet_add_compiler_flags( -Wno-literal-suffix )
+cet_add_compiler_flags( -Wno-unused )
+cet_add_compiler_flags( -Wno-type-limits )
+cet_add_compiler_flags( -Wno-non-virtual-dtor )
 
 IF (SANITIZE_ADDRESS)
   string(TOUPPER ${SANITIZE_ADDRESS} SANITIZE_ADDRESS_UC )
