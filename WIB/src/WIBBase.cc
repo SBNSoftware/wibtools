@@ -167,7 +167,7 @@ uint32_t WIBBase::ReadFEMB(int iFEMB,uint16_t address){
     e.Append("In WIBBase::ReadFEMB\n");
     throw e;
   }
-  return FEMB[iFEMB-1]->Read(address);    
+  return FEMB[iFEMB-1]->ReadWithRetry(address); // changed   
   usleep((useconds_t) FEMBReadSleepTime * 1e6);
 }
 uint32_t WIBBase::ReadFEMB(int iFEMB,std::string const & address){
@@ -176,7 +176,7 @@ uint32_t WIBBase::ReadFEMB(int iFEMB,std::string const & address){
     e.Append("In WIBBase::ReadFEMB\n");
     throw e;
   }
-  return FEMB[iFEMB-1]->Read(address);    
+  return FEMB[iFEMB-1]->ReadWithRetry(address); // changed 
   usleep((useconds_t) FEMBReadSleepTime * 1e6);
 }
 
