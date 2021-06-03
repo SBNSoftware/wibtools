@@ -61,9 +61,9 @@ public:
   void SetWriteAck(bool val){writeAck=val;};
   bool GetWriteAck(){return writeAck;};
 
-  uint32_t ReadWithRetry(uint16_t address,uint32_t *value,uint8_t retry_count=10);
+  uint32_t ReadWithRetry(uint16_t address,uint16_t retry_count=10);
   uint32_t Read(uint16_t address, uint32_t *value);
-  uint32_t WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_count=10);
+  uint32_t WriteWithRetry(uint16_t address, uint32_t value, uint16_t retry_count=10);
   uint32_t Write(uint16_t address,uint32_t value);
   uint32_t Write(uint16_t address,std::vector<uint32_t> const & values);
   uint32_t Write(uint16_t address,uint32_t const * values, size_t word_count);

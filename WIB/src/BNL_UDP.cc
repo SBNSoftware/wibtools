@@ -347,7 +347,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 }
 
 uint32_t BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, 
-				 uint8_t retry_count)
+				 uint16_t retry_count)
 {
   std::cout<<"BNL_UDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<<"\n";
   uint32_t retcod = -1;
@@ -466,20 +466,22 @@ uint32_t BNL_UDP::Write(uint16_t address, uint32_t const * values, size_t word_c
   return(retcod);
 }
 
-uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint32_t *value,uint8_t retry_count)
+uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint16_t retry_count)
 {
+  std::cout<<"BNL_UDP ReadWithRetry "<<address<<" "<<retry_count<<"\n";
   uint32_t retcod = -1;
+  uint32_t value;
   uint8_t ctr = retry_count;
   while( (ctr > 1) && ( retcod < 0 ))
   {
     try
     {
       //Do the write
-      retcod = Read(address,value);
-      usleep(10);
+      retcod = Read(address,&value);
       //if everything goes well, return
+      usleep(10);
       if ( retcod < 0 )
-      {
+      {	
 	std::cout << "BNL_UDP ERROR on Read(), retrying" << std::endl;
       }
     }
@@ -492,7 +494,7 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint32_t *value,uint8_t retry_c
     total_retry_count++;
     ctr--;
   }
-  return retcod;
+  return value;
 }
 
 uint32_t BNL_UDP::Read(uint16_t address, uint32_t *value)
