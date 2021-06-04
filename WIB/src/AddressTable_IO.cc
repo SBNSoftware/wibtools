@@ -17,8 +17,7 @@ uint32_t AddressTable::Read(uint16_t address)
 
 uint32_t AddressTable::ReadWithRetry(uint16_t address)
 {
-  uint32_t value;
-  io->ReadWithRetry(address,&value);
+  uint32_t value = io->ReadWithRetry(address);
   return(value);
 }
 
@@ -61,7 +60,7 @@ uint32_t AddressTable::Read(std::string registerName)
 
   Item * item = itNameItem->second;
   uint32_t value;
-  io->Read(item->address,&value);
+  value = io->ReadWithRetry(item->address);
   value &= (item->mask);
   value >>= item->offset;
 
@@ -84,7 +83,7 @@ uint32_t AddressTable::ReadWithRetry(std::string registerName)
 
   Item * item = itNameItem->second;
   uint32_t value;
-  io->ReadWithRetry(item->address,&value);
+  value = io->ReadWithRetry(item->address);
   value &= (item->mask);
   value >>= item->offset;
 
@@ -112,7 +111,7 @@ void AddressTable::Write(std::string registerName,uint32_t val)
   {
     // Since there are bits this register we don't control, we need to 
     //  see what they currently are
-    io->Read(item->address,&buildingVal);
+    buildingVal = io->ReadWithRetry(item->address);
     buildingVal &= ~(item->mask);    
   }
   buildingVal |= (item->mask & (val << item->offset));
@@ -143,7 +142,7 @@ void AddressTable::WriteWithRetry(std::string registerName,uint32_t val)
   {
     // Since there are bits this register we don't control, we need to 
     //  see what they currently are
-    io->ReadWithRetry(item->address,&buildingVal);
+    buildingVal = io->ReadWithRetry(item->address);
     buildingVal &= ~(item->mask);    
   }
   buildingVal |= (item->mask & (val << item->offset));
