@@ -16,8 +16,8 @@ function publishscisoft(){
 
  ./copyFromJenkins \
 -m SLF7 \
--q s97-e19 \
--q s106-e19 \
+-q s108-e19 \
+-q s109-e19 \
  wibtools-build
 
 
