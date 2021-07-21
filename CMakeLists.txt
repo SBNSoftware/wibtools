@@ -12,7 +12,7 @@ cmake_minimum_required (VERSION 3.16)
 
 find_package(cetbuildtools)
 
-project(wibtools VERSION 0.04.00)
+project(wibtools VERSION 0.04.01)
 
 SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
 IF (NOT CETBUILDTOOLS_VERSION)
@@ -56,9 +56,9 @@ endif()
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_boost  ( v1_70_0 )
-find_ups_product( TRACE v3_16_02 )
-find_ups_product( cetbuildtools v7_17_01 )
+find_ups_boost  ( v1_73_0 )
+find_ups_product( TRACE v3_17_01 )
+find_ups_product( cetbuildtools v8_11_00 )
 find_ups_product( cetpkgsupport v1_14_01 )
 
 
