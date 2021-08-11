@@ -58,7 +58,7 @@ cet_report_compiler_flags()
 # these are minimum required versions, not the actual product versions
 find_ups_boost  ( v1_73_0 )
 find_ups_product( TRACE v3_17_01 )
-find_ups_product( cetbuildtools v8_11_00 )
+find_ups_product( cetbuildtools v8_13_04 )
 find_ups_product( cetpkgsupport v1_14_01 )
 
 
