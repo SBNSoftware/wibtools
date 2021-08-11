@@ -8,11 +8,11 @@
 
 
 
-cmake_minimum_required (VERSION 3.16)
+cmake_minimum_required (VERSION 3.17)
 
 find_package(cetbuildtools)
 
-project(wibtools VERSION 0.04.01)
+project(wibtools VERSION 0.04.02)
 
 SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
 IF (NOT CETBUILDTOOLS_VERSION)
