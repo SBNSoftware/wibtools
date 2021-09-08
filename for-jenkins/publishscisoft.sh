@@ -18,6 +18,7 @@ function publishscisoft(){
 -m SLF7 \
 -q s97-e19 \
 -q s106-e19 \
+-q s110-e20 \
  wibtools-build
 
 
