@@ -3,6 +3,6 @@ include_directories(../exception/include)
 
 add_subdirectory(src)
 
-install(DIRECTORY  include  DESTINATION ${product}/${version}/ )
-install(DIRECTORY  tables   DESTINATION ${product}/${version}/ )
-install(DIRECTORY  config   DESTINATION ${product}/${version}/ )
+install_other(SUBDIRNAME include GLOB "include/*.hh" "include/*.h")
+install_other(SUBDIRNAME tables GLOB "tables/*.*")
+install_other(SUBDIRNAME config GLOB "config/*.txt")

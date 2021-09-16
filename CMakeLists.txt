@@ -16,8 +16,12 @@ set(CET_WARN_DEPRECATED)
 
 project(wibtools VERSION 0.05.00)
 
+set(CMAKE_MODULE_PATH
+  ${CMAKE_CURRENT_SOURCE_DIR}/Modules
+  ${CMAKE_MODULE_PATH})
 include(CetCMakeEnv)
 
+include(InstallOther)
 cet_cmake_env()
 
 cet_set_compiler_flags(DIAGS VIGILANT
