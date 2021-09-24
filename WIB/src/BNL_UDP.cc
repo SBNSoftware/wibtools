@@ -471,7 +471,7 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint16_t retry_count)
   std::cout<<"BNL_UDP ReadWithRetry "<<address<<" "<<retry_count<<"\n";
   uint32_t retcod = -1;
   uint32_t value = 0;
-  uint8_t ctr = retry_count;
+  uint16_t ctr = retry_count;
   while( (ctr > 1) && ( retcod < 0 ))
   {
     try
