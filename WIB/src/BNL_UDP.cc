@@ -351,17 +351,19 @@ uint32_t BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value,
 {
   std::cout<<"BNL_UDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<<"\n";
   uint32_t retcod = -1;
-  uint8_t ctr = retry_count;
+  uint16_t ctr = retry_count;
   while( (ctr > 1) && ( retcod < 0 ))
   {
     try
     {
       //Do the write
       std::cout<<"Trying...\n";
-      retcod = Write(address,value);
+      Write(address,value);
+      retcod = 0;
       std::cout<<"Sleeping...\n";
       usleep(10);
     }
+    catch(WIBException::SEND_FAILED &e) { std::cout << "SEND_FAILED!" << std::endl;retcod = -1; }
     catch(WIBException::BAD_REPLY &e)
     {
       //eat the exception
@@ -476,7 +478,7 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint16_t retry_count)
   {
     try
     {
-      //Do the write
+      //Do the read
       value = Read(address);
       std::cout<<"BNL_UDP ReadWithRetry value = " << value <<std::endl;
 
