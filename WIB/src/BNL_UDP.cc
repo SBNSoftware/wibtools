@@ -479,6 +479,7 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint16_t retry_count)
       //Do the write
       value = Read(address);
       //if everything goes well, return
+      retcod = 0;
       usleep(10);
     }
     catch(WIBException::SEND_FAILED &e) { retcod = -1; }
