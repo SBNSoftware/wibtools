@@ -477,19 +477,12 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint16_t retry_count)
     try
     {
       //Do the write
-      retcod = Read(address,&value);
+      value = Read(address);
       //if everything goes well, return
       usleep(10);
-      if ( retcod < 0 )
-      {	
-	std::cout << "BNL_UDP ERROR on Read(), retrying" << std::endl;
-      }
     }
-    catch(WIBException::BAD_REPLY &e)
-    {
-      //eat the exception
-      retcod = -1;
-    }
+    catch(WIBException::SEND_FAILED &e) { retcod = -1; }
+    catch(WIBException::BAD_REPLY &e)   { retcod = -1; }
     usleep(10);
     total_retry_count++;
     ctr--;
@@ -497,8 +490,10 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint16_t retry_count)
   return value;
 }
 
-uint32_t BNL_UDP::Read(uint16_t address, uint32_t *value)
+uint32_t BNL_UDP::Read(uint16_t address)
 {
+  uint32_t value;
+
   //Flush the socket
   FlushSocket(reg->sock_recv);
 
@@ -566,12 +561,12 @@ uint32_t BNL_UDP::Read(uint16_t address, uint32_t *value)
     throw e;    
   }
   
-  *value = ( (uint32_t(buffer[2]) << 24) | 
-	     (uint32_t(buffer[3]) << 16) | 
-	     (uint32_t(buffer[4]) <<  8) | 
-	     (uint32_t(buffer[5]) <<  0));
+  value = ( (uint32_t(buffer[2]) << 24) | 
+	    (uint32_t(buffer[3]) << 16) | 
+	    (uint32_t(buffer[4]) <<  8) | 
+	    (uint32_t(buffer[5]) <<  0));
 
-  return reply_size;
+  return value;
 }
 
 

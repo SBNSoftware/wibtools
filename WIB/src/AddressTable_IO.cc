@@ -11,7 +11,7 @@
 uint32_t AddressTable::Read(uint16_t address)
 {
   uint32_t value;
-  io->Read(address,&value);
+  value = io->Read(address);
   return(value);
 }
 
