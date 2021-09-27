@@ -123,20 +123,20 @@ uint32_t WIBBase::ReadWithRetry(uint16_t address){
   return wib->ReadWithRetry(address);    
 }
 uint32_t WIBBase::Read(uint16_t address){
-  return wib->Read(address);    
+  return wib->ReadWithRetry(address);    
 }
 uint32_t WIBBase::ReadWithRetry(std::string const & address){
   return wib->ReadWithRetry(address);    
 }
 uint32_t WIBBase::Read(std::string const & address){
-  return wib->Read(address);    
+  return wib->ReadWithRetry(address);    
 }
 
 void WIBBase::WriteWithRetry(uint16_t address,uint32_t value){
   wib->WriteWithRetry(address,value);    
 }
 void WIBBase::Write(uint16_t address,uint32_t value){
-  wib->Write(address,value);    
+  wib->WriteWithRetry(address,value);    
 }
 void WIBBase::WriteWithRetry(std::string const & address,uint32_t value)
 {
@@ -145,7 +145,7 @@ void WIBBase::WriteWithRetry(std::string const & address,uint32_t value)
   wib->WriteWithRetry(address,value);    
 }
 void WIBBase::Write(std::string const & address,uint32_t value){
-  wib->Write(address,value);    
+  wib->WriteWithRetry(address,value);    
 }
 void WIBBase::Write(uint16_t address,std::vector<uint32_t> const & values){
   wib->Write(address,values);    
