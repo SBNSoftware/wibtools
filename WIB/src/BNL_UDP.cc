@@ -350,7 +350,7 @@ uint32_t BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value,
 				 uint16_t retry_count)
 {
   std::cout<<"BNL_UDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<<"\n";
-  uint32_t retcod = -1;
+  int32_t retcod = -1;
   uint16_t ctr = retry_count;
   while( (ctr > 1) && ( retcod < 0 ))
   {
@@ -471,7 +471,7 @@ uint32_t BNL_UDP::Write(uint16_t address, uint32_t const * values, size_t word_c
 uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint16_t retry_count)
 {
   std::cout<<"BNL_UDP ReadWithRetry "<<address<<" "<<retry_count<<"\n";
-  uint32_t retcod = -1;
+  int32_t retcod = -1;
   uint32_t value = 0;
   uint16_t ctr = retry_count;
   std::cout<<"BNL_UDP ReadWithRetry 1 ctr="<<ctr<<" retcod="<<retcod<<"\n";
