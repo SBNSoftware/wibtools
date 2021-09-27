@@ -474,11 +474,15 @@ uint32_t BNL_UDP::ReadWithRetry(uint16_t address,uint16_t retry_count)
   uint32_t retcod = -1;
   uint32_t value = 0;
   uint16_t ctr = retry_count;
+  std::cout<<"BNL_UDP ReadWithRetry 1 ctr="<<ctr<<" retcod="<<retcod<<"\n";
+
   while( (ctr > 1) && ( retcod < 0 ))
   {
+    std::cout<<"BNL_UDP ReadWithRetry 2 ctr="<<ctr<<" retcod="<<retcod<<"\n";
     try
     {
       //Do the read
+      std::cout<<"BNL_UDP ReadWithRetry 3 ctr="<<ctr<<" retcod="<<retcod<<"\n";
       value = Read(address);
       std::cout<<"BNL_UDP ReadWithRetry value = " << value <<std::endl;
 
