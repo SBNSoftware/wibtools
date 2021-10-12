@@ -61,9 +61,8 @@ public:
       length = (newlength > length ? newlength : length);
     }
     data_size = length;
-    const size_t descrlen = 16;
-    char descr[descrlen];
-    snprintf(descr, descrlen, "c:%zu;", length);
+    char descr[24];
+    snprintf(descr, sizeof(descr), "c:%zu;", length);
     data_description = std::string(descr);
   };
   void Convert(uint32_t src, void *dest) {

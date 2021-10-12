@@ -1,7 +1,7 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent wibtools  v0_03_11
-defaultqual	e19:s97
+parent wibtools
+defaultqual	e19:s112
 
 # These optional lines define the installed directories where
 # headers, libraries, and executables will be found
@@ -19,42 +19,24 @@ perllib  product_dir
 
 #
 product         version         optional
-boost           v1_70_0         s94
-boost           v1_70_0         s95
-boost           v1_70_0         s96
-boost           v1_70_0         s97
-boost           v1_73_0         s106
 boost           v1_73_0         s110
-TRACE           v3_17_01        -       only_for_build
-cetbuildtools   v7_17_01        -       only_for_build
+boost           v1_75_0         s112
+TRACE           v3_17_03        -       only_for_build
+cetmodules      v2_26_00        -       only_for_build
 end_product_list
 
 
 # -nq- means there is no qualifier
 # a "-" means the dependent product is not required by the parent and will not be setup
 qualifier          boost      TRACE  notes
-e19:s94:debug      e19:debug  -nq-   -std=c++17
-e19:s94:prof       e19:prof   -nq-   -std=c++17
-e19:s95:debug      e19:debug  -nq-   -std=c++17
-e19:s95:prof       e19:prof   -nq-   -std=c++17
-e19:s96:debug      e19:debug  -nq-   -std=c++17
-e19:s96:prof       e19:prof   -nq-   -std=c++17
-e19:s97:debug      e19:debug  -nq-   -std=c++17
-e19:s97:prof       e19:prof   -nq-   -std=c++17
-e19:s94:py2:debug  e19:debug  -nq-   -std=c++17
-e19:s94:py2:prof   e19:prof   -nq-   -std=c++17
-e19:s95:py2:debug  e19:debug  -nq-   -std=c++17
-e19:s95:py2:prof   e19:prof   -nq-   -std=c++17
-e19:s96:py2:debug  e19:debug  -nq-   -std=c++17
-e19:s96:py2:prof   e19:prof   -nq-   -std=c++17
-e19:s97:py2:debug  e19:debug  -nq-   -std=c++17
-e19:s97:py2:prof   e19:prof   -nq-   -std=c++17
-e19:s106:debug     e19:debug  -nq-   -std=c++17
-e19:s106:prof      e19:prof   -nq-   -std=c++17
-e20:s106:debug     e20:debug  -nq-   -std=c++17
-e20:s106:prof      e20:prof   -nq-   -std=c++17
+e19:s110:debug     e19:debug  -nq-   -std=c++17
+e19:s110:prof      e19:prof   -nq-   -std=c++17
 e20:s110:debug     e20:debug  -nq-   -std=c++17
 e20:s110:prof      e20:prof   -nq-   -std=c++17
+e19:s112:debug     e19:debug  -nq-   -std=c++17
+e19:s112:prof      e19:prof   -nq-   -std=c++17
+e20:s112:debug     e20:debug  -nq-   -std=c++17
+e20:s112:prof      e20:prof   -nq-   -std=c++17
 end_qualifier_list
 
 
