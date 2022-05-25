@@ -14,7 +14,7 @@ set(CET_CETBUILDTOOLS_COMPAT TRUE)
 include(Compatibility)
 set(CET_WARN_DEPRECATED)
 
-project(wibtools VERSION 1.00.00)
+project(wibtools VERSION 1.01.00)
 
 set(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/Modules
@@ -75,7 +75,7 @@ cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
 find_ups_boost  ( v1_73_0 )
-find_ups_product( TRACE v3_17_03 )
+find_ups_product( TRACE v3_17_04 )
 find_ups_product( cetpkgsupport v1_14_01 )
 
 
