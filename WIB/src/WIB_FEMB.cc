@@ -205,6 +205,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   }
 
   // Setup ASICs
+  TLOG_INFO(identification) << "Just before setting up FEMBASICS" << TLOG_ENDL;
   SetupFEMBASICs(iFEMB, fe_config[0], fe_config[1], fe_config[2], fe_config[3], fe_config[4], fe_config[5], fe_config[6], fe_config[7], pls_mode, internal_daq_value); 
   TLOG_INFO(identification) << "FEMB " << int(iFEMB) << " Successful SPI config" << TLOG_ENDL;
 
@@ -347,6 +348,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
 
 
   //time stamp reset
+  TLOG_INFO(identification) << "Just before time stamp reset" << TLOG_ENDL;
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
  
@@ -826,7 +828,9 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
 
   for(unsigned iSPIWrite=0; iSPIWrite < 2; iSPIWrite++)
   {
+    //TLOG_INFO(identification) << "before iSPIWrite : " << iSPIWrite << TLOG_ENDL;
     WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 0 ); // Turn off STREAM_EN and ADC_DATA_EN
+    //TLOG_INFO(identification) << "after iSPIWrite : " << iSPIWrite << TLOG_ENDL;
     sleep(0.1);
   
     TLOG_INFO(identification) << "ASIC SPI Write Registers..." << TLOG_ENDL;
