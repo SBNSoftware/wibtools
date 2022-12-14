@@ -66,7 +66,9 @@ uint32_t AddressTable::ReadWithRetry(std::string registerName){
 }
 
 void AddressTable::Write(std::string registerName,uint32_t val){
+  const std::string identification = "AddressTable::Write";
   std::map<std::string,Item *>::iterator itNameItem = nameItemMap.find(registerName);
+  //TLOG_INFO(identification) << "REGISTER NAME : " << registerName << " REGISTER ADDRESS : " << itNameItem->second->address << TLOG_ENDL;
   if(itNameItem == nameItemMap.end()){
     WIBException::INVALID_NAME e;
     e.Append("Can't find item with name \"");
