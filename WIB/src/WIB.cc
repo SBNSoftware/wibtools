@@ -4,6 +4,7 @@
 #include <stdio.h> //snprintf
 #include <iostream>
 #include <fstream>
+#include <bitset>
 #include "trace.h"
 
 #define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
@@ -53,13 +54,24 @@ void WIB::configWIB(uint8_t clockSource){
   int crate = Read("CRATE_ADDR");
   int slot = Read("SLOT_ADDR");
   const std::string identification = "WIB::configWIB";
-  TLOG_INFO(identification) << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << " clockSource " << clockSource << TLOG_ENDL; 
+  //TLOG_INFO(identification) << "***** FW VERSION : " << fw_version << "  " << std::bitset<32>(fw_version).to_string() << " *******" << TLOG_ENDL;
+  //TLOG_INFO(identification) << "***** FW VERSION 1: " << fw_version << " FW VERSION 2: " << int(Read(0xFF)&0xFFFF) << TLOG_ENDL;
+  //TLOG_INFO(identification) << "***** CRATE ADDR. 1: " << crate << " CRATE ADDR. 2: " << int((Read(0xFF)&0xFF000000)>>24) << TLOG_ENDL;
+  //TLOG_INFO(identification) << "***** SLOT ADDR. 1: " << slot << " SLOT ADDR. 2: " << int((Read(0xFF)&0xFF0000)>>16) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Configure WIB in crate " << std::hex << crate << " slot " << std::hex << slot << " with fw version " << std::hex << fw_version << " clockSource " << int(clockSource) << TLOG_ENDL; 
 
   // setup
   UDP_enable(true); 
   Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
+  //Write(0x1F,Read(0x1F)|0xEFB);
+  //TLOG_INFO(identification) << "****** UDP FRAME SIZE 1 : " << int(Read("UDP_FRAME_SIZE")) << " UDP FRAME SIZE 2 : " << int(Read(0x1F)&0xFFF) << TLOG_ENDL;
   Write("UDP_SAMP_TO_SAVE",0x7F00);
+  //Write(0x10,Read(0x10)|0x7F00); // Wrong
+  //Write(0x10,(Read(0x10)&0xFFFF0000)|0x7F00); // Right
+  //TLOG_INFO(identification) << " UDP SAMPLE TO SAVE VALUE : " << int(Read("UDP_SAMP_TO_SAVE")) << TLOG_ENDL;
   Write("UDP_BURST_MODE",0); // normal UDP operation
+  //Write(0x0F,(Read(0x0F)&0xFFFFFFF0)|0x3);
+  //TLOG_INFO(identification) << " UDP_BURST_MODE : " << int(Read("UDP_BURST_MODE")) << TLOG_ENDL;
   UDP_enable(false); 
 
   // clock select
