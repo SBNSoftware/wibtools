@@ -828,24 +828,35 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
 
   for(unsigned iSPIWrite=0; iSPIWrite < 2; iSPIWrite++)
   {
-    //TLOG_INFO(identification) << "before iSPIWrite : " << iSPIWrite << TLOG_ENDL;
-    WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 0 ); // Turn off STREAM_EN and ADC_DATA_EN
-    //TLOG_INFO(identification) << "after iSPIWrite : " << iSPIWrite << TLOG_ENDL;
+    //TLOG_INFO(identification) << "Before PRBS_EN Register value : " << int(ReadFEMB(iFEMB,"PRBS_EN")) << " CNT_EN Register value : " << int(ReadFEMB(iFEMB,"CNT_EN")) << TLOG_ENDL; // check remaining two bits before writting to the desired address
+    
+    //WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 0 ); // Turn off STREAM_EN and ADC_DATA_EN (in the original code)
+    WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)&0xFFFFFFF6)); // solution to register not found issue
+    //TLOG_INFO(identification) << "STREAM_EN Register value : " << int(ReadFEMB(iFEMB,"STREAM_EN")) << " ADC_DATA_EN Register value : " << int(ReadFEMB(iFEMB,"ADC_DATA_EN")) << TLOG_ENDL; // Confirms two registers are properly written (code was run and tested)
+    
+    //TLOG_INFO(identification) << "After PRBS_EN Register value : " << int(ReadFEMB(iFEMB,"PRBS_EN")) << " CNT_EN Register value : " << int(ReadFEMB(iFEMB,"CNT_EN")) << TLOG_ENDL; // check remaining two bits after writting to the desired addresss
+    
     sleep(0.1);
   
     TLOG_INFO(identification) << "ASIC SPI Write Registers..." << TLOG_ENDL;
+    //TLOG_INFO(identification) << "Number of registers : " << nRegs << TLOG_ENDL;
     for (size_t iReg=0; iReg<nRegs; iReg++)
     {
         WriteFEMB(iFEMB,REG_SPI_BASE_WRITE+iReg,regs[iReg]);
+	//TLOG_INFO(identification) << "Address No. : " << iReg << " Address : " << std::hex << (REG_SPI_BASE_WRITE+iReg) << TLOG_ENDL;
         sleep(0.01);
     }
   
   
     //run the SPI programming
     sleep(0.1);
-    WriteFEMB(iFEMB, "WRITE_ASIC_SPI", 1);
+    
+    //WriteFEMB(iFEMB, "WRITE_ASIC_SPI", 1); (in the original code)
+    WriteFEMB(iFEMB,0x02,1);// solution to register not found issue
     sleep(0.1);
-    WriteFEMB(iFEMB, "WRITE_ASIC_SPI", 1);
+    
+    //WriteFEMB(iFEMB, "WRITE_ASIC_SPI", 1); (in the original code)
+    WriteFEMB(iFEMB,0x02,1);// solution to register not found issue
     sleep(0.1);
   
     if (iSPIWrite == 1)
@@ -904,12 +915,24 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
       } // if spi_mismatch
     } // if iSPIWrite == 1
     sleep(0.1);
-
-    WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
+    
+    //TLOG_INFO(identification) << "....... WE ARE HERE(START)......." << TLOG_ENDL;
+    
+    //WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
+    WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)|0x9));
     sleep(0.05);
-    WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
+    //WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
+    WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)|0x9));
+    
     sleep(0.1);
-  
+    
+    TLOG_INFO(identification) << "=== STREAM_EN : " << int(ReadFEMB(iFEMB,"STREAM_EN")) << TLOG_ENDL;
+    TLOG_INFO(identification) << "=== PRBS EN : " << int(ReadFEMB(iFEMB,"PRBS_EN")) << TLOG_ENDL;
+    TLOG_INFO(identification) << "=== CNT EN : " << int(ReadFEMB(iFEMB,"PRBS_EN")) << TLOG_ENDL;
+    TLOG_INFO(identification) << "=== ADC DATA EN : " << int(ReadFEMB(iFEMB,"ADC_DATA_EN")) << TLOG_ENDL;
+    
+    //TLOG_INFO(identification) << "....... WE ARE HERE(END)......." << TLOG_ENDL;
+    
     //adc_sync_status = (uint16_t) ReadFEMB(iFEMB, "ADC_ASIC_SYNC_STATUS");
 
     // The real sync check can happen here in Shanshan's code
