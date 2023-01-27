@@ -123,12 +123,14 @@ uint32_t WIBBase::ReadWithRetry(uint16_t address){
   return wib->ReadWithRetry(address);    
 }
 uint32_t WIBBase::Read(uint16_t address){
+  if(Replace_Read_ReadWithRetry) return wib->ReadWithRetry(address);
   return wib->Read(address);    
 }
 uint32_t WIBBase::ReadWithRetry(std::string const & address){
   return wib->ReadWithRetry(address);    
 }
 uint32_t WIBBase::Read(std::string const & address){
+  if(Replace_Read_ReadWithRetry) return wib->ReadWithRetry(address);
   return wib->Read(address);    
 }
 
@@ -136,7 +138,8 @@ void WIBBase::WriteWithRetry(uint16_t address,uint32_t value){
   wib->WriteWithRetry(address,value);    
 }
 void WIBBase::Write(uint16_t address,uint32_t value){
-  wib->Write(address,value);    
+  if(Replace_Write_WriteWithRetry) wib->WriteWithRetry(address,value);
+  else wib->Write(address,value);    
 }
 void WIBBase::WriteWithRetry(std::string const & address,uint32_t value)
 {
@@ -145,7 +148,8 @@ void WIBBase::WriteWithRetry(std::string const & address,uint32_t value)
   wib->WriteWithRetry(address,value);    
 }
 void WIBBase::Write(std::string const & address,uint32_t value){
-  wib->Write(address,value);    
+  if(Replace_Write_WriteWithRetry) wib->WriteWithRetry(address,value);
+  else wib->Write(address,value);    
 }
 void WIBBase::Write(uint16_t address,std::vector<uint32_t> const & values){
   wib->Write(address,values);    
@@ -167,6 +171,10 @@ uint32_t WIBBase::ReadFEMB(int iFEMB,uint16_t address){
     e.Append("In WIBBase::ReadFEMB\n");
     throw e;
   }
+  if(Replace_Read_ReadWithRetry){ 
+     return FEMB[iFEMB-1]->ReadWithRetry(address);
+     usleep((useconds_t) FEMBReadSleepTime * 1e6);
+  }
   return FEMB[iFEMB-1]->Read(address);    
   usleep((useconds_t) FEMBReadSleepTime * 1e6);
 }
@@ -175,6 +183,10 @@ uint32_t WIBBase::ReadFEMB(int iFEMB,std::string const & address){
     WIBException::WIB_INDEX_OUT_OF_RANGE e;
     e.Append("In WIBBase::ReadFEMB\n");
     throw e;
+  }
+  if(Replace_Read_ReadWithRetry){ 
+     return FEMB[iFEMB-1]->ReadWithRetry(address);
+     usleep((useconds_t) FEMBReadSleepTime * 1e6);
   }
   return FEMB[iFEMB-1]->Read(address);    
   usleep((useconds_t) FEMBReadSleepTime * 1e6);
@@ -186,8 +198,14 @@ void WIBBase::WriteFEMB(int iFEMB,uint16_t address,uint32_t value){
     e.Append("In WIBBase::WriteFEMB\n");
     throw e;
   }
-  FEMB[iFEMB-1]->WriteWithRetry(address,value);    
-  usleep((useconds_t) FEMBWriteSleepTime * 1e6);
+  if(Replace_Write_WriteWithRetry){ 
+     FEMB[iFEMB-1]->WriteWithRetry(address,value);
+     usleep((useconds_t) FEMBReadSleepTime * 1e6);
+  }
+  else{
+     FEMB[iFEMB-1]->Write(address,value);    
+     usleep((useconds_t) FEMBWriteSleepTime * 1e6);
+  }
 }
 void WIBBase::WriteFEMB(int iFEMB,std::string const & address,uint32_t value){
   const std::string identification = "WIBBase::WriteFEMB";
@@ -196,10 +214,19 @@ void WIBBase::WriteFEMB(int iFEMB,std::string const & address,uint32_t value){
     e.Append("In WIBBase::WriteFEMB\n");
     throw e;
   }
-  TLOG_INFO(identification)<<"WriteWithRetry: "<<iFEMB-1<<"  "<<address<<"  "<<value<< TLOG_ENDL;
-  FEMB[iFEMB-1]->WriteWithRetry(address,value);    
-  TLOG_INFO(identification)<<"Sleeping for "<<FEMBWriteSleepTime<<TLOG_ENDL;
-  usleep((useconds_t) FEMBWriteSleepTime * 1e6);
+  if(Replace_Write_WriteWithRetry){ 
+     TLOG_INFO(identification)<<"WriteWithRetry: "<<iFEMB-1<<"  "<<address<<"  "<<value<< TLOG_ENDL;
+     FEMB[iFEMB-1]->WriteWithRetry(address,value);    
+     TLOG_INFO(identification)<<"Sleeping for "<<FEMBWriteSleepTime<<TLOG_ENDL;
+     usleep((useconds_t) FEMBWriteSleepTime * 1e6);
+  }
+  
+  else{
+    TLOG_INFO(identification)<<"Write: "<<iFEMB-1<<"  "<<address<<"  "<<value<< TLOG_ENDL;
+    FEMB[iFEMB-1]->Write(address,value);    
+    TLOG_INFO(identification)<<"Sleeping for "<<FEMBWriteSleepTime<<TLOG_ENDL;
+    usleep((useconds_t) FEMBWriteSleepTime * 1e6);
+  }
 }
 
 void WIBBase::WriteFEMBBits(int iFEMB, uint16_t address, uint32_t pos, uint32_t mask, uint32_t value){
