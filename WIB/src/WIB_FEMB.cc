@@ -105,7 +105,10 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   // get this register so we can leave it in the state it started in
   //uint32_t slow_control_dnd = Read("SYSTEM.SLOW_CONTROL_DND");
   //Write("SYSTEM.SLOW_CONTROL_DND",1);
-
+  
+  TLOG_INFO(identification) << "FW VERSION " << ReadFEMB(iFEMB,"VERSION_ID") << TLOG_ENDL;
+  TLOG_INFO(identification) << "SYS_RESET " << ReadFEMB(iFEMB,"SYS_RESET") << TLOG_ENDL;
+  
   if(ReadFEMB(iFEMB,"VERSION_ID") == ReadFEMB(iFEMB,"SYS_RESET")) { // can't read register if equal
     if(ContinueOnFEMBRegReadError){
       TLOG_INFO(identification) << "Error: Can't read registers from FEMB " << int(iFEMB) << TLOG_ENDL;

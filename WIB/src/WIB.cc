@@ -62,24 +62,36 @@ void WIB::configWIB(uint8_t clockSource){
 
   // setup
   UDP_enable(true); 
+  TLOG_INFO(identification) << "UDP ENABLE VALUE (After enabling) : " << int(Read("UDP_DISABLE")) << TLOG_ENDL;
   Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
+  TLOG_INFO(identification) << "WRITE VALUE (UDP_FRAME_SIZE) : EFB" << TLOG_ENDL;
+  TLOG_INFO(identification) << "READ (UDP_FRAME_SIZE) : " << std::hex << int(Read("UDP_FRAME_SIZE")) << TLOG_ENDL;
   //Write(0x1F,Read(0x1F)|0xEFB);
   //TLOG_INFO(identification) << "****** UDP FRAME SIZE 1 : " << int(Read("UDP_FRAME_SIZE")) << " UDP FRAME SIZE 2 : " << int(Read(0x1F)&0xFFF) << TLOG_ENDL;
   Write("UDP_SAMP_TO_SAVE",0x7F00);
+  TLOG_INFO(identification) << "WRITE VALUE (UDP_SAMP_TO_SAVE) : 0x7F00" << TLOG_ENDL;
+  TLOG_INFO(identification) << "READ (UDP_SAMP_TO_SAVE) : " << std::hex << int(Read("UDP_SAMP_TO_SAVE")) << TLOG_ENDL;
   //Write(0x10,Read(0x10)|0x7F00); // Wrong
   //Write(0x10,(Read(0x10)&0xFFFF0000)|0x7F00); // Right
   //TLOG_INFO(identification) << " UDP SAMPLE TO SAVE VALUE : " << int(Read("UDP_SAMP_TO_SAVE")) << TLOG_ENDL;
   Write("UDP_BURST_MODE",0); // normal UDP operation
+  TLOG_INFO(identification) << "WRITE VALUE (UDP_BURST_MODE) : 0" << TLOG_ENDL;
+  TLOG_INFO(identification) << "READ (UDP_BURST_MODE) : " << std::hex << int(Read("UDP_BURST_MODE")) << TLOG_ENDL;
   //Write(0x0F,(Read(0x0F)&0xFFFFFFF0)|0x3);
   //TLOG_INFO(identification) << " UDP_BURST_MODE : " << int(Read("UDP_BURST_MODE")) << TLOG_ENDL;
   UDP_enable(false); 
-
+  TLOG_INFO(identification) << "UDP ENABLE VALUE (After disabling) : " << int(Read("UDP_DISABLE")) << TLOG_ENDL;
   // clock select
   if(clockSource == 0){
     TLOG_INFO(identification)  << "--> configuring Si5344 PLL...";
 
     ResetSi5344();
-
+    
+    //UDP_enable(true);// copied from BNL CE ce_runs.py (Varuna)
+    //Write(0x0A,0xFF0); // copied from BNL CE ce_runs.py (Varuna)
+    //Write(0x0A,0xFF0); // copied from BNL CE ce_runs.py (Varuna)
+    //usleep(10000); copied from BNL CE ce_runs.py (Varuna)
+    
     // check PLL status; if PLL is not already locked, 
     // then load from the configuration from a file
     bool lol_flag = PLL_check();
