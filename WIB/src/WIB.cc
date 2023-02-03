@@ -1,4 +1,5 @@
 #include <WIB.hh>
+#define TRACE_NAME "WIB"
 #include <WIBException.hh>
 #include <BNL_UDP_Exception.hh>
 #include <stdio.h> //snprintf
@@ -31,10 +32,11 @@ WIB::WIB(std::string const & address,
   wib->SetWriteAck(true);
   FullStart();
   const std::string identification = "WIB:WIB";
-  TLOG_INFO("WIB CONSTRUCTOR") << "Constructor for WIB class finished" << TLOG_ENDL; 
+  TLOG(TLVL_INFO) << "Constructor for WIB class finished"; 
 }
 
 WIB::~WIB(){
+  TLOG(TLVL_INFO) << "Destructor for WIB class finished"; 
 }
 
 void WIB::FullStart()

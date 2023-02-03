@@ -3,7 +3,8 @@
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
-
+#include <semaphore.h>
+#include <fcntl.h>
 //TCLAP parser
 #include <tclap/CmdLine.h>
 #include "tool/Launcher.hh"
@@ -12,6 +13,7 @@
 #include "tool/DeviceFactory.hh"
 
 #include <WIBException/ExceptionBase.hh>
+#include <WIB.hh>
 
 #include <readline/readline.h> //for rl_delete_text
 #include <signal.h> //signals                                                                                                                                                                                                 
@@ -129,6 +131,46 @@ int main(int argc, char* argv[])
   sigaction(SIGINT, &sa, NULL);
   sigaction(SIGALRM,&sa, NULL);
 
+  //Create semaphores
+  int sem_timeout_ms=10000;
+  std::cout << "Acquiring semaphores.\n";
+  sem_t *sem_wib_lck = sem_open(WIB::SEMNAME_WIBLCK, O_CREAT, 0666, 1);
+  sem_t *sem_wib_yld = sem_open(WIB::SEMNAME_WIBYLD, O_CREAT, 0666, 1);
+  if (sem_wib_lck == SEM_FAILED || sem_wib_yld == SEM_FAILED) {
+    std::cout << "Failed to create either " << WIB::SEMNAME_WIBLCK << " or " << WIB::SEMNAME_WIBYLD << ", exiting...\n";
+    sem_close(sem_wib_lck);
+    sem_close(sem_wib_yld);
+    sem_unlink(WIB::SEMNAME_WIBLCK);
+    sem_unlink(WIB::SEMNAME_WIBYLD);
+    return -1;
+  }
+
+  struct timespec timeout;
+  clock_gettime(CLOCK_REALTIME, &timeout);
+  timeout.tv_nsec += 500000;
+  if (sem_timedwait(sem_wib_yld, &timeout) != 0){
+    std::cout << "Failed to acquire " << WIB::SEMNAME_WIBYLD<< " semaphore, exiting...\n";
+    sem_close(sem_wib_lck);
+    sem_close(sem_wib_yld);
+    sem_unlink(WIB::SEMNAME_WIBLCK);
+    sem_unlink(WIB::SEMNAME_WIBYLD);
+    return -1;
+  }
+
+  clock_gettime(CLOCK_REALTIME, &timeout);
+  timeout.tv_sec += sem_timeout_ms / 1000;
+  timeout.tv_nsec += (sem_timeout_ms % 1000) * 1000000;  
+  if (sem_timedwait(sem_wib_lck, &timeout) != 0){
+    std::cout << "Failed to acquire " << WIB::SEMNAME_WIBLCK << " semaphore, exiting...\n";
+    sem_close(sem_wib_lck);
+    sem_close(sem_wib_yld);
+    sem_unlink(WIB::SEMNAME_WIBLCK);
+    sem_unlink(WIB::SEMNAME_WIBYLD);
+    return -1;
+  }
+  std::cout << "Acquired semaphores.\n";
+
+  {//CLI Scope
   //Create CLI
   CLI cli;
 
@@ -293,5 +335,12 @@ int main(int argc, char* argv[])
 	cli.ClearInput(); //Clear any scripted commands
       }
     }
+  }//CLI Scope
+
+  std::cout << "Releasing semaphores.\n";
+  sem_post(sem_wib_yld);
+  sem_post(sem_wib_lck);
+  sem_close(sem_wib_lck);
+  sem_close(sem_wib_yld);
   return 0;
 }

@@ -26,6 +26,7 @@ public:
 class AddressTable{
  public:
   AddressTable(std::string const & addressTableName, std::string const & deviceAddress,uint16_t offset, bool isMBB=false);
+  ~AddressTable();
   uint32_t Read(uint16_t);
   uint32_t Read(std::string registerName);
   uint32_t ReadWithRetry(uint16_t);

@@ -37,6 +37,7 @@ cet_make(
 	ToolException
 	WIBBase_version
 	-lreadline
+  -lpthread
   )
   
 cet_make_exec(WIBTool.exe
