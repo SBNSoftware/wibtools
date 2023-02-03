@@ -23,8 +23,9 @@ AddressTable::~AddressTable(){
   if(io!=nullptr) delete io;
 
   for (auto& [key, vec] : addressItemMap){
-     for (auto& item : vec) delete item;
+     for (auto& item : vec) {
+       delete item->sc_conv;
+       delete item;
+     }
   }
-
-//  for (auto& [key, item] : nameItemMap) delete item;
 }
