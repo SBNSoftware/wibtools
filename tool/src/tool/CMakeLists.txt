@@ -34,6 +34,7 @@ cet_make(
 	LIBRARY_NAME
 	WIBTool
   LIBRARIES
+  WIB
 	ToolException
 	WIBBase_version
 	-lreadline

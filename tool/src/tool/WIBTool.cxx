@@ -140,6 +140,7 @@ int main(int argc, char* argv[])
     std::cout << "Failed to create either " << WIB::SEMNAME_WIBLCK << " or " << WIB::SEMNAME_WIBYLD << ", exiting...\n";
     sem_close(sem_wib_lck);
     sem_close(sem_wib_yld);
+    WIB::PrintInstructions();
     return -1;
   }
 
@@ -150,6 +151,7 @@ int main(int argc, char* argv[])
     std::cout << "Failed to acquire " << WIB::SEMNAME_WIBYLD<< " semaphore, exiting...\n";
     sem_close(sem_wib_lck);
     sem_close(sem_wib_yld);
+    WIB::PrintInstructions();
     return -1;
   }
 
@@ -162,6 +164,7 @@ int main(int argc, char* argv[])
     sem_post(sem_wib_yld);
     sem_close(sem_wib_lck);
     sem_close(sem_wib_yld);
+    WIB::PrintInstructions();
     return -1;
   }
   std::cout << "Acquired semaphores.\n";

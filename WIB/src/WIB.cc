@@ -793,3 +793,11 @@ void WIB::SourceFEMB(uint64_t iFEMB, uint64_t real){
   address.append(".DAQ.FAKE_CD.FAKE_SOURCE");
   Write(address,real); 
 }
+
+void WIB::PrintInstructions(){
+  std::cerr << "The operation was unsuccessful. Please try the following steps to \
+resolve the issue. Terminate any running instances of the FEMBreceiver (femb), \
+WIBTool.exe, or WIBBoardReader processes. Then, delete the semaphores /dev/shm/sem.WIB_LCK \
+and /dev/shm/sem.WIB_YLD. If you intend to run both FEMBreceiver and WIBTool.exe or \
+WIBBoardReader, start with FEMBreceiver first.\n";
+}
