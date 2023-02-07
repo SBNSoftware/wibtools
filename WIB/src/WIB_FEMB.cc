@@ -140,19 +140,23 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
   TLOG_INFO(identification) << "here" << TLOG_ENDL;
+  
+  // This section was commented in the original wibtools packaged
+  // Uncommented that to be compatible with the femb_config.py in the BNL CE code
+  // Corresponding line numbers in the femb_config.py program are 380 - 385
 
   // These are all Jack's WIB addresses, need to figure out Dan's addresses for functionality
   ////Sync Time stamp /WIB
-  //Write(1, 0);
-  //Write(1, 0);
-  //Write(1, 2);
-  //Write(1, 2);
-  //Write(1, 0);
-  //Write(1, 0);
+  Write(1, 0);
+  Write(1, 0);
+  Write(1, 2);
+  Write(1, 2);
+  Write(1, 0);
+  Write(1, 0);
   //
   ////Reset Error /WIB
-  //Write(18, 0x8000);
-  //Write(18, 0x8000);
+  Write(18, 0x8000);
+  Write(18, 0x8000);
 
   //Reset SPI
   //
