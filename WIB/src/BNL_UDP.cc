@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <errno.h>
 #include <netdb.h>
-
+#include <unistd.h>
 #include <errno.h>
 #include <algorithm> //STD::COUNT
 #include "trace.h"
@@ -145,6 +145,43 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
   ret->si_lenw = sizeof(ret->si_write);
     
   return ret;
+}
+
+
+bool BNL_UDP::gige_reg_close(gige_reg_t* gige_reg){
+  const std::string identification = "BNL_UDP::gige_reg_close";
+
+  if(!gige_reg) {
+    TLOG_ERROR(identification)<< "gige_reg is a nullptr";
+
+    return false;
+  }
+
+  int error_count=0;
+
+  if (close(gige_reg->sock_recv) == -1) {
+    printf("Failed to close recv socket call %s!\n", strerror(errno));
+    perror(__func__);
+    error_count++;
+  }
+
+  if (close(gige_reg->sock_read) == -1) {
+    printf("Failed to close read socket call %s!\n", strerror(errno));
+    perror(__func__);
+    error_count++;
+  }
+
+  if (close(gige_reg->sock_write) == -1) {
+    printf("Failed to close write socket call %s!\n", strerror(errno));
+    perror(__func__);
+    error_count++;
+  }
+
+  if (error_count > 0) return false;
+
+  free(gige_reg);
+
+  return true;
 }
 
 
@@ -330,11 +367,26 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
       throw e;
     }
   }
+  freeaddrinfo(res);
 
   reg = gige_reg_init(address.c_str(), NULL );
 
   //Allocate the receive buffer to default size
   ResizeBuffer();
+}
+
+void BNL_UDP::Disconnect()
+{
+  const std::string identification = "BNL_UDP::Disconnect";
+
+  if (!gige_reg_close(reg)){
+    TLOG_ERROR(identification)<<"BNLUDP Failed closing connections.";
+    return;
+  }
+
+  reg=nullptr;
+
+  TLOG_INFO(identification)<<"BNLUDP Closed connections.";
 }
 
 void BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint8_t retry_count)
@@ -569,6 +621,9 @@ uint32_t BNL_UDP::Read(uint16_t address)
 BNL_UDP::~BNL_UDP()
 {
   Clear();
+  Disconnect();
+
+  if(buffer != NULL) delete [] buffer;
 }
 
 
