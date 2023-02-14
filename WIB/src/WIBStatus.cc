@@ -16,10 +16,10 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
   const Item *g = wib->GetItem("PWR_EN_BRD"+std::to_string(FEMB));
 
   // reset register
-  wib->Write(0x05,0x0);
+  wib->WriteWithRetry(0x05,0x0);
 
   // check if board is on
-  if( (g->mask & wib->Read(g->address))==g->mask ) FEMB_PWR[iFEMB]=1;
+  if( (g->mask & wib->ReadWithRetry(g->address))==g->mask ) FEMB_PWR[iFEMB]=1;
  
   std::string pwrMesSel("PWR_MES_SEL");
   std::string pwrMesSelBrd = pwrMesSel; 
@@ -27,7 +27,7 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
   pwrMesSelBrd.append(1,'0'+FEMB);
 
   // get temp and Vcc
-  wib->Write(pwrMesSel,wib->GetItem(pwrMesSelBrd+"_VCC_TEMP")->mask);
+  wib->WriteWithRetry(pwrMesSel,wib->GetItem(pwrMesSelBrd+"_VCC_TEMP")->mask);
 
   /* 
   std::cout
@@ -39,8 +39,8 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
   */
 
   //uint32_t upperBits = ConvertSignedInt(wib->Read("PWR_MES_OUT_V"));
-  uint32_t upperBits = (wib->Read("PWR_MES_OUT_V"));
-  uint32_t lowerBits = ConvertSignedInt(wib->Read("PWR_MES_OUT_C_TEMP"));
+  uint32_t upperBits = (wib->ReadWithRetry("PWR_MES_OUT_V"));
+  uint32_t lowerBits = ConvertSignedInt(wib->ReadWithRetry("PWR_MES_OUT_C_TEMP"));
   FEMB_VCC[iFEMB]  = double(upperBits) * 305.18e-6 + 2.5;
   FEMB_TEMP[iFEMB] = double(lowerBits) * 0.0625;
   
@@ -49,10 +49,10 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
     FEMB_V[iFEMB][i]=0;
     FEMB_C[iFEMB][i]=0;
     uint8_t iv = i+1;
-    wib       ->Write(pwrMesSel,wib->GetItem(pwrMesSelBrd+"_"+std::to_string(iv))->mask);
+    wib->WriteWithRetry(pwrMesSel,wib->GetItem(pwrMesSelBrd+"_"+std::to_string(iv))->mask);
     //upperBits = ConvertSignedInt(wib->Read("PWR_MES_OUT_V"));
-    upperBits = (wib->Read("PWR_MES_OUT_V"));
-    lowerBits = ConvertSignedInt(wib->Read("PWR_MES_OUT_C_TEMP"));
+    upperBits = (wib->ReadWithRetry("PWR_MES_OUT_V"));
+    lowerBits = ConvertSignedInt(wib->ReadWithRetry("PWR_MES_OUT_C_TEMP"));
 
     /*
     if( FEMB == 1 || FEMB == 2 || FEMB == 4 ) {
@@ -75,7 +75,7 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
   }
 
   // Get 4 link statuses for this board (2bits per link)
-  uint32_t linkStatBits = wib->Read("LINK_SYNC_STATUS_BRD"+std::to_string(FEMB));
+  uint32_t linkStatBits = wib->ReadWithRetry("LINK_SYNC_STATUS_BRD"+std::to_string(FEMB));
   for(int i=0; i<4; i++) LINK_STATUS[iFEMB][i] = 0;
   if( (0x3  & linkStatBits) != 0x0 ) LINK_STATUS[iFEMB][0] = 1;     
   if( (0xC  & linkStatBits) != 0x0 ) LINK_STATUS[iFEMB][1] = 1;     
@@ -83,7 +83,7 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
   if( (0xC0 & linkStatBits) != 0x0 ) LINK_STATUS[iFEMB][3] = 1;     
 
   // Get 4 equalizer statuses (1 bit per link)
-  uint32_t eqStatBits = wib->Read("EQ_LOS_BRD"+std::to_string(FEMB)+"_RX");
+  uint32_t eqStatBits = wib->ReadWithRetry("EQ_LOS_BRD"+std::to_string(FEMB)+"_RX");
   for(int i=0; i<4; i++) EQUALIZER_STATUS[iFEMB][i] = 0;
   if( (0x1  & eqStatBits) != 0x0 ) EQUALIZER_STATUS[iFEMB][0] = 1;     
   if( (0x2  & eqStatBits) != 0x0 ) EQUALIZER_STATUS[iFEMB][1] = 1;     
@@ -92,13 +92,13 @@ void WIBTool::WIBStatus::ProcessFEMB(uint8_t FEMB){
 
   // Get checksum error, timestamp, timestmap error, frame error
   // (these all require using 0x12 to set the FEMB and the link)
-  wib->Write("FEMB_STAT_SEL",uint32_t(iFEMB));
+  wib->WriteWithRetry("FEMB_STAT_SEL",uint32_t(iFEMB));
   for(int i=0; i<4; i++){
-    wib->Write("LINK_STAT_SEL",uint32_t(i));
-    CHKSUM_ERROR_COUNT[iFEMB][i]  = wib->Read("CHKSUM_ERROR");
-    TIME_STAMP[iFEMB][i]          = wib->Read("TIME_STAMP");
-    TS_ERROR_COUNT[iFEMB][i]      = wib->Read("TS_ERROR"); 
-    FRAME_ERROR_COUNT[iFEMB][i]   = wib->Read("FRAME_ERROR"); 
+    wib->WriteWithRetry("LINK_STAT_SEL",uint32_t(i));
+    CHKSUM_ERROR_COUNT[iFEMB][i]  = wib->ReadWithRetry("CHKSUM_ERROR");
+    TIME_STAMP[iFEMB][i]          = wib->ReadWithRetry("TIME_STAMP");
+    TS_ERROR_COUNT[iFEMB][i]      = wib->ReadWithRetry("TS_ERROR"); 
+    FRAME_ERROR_COUNT[iFEMB][i]   = wib->ReadWithRetry("FRAME_ERROR"); 
   }
 
 
@@ -136,10 +136,10 @@ void WIBTool::WIBStatus::ProcessWIB(){
   std::string pwrMesSel("PWR_MES_SEL");
   
   // Vcc and temp
-  wib->Write(pwrMesSel,wib->GetItem(pwrMesSel+"_WIB_VCC_TEMP")->mask);
+  wib->WriteWithRetry(pwrMesSel,wib->GetItem(pwrMesSel+"_WIB_VCC_TEMP")->mask);
   
-  uint32_t upperBits = (wib->Read("PWR_MES_OUT_V"));
-  uint32_t lowerBits = ConvertSignedInt(wib->Read("PWR_MES_OUT_C_TEMP"));
+  uint32_t upperBits = (wib->ReadWithRetry("PWR_MES_OUT_V"));
+  uint32_t lowerBits = ConvertSignedInt(wib->ReadWithRetry("PWR_MES_OUT_C_TEMP"));
   WIB_VCC  = double(upperBits) * 305.18e-6 + 2.5;
   WIB_TEMP = double(lowerBits) * 0.0625;
   
@@ -148,9 +148,9 @@ void WIBTool::WIBStatus::ProcessWIB(){
     WIB_V[i]=0;
     WIB_C[i]=0;
     uint8_t iv = i+1;
-    wib       ->Write(pwrMesSel,wib->GetItem((pwrMesSel+"_WIB_"+std::to_string(iv)).c_str())->mask);
-    upperBits = (wib->Read("PWR_MES_OUT_V"));
-    lowerBits = ConvertSignedInt(wib->Read("PWR_MES_OUT_C_TEMP"));
+    wib->WriteWithRetry(pwrMesSel,wib->GetItem((pwrMesSel+"_WIB_"+std::to_string(iv)).c_str())->mask);
+    upperBits = (wib->ReadWithRetry("PWR_MES_OUT_V"));
+    lowerBits = ConvertSignedInt(wib->ReadWithRetry("PWR_MES_OUT_C_TEMP"));
     WIB_V[i]              = double(upperBits) * 3.0518/10. * 1e-3; // convert mV to V
     if( iv==3 ) WIB_C[i]  = double(lowerBits) * 1.9075 * 1e-3; // convert mA -> A
     else        WIB_C[i]  = double(lowerBits) * 190.75 * 1e-6; // convert uA --> A
@@ -166,11 +166,11 @@ void WIBTool::WIBStatus::ProcessWIB(){
   //    b2-3 ("FEMB_INT_CLK_SEL") 
   //      = 00 or 01 --> select SBND_CLK from SI5344
   //      = 10 --> select CLK_100MHz from PLL driven by onboard 50MHz osc 
-  FEMB_CLK      = wib->Read("FEMB_CLK_SEL");
-  FEMB_CMD      = wib->Read("FEMB_CMD_SEL");
-  FEMB_INT_CLK  = wib->Read("FEMB_INT_CLK_SEL");
-  PLL_CLK_LOL   = wib->Read("SI5344_LOL");
-  PLL_CLK_LOS   = wib->Read("SI5344_LOSXAXB");
+  FEMB_CLK      = wib->ReadWithRetry("FEMB_CLK_SEL");
+  FEMB_CMD      = wib->ReadWithRetry("FEMB_CMD_SEL");
+  FEMB_INT_CLK  = wib->ReadWithRetry("FEMB_INT_CLK_SEL");
+  PLL_CLK_LOL   = wib->ReadWithRetry("SI5344_LOL");
+  PLL_CLK_LOS   = wib->ReadWithRetry("SI5344_LOSXAXB");
   
 }
 
@@ -198,11 +198,11 @@ void WIBTool::WIBStatus::Process(std::string const & option){
 
 void WIBTool::WIBStatus::StartPowerMes(){
   // disable filter
-  wib->Write("FILTER_EN",0x0);
+  wib->WriteWithRetry("FILTER_EN",0x0);
   // repeatedly toggle bit 16 to enable LTC2991 CMS conversion
   for(int i=0; i<100; i++){
-    wib->Write("PWR_MES_START",0x0);
-    wib->Write("PWR_MES_START",0x1); 
+    wib->WriteWithRetry("PWR_MES_START",0x0);
+    wib->WriteWithRetry("PWR_MES_START",0x1); 
   }
   usleep(5000); // sleep for 5ms
 }
