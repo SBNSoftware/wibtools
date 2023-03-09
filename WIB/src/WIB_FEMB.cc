@@ -185,6 +185,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   uint8_t internal_daq_value = 0;
   if (pls_mode == 1) // internal, FE ASIC, 6 bits
   {
+    TLOG_INFO(identification) << "************ USING INTERNAL PULSAR FOR CALIBRATION *****************" << TLOG_ENDL;
     if (pls_dac_val >= 63)
     {
       WIBException::WIB_BAD_ARGS e;
@@ -199,6 +200,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   }
   else if (pls_mode == 2) // external, FPGA, 6 bits
   {
+    TLOG_INFO(identification) << "************ USING EXTERNAL PULSAR FOR CALIBRATION *****************" << TLOG_ENDL;
     if (pls_dac_val >= 63)
     {
       WIBException::WIB_BAD_ARGS e;
@@ -210,7 +212,81 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
     }
     SetupFPGAPulser(iFEMB,pls_dac_val);
   }
-
+  
+  
+  // Default test data pattern inserted is 0x123 (Accoding to Jack's document)
+  // Test done using test stand at D0 shows default register value is 0
+  // So This register is set to default setting here
+  
+  WriteFEMB(iFEMB, "DATA_TEST_PATTERN",0x123);
+  
+  /*
+  TLOG_INFO(identification) << "DATA TEST PATTERN : " << std::hex << ReadFEMB(iFEMB,"DATA_TEST_PATTERN") << std::dec << TLOG_ENDL;
+  */
+  
+  // COTS phase setting
+  // Default settings of phase selections for  FPGA is 0x00000000
+  // Probably there is no need of this section if we are using the default setting
+  
+  /*WriteFEMB(iFEMB, "ADC_PHASE_FE1", 0x00000000);
+  WriteFEMB(iFEMB, "ADC_PHASE_FE2", 0x00000000);
+  WriteFEMB(iFEMB, "ADC_PHASE_FE3", 0x00000000);
+  WriteFEMB(iFEMB, "ADC_PHASE_FE4", 0x00000000);
+  WriteFEMB(iFEMB, "ADC_PHASE_FE5", 0x00000000);
+  WriteFEMB(iFEMB, "ADC_PHASE_FE6", 0x00000000);
+  WriteFEMB(iFEMB, "ADC_PHASE_FE7", 0x00000000);
+  WriteFEMB(iFEMB, "ADC_PHASE_FE8", 0x00000000);*/
+  
+  /*
+  TLOG_INFO(identification) << "ADC phase FE1 : " << ReadFEMB(iFEMB, "ADC_PHASE_FE1") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC phase FE2 : " << ReadFEMB(iFEMB, "ADC_PHASE_FE2") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC phase FE3 : " << ReadFEMB(iFEMB, "ADC_PHASE_FE3") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC phase FE4 : " << ReadFEMB(iFEMB, "ADC_PHASE_FE4") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC phase FE5 : " << ReadFEMB(iFEMB, "ADC_PHASE_FE5") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC phase FE6 : " << ReadFEMB(iFEMB, "ADC_PHASE_FE6") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC phase FE7 : " << ReadFEMB(iFEMB, "ADC_PHASE_FE7") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC phase FE8 : " << ReadFEMB(iFEMB, "ADC_PHASE_FE8") << TLOG_ENDL;
+  */
+  
+  // COTS shift setting
+  // Default settings for bit shifts for ADC data of FE is 0x00000000
+  // Probably there is no need of this section if we are using the default setting
+  // Other possible register settings are 0xAAAAAAAA,0x55555555,0xFFFFFFFF (using information in femb_config.py in BNL CE code)
+  
+  /*WriteFEMB(iFEMB, "ADC_DLY_FE1",0x00000000);
+  WriteFEMB(iFEMB, "ADC_DLY_FE2",0x00000000);
+  WriteFEMB(iFEMB, "ADC_DLY_FE3",0x00000000);
+  WriteFEMB(iFEMB, "ADC_DLY_FE4",0x00000000);
+  WriteFEMB(iFEMB, "ADC_DLY_FE5",0x00000000);
+  WriteFEMB(iFEMB, "ADC_DLY_FE6",0x00000000);
+  WriteFEMB(iFEMB, "ADC_DLY_FE7",0x00000000);
+  WriteFEMB(iFEMB, "ADC_DLY_FE8",0x00000000);*/
+  
+  /*
+  TLOG_INFO(identification) << "ADC DLY FE1 : " << ReadFEMB(iFEMB, "ADC_DLY_FE1") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC DLY FE2 : " << ReadFEMB(iFEMB, "ADC_DLY_FE2") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC DLY FE3 : " << ReadFEMB(iFEMB, "ADC_DLY_FE3") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC DLY FE4 : " << ReadFEMB(iFEMB, "ADC_DLY_FE4") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC DLY FE5 : " << ReadFEMB(iFEMB, "ADC_DLY_FE5") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC DLY FE6 : " << ReadFEMB(iFEMB, "ADC_DLY_FE6") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC DLY FE7 : " << ReadFEMB(iFEMB, "ADC_DLY_FE7") << TLOG_ENDL;
+  TLOG_INFO(identification) << "ADC DLY FE8 : " << ReadFEMB(iFEMB, "ADC_DLY_FE8") << TLOG_ENDL;
+  */
+  
+  // default value is 0
+  WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
+  WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
+  
+  // default value is 1
+  WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
+  WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
+  
+  /*
+  TLOG_INFO(identification) << "Value of ADC_DISABLE_REG : " << ReadFEMB(iFEMB, "ADC_DISABLE_REG") << TLOG_ENDL;
+  TLOG_INFO(identification) << "Value of FEMB_SYSTEM_CLOCK_SWITCH : " << ReadFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH") << TLOG_ENDL;
+  */
+  
+  
   // Setup ASICs
   TLOG_INFO(identification) << "Just before setting up FEMBASICS" << TLOG_ENDL;
   SetupFEMBASICs(iFEMB, fe_config[0], fe_config[1], fe_config[2], fe_config[3], fe_config[4], fe_config[5], fe_config[6], fe_config[7], pls_mode, internal_daq_value); 
@@ -374,7 +450,8 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
 
   //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
   
-  TLOG_INFO(identification) << "Configured the wib successfully" << TLOG_ENDL;
+  //TLOG_INFO(identification) << "Configured the wib successfully" << TLOG_ENDL;
+  TLOG_INFO(identification) << "Configured the FEMB successfully" << TLOG_ENDL;
 }
 
 /** \brief Setup FEMB in fake data mode
@@ -838,7 +915,8 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
     //TLOG_INFO(identification) << "Before PRBS_EN Register value : " << int(ReadFEMB(iFEMB,"PRBS_EN")) << " CNT_EN Register value : " << int(ReadFEMB(iFEMB,"CNT_EN")) << TLOG_ENDL; // check remaining two bits before writting to the desired address
     
     //WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 0 ); // Turn off STREAM_EN and ADC_DATA_EN (in the original code)
-    WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)&0xFFFFFFF6)); // solution to register not found issue
+    //WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)&0xFFFFFFF6)); // solution to register not found issue
+    WriteFEMB(iFEMB,0x09,0); // Copied from BNL_CE code
     //TLOG_INFO(identification) << "STREAM_EN Register value : " << int(ReadFEMB(iFEMB,"STREAM_EN")) << " ADC_DATA_EN Register value : " << int(ReadFEMB(iFEMB,"ADC_DATA_EN")) << TLOG_ENDL; // Confirms two registers are properly written (code was run and tested)
     
     //TLOG_INFO(identification) << "After PRBS_EN Register value : " << int(ReadFEMB(iFEMB,"PRBS_EN")) << " CNT_EN Register value : " << int(ReadFEMB(iFEMB,"CNT_EN")) << TLOG_ENDL; // check remaining two bits after writting to the desired addresss
@@ -846,11 +924,13 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
     sleep(0.1);
   
     TLOG_INFO(identification) << "ASIC SPI Write Registers..." << TLOG_ENDL;
-    //TLOG_INFO(identification) << "Number of registers : " << nRegs << TLOG_ENDL;
+    TLOG_INFO(identification) << "======== Number of registers : " << nRegs << TLOG_ENDL;
     for (size_t iReg=0; iReg<nRegs; iReg++)
     {
         WriteFEMB(iFEMB,REG_SPI_BASE_WRITE+iReg,regs[iReg]);
 	//TLOG_INFO(identification) << "Address No. : " << iReg << " Address : " << std::hex << (REG_SPI_BASE_WRITE+iReg) << TLOG_ENDL;
+	//if(iReg>69) TLOG_INFO(identification) << "============ Register number " << iReg << " Register value : " << regs[iReg] << TLOG_ENDL;
+	//TLOG_INFO(identification) << "Written register value : " << regs[iReg] << TLOG_ENDL;
         sleep(0.01);
     }
   
@@ -905,6 +985,10 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
         } // for iReg
         if (!spi_mismatch) break;
       } // for iSPIRead
+      
+      //TLOG_INFO(identification) << "spi_mismatch value :  " << spi_mismatch << TLOG_ENDL;
+      //TLOG_INFO(identification) << "ContinueOnFEMBSPIError value :  " << ContinueOnFEMBSPIError << TLOG_ENDL;
+      
       if(spi_mismatch)
       {
         if(ContinueOnFEMBSPIError)
@@ -926,12 +1010,25 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
     //TLOG_INFO(identification) << "....... WE ARE HERE(START)......." << TLOG_ENDL;
     
     //WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
-    WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)|0x9));
+    //WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)|0x9));
+    WriteFEMB(iFEMB,0x09,9);
     sleep(0.05);
     //WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
-    WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)|0x9));
+    //WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)|0x9));
+    WriteFEMB(iFEMB,0x09,9);
     
     sleep(0.1);
+    
+    ////// Following section is included by looking into BNL CE program (femb_config.py line 462-467)
+    
+    Write(20,3);
+    Write(20,3);
+    sleep(0.001);
+    Write(20,0);
+    Write(20,0);
+    sleep(0.001);
+    
+    /////////////////////////////////////
     
     TLOG_INFO(identification) << "=== STREAM_EN : " << int(ReadFEMB(iFEMB,"STREAM_EN")) << TLOG_ENDL;
     TLOG_INFO(identification) << "=== PRBS EN : " << int(ReadFEMB(iFEMB,"PRBS_EN")) << TLOG_ENDL;
