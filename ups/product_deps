@@ -22,7 +22,7 @@ product         version         optional
 boost           v1_75_0         s112
 boost           v1_75_0         s117
 TRACE           v3_17_09        -       only_for_build
-cetmodules      v3_19_02        -       only_for_build
+cetmodules      v3_21_01        -       only_for_build
 end_product_list
 
 
