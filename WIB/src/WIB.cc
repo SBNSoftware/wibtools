@@ -1,4 +1,5 @@
 #include <WIB.hh>
+#define TRACE_NAME "WIB"
 #include <WIBException.hh>
 #include <BNL_UDP_Exception.hh>
 #include <stdio.h> //snprintf
@@ -31,10 +32,11 @@ WIB::WIB(std::string const & address,
   wib->SetWriteAck(true);
   FullStart();
   const std::string identification = "WIB:WIB";
-  TLOG_INFO("WIB CONSTRUCTOR") << "Constructor for WIB class finished" << TLOG_ENDL; 
+  TLOG(TLVL_INFO) << "Constructor for WIB class finished"; 
 }
 
 WIB::~WIB(){
+  TLOG(TLVL_INFO) << "Destructor for WIB class finished"; 
 }
 
 void WIB::FullStart()
@@ -790,4 +792,12 @@ void WIB::SourceFEMB(uint64_t iFEMB, uint64_t real){
   address.push_back(GetFEMBChar(iFEMB));
   address.append(".DAQ.FAKE_CD.FAKE_SOURCE");
   Write(address,real); 
+}
+
+void WIB::PrintInstructions(){
+  std::cerr << "The operation was unsuccessful. Please try the following steps to \
+resolve the issue. Terminate any running instances of the FEMBreceiver (femb), \
+WIBTool.exe, or WIBBoardReader processes. Then, delete the semaphores /dev/shm/sem.WIB_LCK \
+and /dev/shm/sem.WIB_YLD. If you intend to run both FEMBreceiver and WIBTool.exe or \
+WIBBoardReader, start with FEMBreceiver first.\n";
 }

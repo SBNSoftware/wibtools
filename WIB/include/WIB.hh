@@ -25,9 +25,12 @@ struct data_8b10b_t{
 
 class WIB: public WIBBase {
  public:
+  static constexpr const char* SEMNAME_WIBLCK = "/WIB_LCK";
+  static constexpr const char* SEMNAME_WIBYLD = "/WIB_YLD";
   WIB(std::string const & address, std::string const & WIBAddressTable = "WIB.adt", std::string const & FEMBAddressTable = "FEMB.adt", bool fullStart=true);
-  ~WIB();  
+  virtual ~WIB();  
   
+  static void PrintInstructions();
   //To be used only within the DIM server, if the WIB is initially down
   void FullStart();
   bool started;
