@@ -1,4 +1,5 @@
 #include <WIBBase.hh>
+#define TRACE_NAME "WIBBase"
 #include <WIBException.hh>
 #include <BNL_UDP_Exception.hh>
 #include <iostream>
@@ -21,6 +22,7 @@ WIBBase::WIBBase(std::string const & address,
   for(size_t iFEMB = 0; iFEMB < FEMB_COUNT;iFEMB++){
     FEMB[iFEMB] = new AddressTable(FEMBAddressTable,address,iFEMB+1);
   }
+  TLOG(TLVL_INFO) << "Constructor for WIBBase class finished"; 
 }
 
 WIBBase::~WIBBase(){
@@ -34,6 +36,7 @@ WIBBase::~WIBBase(){
       FEMB[iFEMB] = NULL;
     }
   }
+  TLOG(TLVL_INFO) << "Destructor for WIBBase class finished"; 
 }
 
 

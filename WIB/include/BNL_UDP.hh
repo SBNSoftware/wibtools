@@ -73,6 +73,7 @@ public:
   uint64_t GetRetryCount(){return total_retry_count;};
 
   gige_reg_t* gige_reg_init(const char *IP_address, char *iface);
+  bool gige_reg_close(gige_reg_t* gige_reg);
 
 private:  
   // Prevent copying of BNL_UDP objects
@@ -85,6 +86,7 @@ private:
   void Clear();
   void Reset();
   void ResizeBuffer(size_t size  = WIB_RESPONSE_PACKET_BUFFER_SIZE);
+  void Disconnect();
   
   bool writeAck;
   bool isMBB;

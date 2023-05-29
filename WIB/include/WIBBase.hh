@@ -11,7 +11,7 @@
 class WIBBase {
 public:
   WIBBase(std::string const & address, std::string const & WIBAddressTable, std::string const & FEMBAddressTable);
-  ~WIBBase();
+  virtual ~WIBBase();
 
   std::string GetAddress();
 
