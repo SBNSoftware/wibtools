@@ -187,6 +187,7 @@ class WIB: public WIBBase {
 
   void SetupFPGAPulser(uint8_t iFEMB, uint8_t dac_val);
   void SetupInternalPulser(uint8_t iFEMB);
+  /*void SetupInternalPulser(uint8_t iFEMB, uint8_t dac_val);*/
   uint16_t SetupASICPulserBits(uint8_t iFEMB);
 
   /** \brief Setup FEMB ASICs

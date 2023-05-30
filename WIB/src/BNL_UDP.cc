@@ -411,6 +411,7 @@ void BNL_UDP::Disconnect()
   TLOG_INFO(identification)<<"BNLUDP Closed connections.";
 }
 
+
 uint32_t BNL_UDP::WriteWithRetry(uint16_t address, uint32_t value, uint16_t retry_count)
 {
   //std::cout<<"BNL_UDP WriteWithRetry "<<address<<" "<<value<<"  "<<retry_count<<"\n";
