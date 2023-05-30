@@ -71,6 +71,8 @@ public:
 
   AddressTable * wib;
   AddressTable * FEMB[FEMB_COUNT];
+  bool Replace_Write_WriteWithRetry = true;
+  bool Replace_Read_ReadWithRetry = true;
 private:  
   WIBBase(); //disallow the default constructor
   // Prevent copying of WIB objects

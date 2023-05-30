@@ -186,7 +186,8 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   if (pls_mode == 1) // internal, FE ASIC, 6 bits
   {
     TLOG_INFO(identification) << "************ USING INTERNAL PULSAR FOR CALIBRATION *****************" << TLOG_ENDL;
-    if (pls_dac_val >= 63)
+    //if (pls_dac_val >= 63)
+    if (pls_dac_val > 63)
     {
       WIBException::WIB_BAD_ARGS e;
       std::stringstream expstr;
@@ -201,7 +202,8 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   else if (pls_mode == 2) // external, FPGA, 6 bits
   {
     TLOG_INFO(identification) << "************ USING EXTERNAL PULSAR FOR CALIBRATION *****************" << TLOG_ENDL;
-    if (pls_dac_val >= 63)
+    //if (pls_dac_val >= 63)
+    if (pls_dac_val > 63)
     {
       WIBException::WIB_BAD_ARGS e;
       std::stringstream expstr;
@@ -210,6 +212,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
       e.Append(expstr.str().c_str());
       throw e;
     }
+    /*internal_daq_value = pls_dac_val;*/ // Is this needed
     SetupFPGAPulser(iFEMB,pls_dac_val);
   }
   
@@ -274,12 +277,12 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   */
   
   // default value is 0
-  WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
-  WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
+  /*WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
+  WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);*/
   
   // default value is 1
-  WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
-  WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
+  /*WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
+  WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);*/
   
   /*
   TLOG_INFO(identification) << "Value of ADC_DISABLE_REG : " << ReadFEMB(iFEMB, "ADC_DISABLE_REG") << TLOG_ENDL;
@@ -429,7 +432,28 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
       WriteFEMB(iFEMB, 36, fe8_pha_CT);
     }
 
-
+  // This section wasn't in the original wibtools package
+  // included by looking into the BNL CE code
+  // See line 401 in config_femb.py function
+  // and line 225 - 229
+  // Done by Varuna 03/15/2023
+  
+  WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
+  WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
+  
+  WriteFEMB(iFEMB, "ADC_DISABLE_REG",0);
+  WriteFEMB(iFEMB, "ADC_DISABLE_REG",0);
+  
+  sleep(0.02);
+  
+  WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
+  WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
+  
+  sleep(0.02);
+  
+  // End of the most latest comment
+  
+  
   //time stamp reset
   TLOG_INFO(identification) << "Just before time stamp reset" << TLOG_ENDL;
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
@@ -844,6 +868,16 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
   bool monitorBandgapNotTemp=false;
   bool monitorTempBandgapNotSignal=false;
   bool useTestCapacitance = (bool) internalDACControl;
+  
+  //////////////// Cross section provided raw fcl paramters to configure ASICS ////////////
+  
+  TLOG_INFO(identification) << "Raw gain from fcl : " << int(gain) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Raw shape from fcl : " << int(shape) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Raw high-baseline from fcl : " << int(highBaseline) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Raw high-leakage current from fcl : " << highLeakage << TLOG_ENDL;
+  TLOG_INFO(identification) << "Raw use buffer from fcl : " << bypassOutputBuffer << TLOG_ENDL;
+  
+  /////////////// End of most recent comment /////////////////////////////////////////////
 
   // Flip bits of gain
   if (gain == 0x1) gain = 0x2;
@@ -854,23 +888,33 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
   else if (shape == 0x1) shape = 0x0; // 1 us
   else if (shape == 0x2) shape = 0x3; // 2 us
   else if (shape == 0x3) shape = 0x1; // 3 us
-
+  
+  //////////////// Cross section provided raw fcl paramters to configure ASICS ////////////
+  
+  TLOG_INFO(identification) << "Changed gain from fcl : " << int(gain) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Changed shape from fcl : " << int(shape) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Changed high-baseline from fcl : " << int(highBaseline) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Changed high-leakage current from fcl : " << !highLeakage << TLOG_ENDL;
+  TLOG_INFO(identification) << "Changed use buffer from fcl : " << !bypassOutputBuffer << TLOG_ENDL;
+  
+  /////////////// End of most recent comment /////////////////////////////////////////////
+  
   FE_ASIC_reg_mapping fe_map;
   if (highBaseline > 1)
   {
     // Set them all to high baseline
     fe_map.set_board(useTestCapacitance,0,gain,shape,
-                      useOutputMonitor,!bypassOutputBuffer,!highLeakage,
+                      useOutputMonitor,1,!highLeakage,
                       monitorBandgapNotTemp,monitorTempBandgapNotSignal,useCh16HighPassFilter,
                       leakagex10,acCoupling,internalDACControl,internalDACValue
                   );
     // Now just set collection channels to low baseline
-    fe_map.set_collection_baseline(1);
+    fe_map.set_collection_baseline(1); // !bypassOutputBuffer
   }
   else
   {
     fe_map.set_board(useTestCapacitance,!highBaseline,gain,shape,
-                      useOutputMonitor,!bypassOutputBuffer,!highLeakage,
+                      useOutputMonitor,1,!highLeakage,
                       monitorBandgapNotTemp,monitorTempBandgapNotSignal,useCh16HighPassFilter,
                       leakagex10,acCoupling,internalDACControl,internalDACValue
                   );
@@ -1153,13 +1197,15 @@ void WIB::SetupFPGAPulser(uint8_t iFEMB, uint8_t dac_val){
   WriteFEMB(iFEMB, "FPGA_TP_EN", 1 );
 
   WriteFEMB(iFEMB, "DAC_SELECT", 1 );
+  //TLOG_INFO(identification) << "TEST_PULSE_AMPLITUDE (Before writting) : " << int(dac_val) << TLOG_ENDL;
   WriteFEMB(iFEMB, "TEST_PULSE_AMPLITUDE", dac_val );
+  //TLOG_INFO(identification) << "TEST_PULSE_AMPLITUDE (After writting) : " << int(dac_val) << TLOG_ENDL;
   WriteFEMB(iFEMB, "TEST_PULSE_DELAY", 219 );
   WriteFEMB(iFEMB, "TEST_PULSE_PERIOD", 497 );
 
   WriteFEMB(iFEMB, "INT_TP_EN", 0 );
-  WriteFEMB(iFEMB, "EXT_TP_EN", 1 );
-
+  //WriteFEMB(iFEMB, "EXT_TP_EN", 1 );
+  WriteFEMB(iFEMB, "EXP_TP_EN", 1 );
 }
 
 void WIB::SetupInternalPulser(uint8_t iFEMB){
@@ -1172,11 +1218,34 @@ void WIB::SetupInternalPulser(uint8_t iFEMB){
   WriteFEMB(iFEMB, "TEST_PULSE_PERIOD", 497 );
 
   WriteFEMB(iFEMB, "INT_TP_EN", 0 );
-  WriteFEMB(iFEMB, "EXT_TP_EN", 1 );
+  //WriteFEMB(iFEMB, "EXT_TP_EN", 1 );
+  WriteFEMB(iFEMB, "EXP_TP_EN", 1 );
 
   WriteFEMB(iFEMB, "FPGA_TP_EN", 0 );
   WriteFEMB(iFEMB, "ASIC_TP_EN", 1 );
 }
+
+/////////////////////////////////////////////
+
+/*void WIB::SetupInternalPulser(uint8_t iFEMB, uint8_t dac_val){
+  const std::string identification = "WIB::SetupInternalPulser";
+  TLOG_INFO(identification) << "FEMB " << int(iFEMB) << " Configuring internal pulser with DAC value : " << int(dac_val) << TLOG_ENDL;
+
+  WriteFEMB(iFEMB, "DAC_SELECT", 0 );
+  WriteFEMB(iFEMB, "TEST_PULSE_AMPLITUDE", dac_val );
+  WriteFEMB(iFEMB, "TEST_PULSE_DELAY", 219 );
+  WriteFEMB(iFEMB, "TEST_PULSE_PERIOD", 497 );
+
+  WriteFEMB(iFEMB, "INT_TP_EN", 0 );
+  //WriteFEMB(iFEMB, "EXT_TP_EN", 1 );
+  WriteFEMB(iFEMB, "EXP_TP_EN", 1 );
+
+  WriteFEMB(iFEMB, "FPGA_TP_EN", 0 );
+  WriteFEMB(iFEMB, "ASIC_TP_EN", 1 );
+}*/
+
+
+////////////////////////////////////////////
 
 void WIB::WriteFEMBPhase(uint8_t iFEMB, uint16_t clk_phase_data){
   const std::string identification = "WIB::WriteFEMBPhase";
