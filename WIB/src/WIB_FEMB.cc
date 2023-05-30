@@ -868,6 +868,16 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
   bool monitorBandgapNotTemp=false;
   bool monitorTempBandgapNotSignal=false;
   bool useTestCapacitance = (bool) internalDACControl;
+  
+  //////////////// Cross section provided raw fcl paramters to configure ASICS ////////////
+  
+  TLOG_INFO(identification) << "Raw gain from fcl : " << int(gain) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Raw shape from fcl : " << int(shape) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Raw high-baseline from fcl : " << int(highBaseline) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Raw high-leakage current from fcl : " << highLeakage << TLOG_ENDL;
+  TLOG_INFO(identification) << "Raw use buffer from fcl : " << bypassOutputBuffer << TLOG_ENDL;
+  
+  /////////////// End of most recent comment /////////////////////////////////////////////
 
   // Flip bits of gain
   if (gain == 0x1) gain = 0x2;
@@ -878,23 +888,33 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
   else if (shape == 0x1) shape = 0x0; // 1 us
   else if (shape == 0x2) shape = 0x3; // 2 us
   else if (shape == 0x3) shape = 0x1; // 3 us
-
+  
+  //////////////// Cross section provided raw fcl paramters to configure ASICS ////////////
+  
+  TLOG_INFO(identification) << "Changed gain from fcl : " << int(gain) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Changed shape from fcl : " << int(shape) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Changed high-baseline from fcl : " << int(highBaseline) << TLOG_ENDL;
+  TLOG_INFO(identification) << "Changed high-leakage current from fcl : " << !highLeakage << TLOG_ENDL;
+  TLOG_INFO(identification) << "Changed use buffer from fcl : " << !bypassOutputBuffer << TLOG_ENDL;
+  
+  /////////////// End of most recent comment /////////////////////////////////////////////
+  
   FE_ASIC_reg_mapping fe_map;
   if (highBaseline > 1)
   {
     // Set them all to high baseline
     fe_map.set_board(useTestCapacitance,0,gain,shape,
-                      useOutputMonitor,!bypassOutputBuffer,!highLeakage,
+                      useOutputMonitor,1,!highLeakage,
                       monitorBandgapNotTemp,monitorTempBandgapNotSignal,useCh16HighPassFilter,
                       leakagex10,acCoupling,internalDACControl,internalDACValue
                   );
     // Now just set collection channels to low baseline
-    fe_map.set_collection_baseline(1);
+    fe_map.set_collection_baseline(1); // !bypassOutputBuffer
   }
   else
   {
     fe_map.set_board(useTestCapacitance,!highBaseline,gain,shape,
-                      useOutputMonitor,!bypassOutputBuffer,!highLeakage,
+                      useOutputMonitor,1,!highLeakage,
                       monitorBandgapNotTemp,monitorTempBandgapNotSignal,useCh16HighPassFilter,
                       leakagex10,acCoupling,internalDACControl,internalDACValue
                   );
@@ -1045,12 +1065,12 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
     
     ////// Following section is included by looking into BNL CE program (femb_config.py line 462-467)
     
-    /*Write(20,3);
+    Write(20,3);
     Write(20,3);
     sleep(0.001);
     Write(20,0);
     Write(20,0);
-    sleep(0.001);*/
+    sleep(0.001);
     
     /////////////////////////////////////
     
