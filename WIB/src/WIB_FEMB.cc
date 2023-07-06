@@ -147,16 +147,16 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
 
   // These are all Jack's WIB addresses, need to figure out Dan's addresses for functionality
   ////Sync Time stamp /WIB
-  Write(1, 0);
+  /*Write(1, 0);
   Write(1, 0);
   Write(1, 2);
   Write(1, 2);
   Write(1, 0);
-  Write(1, 0);
+  Write(1, 0);*/
   //
   ////Reset Error /WIB
-  Write(18, 0x8000);
-  Write(18, 0x8000);
+  /*Write(18, 0x8000);
+  Write(18, 0x8000);*/
 
   //Reset SPI
   //
@@ -221,7 +221,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   // Test done using test stand at D0 shows default register value is 0
   // So This register is set to default setting here
   
-  WriteFEMB(iFEMB, "DATA_TEST_PATTERN",0x123);
+  //WriteFEMB(iFEMB, "DATA_TEST_PATTERN",0x123);
   
   /*
   TLOG_INFO(identification) << "DATA TEST PATTERN : " << std::hex << ReadFEMB(iFEMB,"DATA_TEST_PATTERN") << std::dec << TLOG_ENDL;
@@ -438,7 +438,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   // and line 225 - 229
   // Done by Varuna 03/15/2023
   
-  WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
+  /*WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
   WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
   
   WriteFEMB(iFEMB, "ADC_DISABLE_REG",0);
@@ -449,7 +449,7 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
   WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
   
-  sleep(0.02);
+  sleep(0.02);*/
   
   // End of the most latest comment
   
@@ -1065,12 +1065,12 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
     
     ////// Following section is included by looking into BNL CE program (femb_config.py line 462-467)
     
-    Write(20,3);
+    /*Write(20,3);
     Write(20,3);
     sleep(0.001);
     Write(20,0);
     Write(20,0);
-    sleep(0.001);
+    sleep(0.001);*/
     
     /////////////////////////////////////
     
