@@ -135,9 +135,12 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   }
   sleep(0.05);
   */
-
+  
   TLOG_INFO(identification) << "Time stamp reset" << TLOG_ENDL;
+  WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1); // Write only
+  sleep(0.1);
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
+  sleep(0.1);
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
   TLOG_INFO(identification) << "here" << TLOG_ENDL;
   
@@ -147,26 +150,37 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
 
   // These are all Jack's WIB addresses, need to figure out Dan's addresses for functionality
   ////Sync Time stamp /WIB
-  /*Write(1, 0);
   Write(1, 0);
+  Write(1, 0);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, 1, 30);
   Write(1, 2);
   Write(1, 2);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(2, 1, 30);
   Write(1, 0);
-  Write(1, 0);*/
+  Write(1, 0);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, 1, 30);
   //
   ////Reset Error /WIB
-  /*Write(18, 0x8000);
-  Write(18, 0x8000);*/
+  Write(18, 0x8000);
+  Write(18, 0x8000);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0x8000, 18, 30);
 
   //Reset SPI
   //
   sleep(0.005);
+  WriteFEMB(iFEMB, "ADC_RESET", 0x1); // ADC_ASIC_RESET // Write only
+  //sleep(0.005);
+  sleep(0.1);
   WriteFEMB(iFEMB, "ADC_RESET", 0x1); // ADC_ASIC_RESET
-  sleep(0.005);
-  WriteFEMB(iFEMB, "ADC_RESET", 0x1); // ADC_ASIC_RESET
-  sleep(0.005);
-  WriteFEMB(iFEMB, "FE_RESET", 0x1); // FE_ASIC_RESET
-  sleep(0.005);
+  //sleep(0.005);
+  sleep(0.1);
+  WriteFEMB(iFEMB, "ADC_RESET", 0x1);
+  sleep(0.1);
+  WriteFEMB(iFEMB, "FE_RESET", 0x1); // FE_ASIC_RESET // Write only
+  //sleep(0.005);
+  sleep(0.1);
+  WriteFEMB(iFEMB, "FE_RESET", 0x1);
+  sleep(0.1);
   WriteFEMB(iFEMB, "FE_RESET", 0x1); // FE_ASIC_RESET
   sleep(0.005);
   
@@ -289,7 +303,6 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   TLOG_INFO(identification) << "Value of FEMB_SYSTEM_CLOCK_SWITCH : " << ReadFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH") << TLOG_ENDL;
   */
   
-  
   // Setup ASICs
   TLOG_INFO(identification) << "Just before setting up FEMBASICS" << TLOG_ENDL;
   SetupFEMBASICs(iFEMB, fe_config[0], fe_config[1], fe_config[2], fe_config[3], fe_config[4], fe_config[5], fe_config[6], fe_config[7], pls_mode, internal_daq_value); 
@@ -395,41 +408,73 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
     {
       TLOG_INFO(identification) << "Configuring COTS ADCS for RT" << TLOG_ENDL;
       WriteFEMB(iFEMB, 21, fe1_sft_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe1_sft_RT, 21, iFEMB, 30);
       WriteFEMB(iFEMB, 29, fe1_pha_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe1_pha_RT, 29, iFEMB, 30);
       WriteFEMB(iFEMB, 22, fe2_sft_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe2_sft_RT, 22, iFEMB, 30);
       WriteFEMB(iFEMB, 30, fe2_pha_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe2_pha_RT, 30, iFEMB, 30);
       WriteFEMB(iFEMB, 23, fe3_sft_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe3_sft_RT, 23, iFEMB, 30);
       WriteFEMB(iFEMB, 31, fe3_pha_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe3_pha_RT, 31, iFEMB, 30);
       WriteFEMB(iFEMB, 24, fe4_sft_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe4_sft_RT, 24, iFEMB, 30);
       WriteFEMB(iFEMB, 32, fe4_pha_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe4_pha_RT, 32, iFEMB, 30);
       WriteFEMB(iFEMB, 25, fe5_sft_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe5_sft_RT, 25, iFEMB, 30);
       WriteFEMB(iFEMB, 33, fe5_pha_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe5_pha_RT, 33, iFEMB, 30);
       WriteFEMB(iFEMB, 26, fe6_sft_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe6_sft_RT, 26, iFEMB, 30);
       WriteFEMB(iFEMB, 34, fe6_pha_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe6_pha_RT, 34, iFEMB, 30);
       WriteFEMB(iFEMB, 27, fe7_sft_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe7_sft_RT, 27, iFEMB, 30);
       WriteFEMB(iFEMB, 35, fe7_pha_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe7_pha_RT, 35, iFEMB, 30);
       WriteFEMB(iFEMB, 28, fe8_sft_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe8_sft_RT, 28, iFEMB, 30);
       WriteFEMB(iFEMB, 36, fe8_pha_RT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe8_pha_RT, 36, iFEMB, 30);
     } 
   else
     {
       TLOG_INFO(identification) << "Configuring COTS ADCS for CT" << TLOG_ENDL;
       WriteFEMB(iFEMB, 21, fe1_sft_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe1_sft_CT, 21, iFEMB, 30);
       WriteFEMB(iFEMB, 29, fe1_pha_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe1_pha_CT, 29, iFEMB, 30);
       WriteFEMB(iFEMB, 22, fe2_sft_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe2_sft_CT, 22, iFEMB, 30);
       WriteFEMB(iFEMB, 30, fe2_pha_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe2_pha_CT, 30, iFEMB, 30);
       WriteFEMB(iFEMB, 23, fe3_sft_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe3_sft_CT, 23, iFEMB, 30);
       WriteFEMB(iFEMB, 31, fe3_pha_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe3_pha_CT, 31, iFEMB, 30);
       WriteFEMB(iFEMB, 24, fe4_sft_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe4_sft_CT, 24, iFEMB, 30);
       WriteFEMB(iFEMB, 32, fe4_pha_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe4_pha_CT, 32, iFEMB, 30);
       WriteFEMB(iFEMB, 25, fe5_sft_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe5_sft_CT, 25, iFEMB, 30);
       WriteFEMB(iFEMB, 33, fe5_pha_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe5_pha_CT, 33, iFEMB, 30);
       WriteFEMB(iFEMB, 26, fe6_sft_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe6_sft_CT, 26, iFEMB, 30);
       WriteFEMB(iFEMB, 34, fe6_pha_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe6_pha_CT, 34, iFEMB, 30);
       WriteFEMB(iFEMB, 27, fe7_sft_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe7_sft_CT, 27, iFEMB, 30);
       WriteFEMB(iFEMB, 35, fe7_pha_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe7_pha_CT, 35, iFEMB, 30);
       WriteFEMB(iFEMB, 28, fe8_sft_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe8_sft_CT, 28, iFEMB, 30);
       WriteFEMB(iFEMB, 36, fe8_pha_CT);
+      if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(fe8_pha_CT, 36, iFEMB, 30);
     }
 
   // This section wasn't in the original wibtools package
@@ -438,18 +483,21 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   // and line 225 - 229
   // Done by Varuna 03/15/2023
   
-  /*WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
   WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
+  WriteFEMB(iFEMB, "FEMB_SYSTEM_CLOCK_SWITCH",0);
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, "FEMB_SYSTEM_CLOCK_SWITCH", iFEMB, 30);
   
   WriteFEMB(iFEMB, "ADC_DISABLE_REG",0);
   WriteFEMB(iFEMB, "ADC_DISABLE_REG",0);
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, "ADC_DISABLE_REG", iFEMB, 30);
   
   sleep(0.02);
   
   WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
   WriteFEMB(iFEMB, "ADC_DISABLE_REG",1);
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(1, "ADC_DISABLE_REG", iFEMB, 30);
   
-  sleep(0.02);*/
+  sleep(0.02);
   
   // End of the most latest comment
   
@@ -457,20 +505,29 @@ void WIB::ConfigFEMB(uint8_t iFEMB,
   //time stamp reset
   TLOG_INFO(identification) << "Just before time stamp reset" << TLOG_ENDL;
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
+  sleep(0.1);
+  WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
+  sleep(0.1);
   WriteFEMB(iFEMB, "TIME_STAMP_RESET", 1);
  
   // These are all Jack's WIB addresses, need to figure out Dan's addresses for functionality
   ////Sync Time stamp /WIB
-  //Write(1, 0);
-  //Write(1, 0);
-  //Write(1, 2);
-  //Write(1, 2);
-  //Write(1, 0);
-  //Write(1, 0);
+  Write(1, 0);
+  Write(1, 0);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, 1, 30);
+  Write(1, 2);
+  Write(1, 2);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(2, 1, 30);
+  Write(1, 0);
+  Write(1, 0);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, 1, 30);
   //
   ////Reset Error /WIB
-  //Write(18, 0x8000);
-  //Write(18, 0x8000);
+  Write(18, 0x8000);
+  Write(18, 0x8000);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0x8000, 18, 30);
+  
+  FEMB_UDPACQ(iFEMB-1);
 
   //Write("SYSTEM.SLOW_CONTROL_DND",slow_control_dnd);
   
@@ -961,6 +1018,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
     //WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 0 ); // Turn off STREAM_EN and ADC_DATA_EN (in the original code)
     //WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)&0xFFFFFFF6)); // solution to register not found issue
     WriteFEMB(iFEMB,0x09,0); // Copied from BNL_CE code
+    if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, 0x09, iFEMB, 30);
     //TLOG_INFO(identification) << "STREAM_EN Register value : " << int(ReadFEMB(iFEMB,"STREAM_EN")) << " ADC_DATA_EN Register value : " << int(ReadFEMB(iFEMB,"ADC_DATA_EN")) << TLOG_ENDL; // Confirms two registers are properly written (code was run and tested)
     
     //TLOG_INFO(identification) << "After PRBS_EN Register value : " << int(ReadFEMB(iFEMB,"PRBS_EN")) << " CNT_EN Register value : " << int(ReadFEMB(iFEMB,"CNT_EN")) << TLOG_ENDL; // check remaining two bits after writting to the desired addresss
@@ -976,6 +1034,7 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
 	//if(iReg>69) TLOG_INFO(identification) << "============ Register number " << iReg << " Register value : " << regs[iReg] << TLOG_ENDL;
 	//TLOG_INFO(identification) << "Written register value : " << regs[iReg] << TLOG_ENDL;
         sleep(0.01);
+	if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(regs[iReg], REG_SPI_BASE_WRITE+iReg, iFEMB, 30);
     }
   
   
@@ -988,6 +1047,9 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
     
     //WriteFEMB(iFEMB, "WRITE_ASIC_SPI", 1); (in the original code)
     WriteFEMB(iFEMB,0x02,1);// solution to register not found issue
+    sleep(0.1);
+    
+    WriteFEMB(iFEMB,0x02,1);
     sleep(0.1);
   
     if (iSPIWrite == 1)
@@ -1056,10 +1118,12 @@ uint16_t WIB::SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t
     //WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
     //WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)|0x9));
     WriteFEMB(iFEMB,0x09,9);
+    if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(9, 0x09, iFEMB, 30);
     sleep(0.05);
     //WriteFEMB(iFEMB, "STREAM_AND_ADC_DATA_EN", 9 ); // STREAM_EN and ADC_DATA_EN
     //WriteFEMB(iFEMB,0x09,(ReadFEMB(iFEMB,0x09)|0x9));
     WriteFEMB(iFEMB,0x09,9);
+    if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(9, 0x09, iFEMB, 30);
     
     sleep(0.1);
     
@@ -1194,18 +1258,26 @@ void WIB::SetupFPGAPulser(uint8_t iFEMB, uint8_t dac_val){
   TLOG_INFO(identification) << "FEMB " << int(iFEMB) << " Configuring FPGA pulser with DAC value: " << int(dac_val) << TLOG_ENDL;
 
   WriteFEMB(iFEMB, "ASIC_TP_EN", 0 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, "ASIC_TP_EN", iFEMB, 30);
   WriteFEMB(iFEMB, "FPGA_TP_EN", 1 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(1, "FPGA_TP_EN", iFEMB, 30);
 
   WriteFEMB(iFEMB, "DAC_SELECT", 1 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(1, "DAC_SELECT", iFEMB, 30);
   //TLOG_INFO(identification) << "TEST_PULSE_AMPLITUDE (Before writting) : " << int(dac_val) << TLOG_ENDL;
   WriteFEMB(iFEMB, "TEST_PULSE_AMPLITUDE", dac_val );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(dac_val, "TEST_PULSE_AMPLITUDE", iFEMB, 30);
   //TLOG_INFO(identification) << "TEST_PULSE_AMPLITUDE (After writting) : " << int(dac_val) << TLOG_ENDL;
   WriteFEMB(iFEMB, "TEST_PULSE_DELAY", 219 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(219, "TEST_PULSE_DELAY", iFEMB, 30);
   WriteFEMB(iFEMB, "TEST_PULSE_PERIOD", 497 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(497, "TEST_PULSE_PERIOD", iFEMB, 30);
 
   WriteFEMB(iFEMB, "INT_TP_EN", 0 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, "INT_TP_EN", iFEMB, 30);
   //WriteFEMB(iFEMB, "EXT_TP_EN", 1 );
   WriteFEMB(iFEMB, "EXP_TP_EN", 1 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(1, "EXP_TP_EN", iFEMB, 30);
 }
 
 void WIB::SetupInternalPulser(uint8_t iFEMB){
@@ -1213,16 +1285,24 @@ void WIB::SetupInternalPulser(uint8_t iFEMB){
   TLOG_INFO(identification) << "FEMB " << int(iFEMB) << " Configuring internal pulser" << TLOG_ENDL;
 
   WriteFEMB(iFEMB, "DAC_SELECT", 0 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, "DAC_SELECT", iFEMB, 30);
   WriteFEMB(iFEMB, "TEST_PULSE_AMPLITUDE", 0 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, "TEST_PULSE_AMPLITUDE", iFEMB, 30);
   WriteFEMB(iFEMB, "TEST_PULSE_DELAY", 219 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(219, "TEST_PULSE_DELAY", iFEMB, 30);
   WriteFEMB(iFEMB, "TEST_PULSE_PERIOD", 497 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(497, "TEST_PULSE_PERIOD", iFEMB, 30);
 
   WriteFEMB(iFEMB, "INT_TP_EN", 0 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, "INT_TP_EN", iFEMB, 30);
   //WriteFEMB(iFEMB, "EXT_TP_EN", 1 );
   WriteFEMB(iFEMB, "EXP_TP_EN", 1 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(1, "EXP_TP_EN", iFEMB, 30);
 
   WriteFEMB(iFEMB, "FPGA_TP_EN", 0 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, "FPGA_TP_EN", iFEMB, 30);
   WriteFEMB(iFEMB, "ASIC_TP_EN", 1 );
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(1, "ASIC_TP_EN", iFEMB, 30);
 }
 
 /////////////////////////////////////////////
@@ -1468,4 +1548,359 @@ void WIB::SetContinueOnFEMBSyncError(bool enable){
 void WIB::SetContinueIfListOfFEMBClockPhasesDontSync(bool enable){
   const std::string identification = "WIB::SetContinueIfListOfFEMBClockPhasesDontSync";
   ContinueIfListOfFEMBClockPhasesDontSync = enable;
+}
+
+void WIB::CheckFEMBRegisters(uint32_t expected_val, std::string reg_addrs, int FEMB_NO, int tries){
+  const std::string identification = "WIB::CheckFEMBRegisters";
+  bool throw_excpt = true;
+  uint32_t reg_value = -9999;
+  for (int i = 0; i < tries; i++){
+       sleep(0.1);
+       reg_value = ReadFEMB(FEMB_NO, reg_addrs);
+       if (reg_value == expected_val){
+           throw_excpt = false;
+	   break;
+       }
+       WriteFEMB(FEMB_NO, reg_addrs, expected_val);
+  }
+  if(throw_excpt){
+     WIBException::FEMB_REG_READ_ERROR e;
+     std::stringstream expstr;
+     expstr << "FEMB " << FEMB_NO << " register " << reg_addrs << " value is " << reg_value << " and expected value is " << expected_val;
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+}
+
+void WIB::CheckFEMBRegisters(uint32_t expected_val, uint32_t reg_addrs, int FEMB_NO, int tries){
+  const std::string identification = "WIB::CheckFEMBRegisters";
+  bool throw_excpt = true;
+  uint32_t reg_value = -9999;
+  for (int i = 0; i < tries; i++){
+       sleep(0.1);
+       reg_value = ReadFEMB(FEMB_NO, reg_addrs);
+       if (reg_value == expected_val){
+           throw_excpt = false;
+	   break;
+       }
+       WriteFEMB(FEMB_NO, reg_addrs, expected_val);
+  }
+  if(throw_excpt){
+     WIBException::FEMB_REG_READ_ERROR e;
+     std::stringstream expstr;
+     expstr << "FEMB " << FEMB_NO << " register " << reg_addrs << " value is " << reg_value << " and expected value is " << expected_val;
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+}
+
+void WIB::New_ConfigFEMB(uint8_t iFEMB,std::vector<uint32_t> fe_config,std::vector<uint16_t> clk_phases,uint8_t pls_mode, uint8_t pls_dac_val, 
+uint8_t start_frame_mode_sel, uint8_t start_frame_swap){
+  const std::string identification = "WIB::New_ConfigFEMB";
+  // This function is written as a temporary solution to some of the problems, we
+  // see in running the WIB board reader (Sometimes all FEMBs are not configured at once).
+  
+  // This function will be replacning the existing ConfigFEMB function in wibtools.
+  
+  // This function is a modified version of existing ConfigFEMB function in wibtools with
+  // some of the register writes removed and added compared to that of existing SetupFEMBASICs. (all modification are minor)
+  
+  // All modifications were made by looking at "CE_CHK_CFG" function in the "cls_config.py" module 
+  // inside the repository "CE_LD"(git branch name is, Installation_Support)
+  
+  if (iFEMB < 1 || iFEMB > 4)
+  {
+     WIBException::WIB_BAD_ARGS e;
+     std::stringstream expstr;
+     expstr << "ConfigFEMB: iFEMB should be between 1 and 4: "
+            << int(iFEMB);
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+  if (pls_mode > 2)
+  {
+    WIBException::WIB_BAD_ARGS e;
+    std::stringstream expstr;
+    expstr << "ConfigFEMB: pls_dac_mode is allowed to be 0 (off), 1 (FPGA), 2 (internal), but is: "
+           << int(pls_mode);
+    e.Append(expstr.str().c_str());
+    throw e;
+  }
+  if (start_frame_mode_sel > 1 || start_frame_swap > 1)
+  {
+     WIBException::WIB_BAD_ARGS e;
+     std::stringstream expstr;
+     expstr << "ConfigFEMB: start_frame_mode_sel and start_frame_swap must be 0 or 1";
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+  
+  if(fe_config.size() != 8){
+
+    WIBException::WIB_BAD_ARGS e;
+    std::stringstream expstr;
+    expstr << "Error: Expecting 9 Front End configuration options:" << std::endl <<
+    "\t0: Gain" << std::endl << 
+    "\t1: Shaping Time" << std::endl << 
+    "\t2: High Baseline" << std::endl << 
+    "\t3: High Leakage" << std::endl << 
+    "\t4: Leakage x 10" << std::endl << 
+    "\t5: AC Coupling" << std::endl << 
+    "\t6: Buffer" << std::endl << 
+    "\t7: Use External Clock" << std::endl;     
+    e.Append(expstr.str().c_str());
+    throw e;
+  }
+  else{
+    TLOG_INFO(identification) << "Front End configuration options:" << TLOG_ENDL <<  
+    "\t0:" << std::setw(22) << std::setfill(' ') <<  "Gain "               << fe_config[0] << TLOG_ENDL <<
+    "\t1:" << std::setw(22) << std::setfill(' ') <<  "Shaping Time "       << fe_config[1] << TLOG_ENDL <<
+    "\t2:" << std::setw(22) << std::setfill(' ') <<  "High Baseline "      << fe_config[2] << TLOG_ENDL <<
+    "\t3:" << std::setw(22) << std::setfill(' ') <<  "High Leakage "       << fe_config[3] << TLOG_ENDL <<
+    "\t4:" << std::setw(22) << std::setfill(' ') <<  "Leakage x 10 "       << fe_config[4] << TLOG_ENDL <<
+    "\t5:" << std::setw(22) << std::setfill(' ') <<  "AC Coupling "        << fe_config[5] << TLOG_ENDL <<
+    "\t6:" << std::setw(22) << std::setfill(' ') <<  "Buffer "             << fe_config[6] << TLOG_ENDL <<
+    "\t7:" << std::setw(22) << std::setfill(' ') <<  "Use External Clock " << fe_config[7] << TLOG_ENDL; 
+  }
+  
+  if(ReadFEMB(iFEMB,"VERSION_ID") == ReadFEMB(iFEMB,"SYS_RESET")) { // can't read register if equal
+    if(ContinueOnFEMBRegReadError){
+      TLOG_INFO(identification) << "Error: Can't read registers from FEMB " << int(iFEMB) << TLOG_ENDL;
+      return;
+    }
+    WIBException::FEMB_REG_READ_ERROR e;
+    std::stringstream expstr;
+    expstr << " for FEMB: " << int(iFEMB);
+    e.Append(expstr.str().c_str());
+    throw e;
+  }
+  
+  WriteFEMB(iFEMB, 0, 1);
+  sleep(0.001);
+  
+  // Setup pulser
+  uint8_t internal_daq_value = 0;
+  if (pls_mode == 1) // internal, FE ASIC, 6 bits
+  {
+    TLOG_INFO(identification) << "************ USING INTERNAL PULSAR FOR CALIBRATION *****************" << TLOG_ENDL;
+    
+    if (pls_dac_val > 63)
+    {
+      WIBException::WIB_BAD_ARGS e;
+      std::stringstream expstr;
+      expstr << "ConfigFEMB: pls_dac_val is 6 bits for internal DAC, must be 0-63, but is: "
+             << int(pls_dac_val);
+      e.Append(expstr.str().c_str());
+      throw e;
+    }
+    internal_daq_value = pls_dac_val;
+    SetupInternalPulser(iFEMB);
+  }
+  else if (pls_mode == 2) // external, FPGA, 6 bits
+  {
+    TLOG_INFO(identification) << "************ USING EXTERNAL PULSAR FOR CALIBRATION *****************" << TLOG_ENDL;
+    
+    if (pls_dac_val > 63)
+    {
+      WIBException::WIB_BAD_ARGS e;
+      std::stringstream expstr;
+      expstr << "ConfigFEMB: pls_dac_val is 6 bits for FPGA DAC, must be 0-63, but is: "
+             << int(pls_dac_val);
+      e.Append(expstr.str().c_str());
+      throw e;
+    }
+    
+    SetupFPGAPulser(iFEMB,pls_dac_val);
+  }
+  
+  WriteFEMB(iFEMB, 42, 0);
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, 42, iFEMB, 30);
+  sleep(0.001);
+  
+  New_SetupFEMBASICs(iFEMB, fe_config[0], fe_config[1], fe_config[2], fe_config[3], fe_config[4], fe_config[5], fe_config[6], fe_config[7], pls_mode, internal_daq_value);
+  
+  WriteFEMB(iFEMB,9, 9);
+  if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(9, 9, iFEMB, 30);
+  
+  Write(1, 0);
+  Write(1, 0);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, 1, 30);
+  Write(1, 2);
+  Write(1, 2);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(2, 1, 30);
+  Write(1, 0);
+  Write(1, 0);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, 1, 30);
+  //
+  ////Reset Error /WIB
+  Write(18, 0x8000);
+  Write(18, 0x8000);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0x8000, 18, 30);
+  
+  FEMB_UDPACQ(iFEMB-1);
+}
+
+uint16_t WIB::New_SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t highBaseline, bool highLeakage, bool leakagex10, bool acCoupling,bool buffer, bool useExtClock, uint8_t internalDACControl, uint8_t internalDACValue)
+{
+  // This function is written as a temporary solution to some of the problems, we
+  // see in running the WIB board reader (Sometimes all FEMBs are not configured at once).
+  
+  // This function will be replacning the existing SetupFEMBASICs function in wibtools.
+  
+  // This function is a modified version of existing SetupFEMBASICs function in wibtools with
+  // some of the register writes removed from the existing SetupFEMBASICs. (very tiny modifications)
+  
+  // All modifications were made by looking at "CE_CHK_CFG" function in the "cls_config.py" module 
+  // inside the repository "CE_LD"(git branch name is, Installation_Support)
+  
+  const std::string identification = "WIB::New_SetupFEMBASICs";
+  (void) buffer; // to make compiler not complain about unused arguments
+
+  if (gain > 3) 
+  {
+       WIBException::WIB_BAD_ARGS e;
+       std::stringstream expstr;
+       expstr << "gain should be between 0 and 3, but is: "
+              << int(gain);
+       e.Append(expstr.str().c_str());
+       throw e;
+  }
+  if (shape > 3) 
+  {
+       WIBException::WIB_BAD_ARGS e;
+       std::stringstream expstr;
+       expstr << "shape should be between 0 and 3, but is: "
+              << int(shape);
+       e.Append(expstr.str().c_str());
+       throw e;
+  }
+
+  const size_t REG_SPI_BASE_WRITE = 0x200; // 512
+  const size_t REG_SPI_BASE_READ = 0x250; // 592
+  // for COTS ADCs first 36 registers are used for the FE ASICs
+
+  bool bypassOutputBuffer=true; // if false might blow up SBND
+  bool useOutputMonitor=false; // if true might blow up SBND
+  bool useCh16HighPassFilter=false;
+  bool monitorBandgapNotTemp=false;
+  bool monitorTempBandgapNotSignal=false;
+  bool useTestCapacitance = (bool) internalDACControl;
+  
+  // Flip bits of gain
+  if (gain == 0x1) gain = 0x2;
+  else if (gain== 0x2) gain = 0x1;
+
+  // Shape
+  if (shape == 0x0) shape = 0x2; // 0.5 us
+  else if (shape == 0x1) shape = 0x0; // 1 us
+  else if (shape == 0x2) shape = 0x3; // 2 us
+  else if (shape == 0x3) shape = 0x1; // 3 us
+  
+  FE_ASIC_reg_mapping fe_map;
+  if (highBaseline > 1)
+  {
+    // Set them all to high baseline
+    fe_map.set_board(useTestCapacitance,0,gain,shape,
+                      useOutputMonitor,1,!highLeakage,
+                      monitorBandgapNotTemp,monitorTempBandgapNotSignal,useCh16HighPassFilter,
+                      leakagex10,acCoupling,internalDACControl,internalDACValue
+                  );
+    // Now just set collection channels to low baseline
+    fe_map.set_collection_baseline(1); // !bypassOutputBuffer
+  }
+  else
+  {
+    fe_map.set_board(useTestCapacitance,!highBaseline,gain,shape,
+                      useOutputMonitor,1,!highLeakage,
+                      monitorBandgapNotTemp,monitorTempBandgapNotSignal,useCh16HighPassFilter,
+                      leakagex10,acCoupling,internalDACControl,internalDACValue
+                  );
+  }
+  
+  ASIC_reg_mapping map;
+  map.set_board(fe_map);
+  map.get_regs();
+  const std::vector<uint32_t> regs = map.get_regs();
+  const size_t nRegs = regs.size();
+  
+  for(unsigned iSPIWrite=0; iSPIWrite < 2; iSPIWrite++)
+  {
+    for (size_t iReg=0; iReg<nRegs; iReg++)
+    {
+        WriteFEMB(iFEMB,REG_SPI_BASE_WRITE+iReg,regs[iReg]);
+	sleep(0.01);
+	if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(regs[iReg], REG_SPI_BASE_WRITE+iReg, iFEMB, 30);
+    }
+    
+    //run the SPI programming
+    sleep(0.1);
+    
+    WriteFEMB(iFEMB,0x02,1);
+    sleep(0.1);
+    
+    WriteFEMB(iFEMB,0x02,1);
+    sleep(0.1);
+    
+    WriteFEMB(iFEMB,0x02,1);
+    sleep(0.1);
+  
+    if (iSPIWrite == 1)
+    {
+      // Now check readback
+      bool spi_mismatch = false;
+      for (unsigned iSPIRead = 0; iSPIRead < 2; iSPIRead++)
+      {
+        TLOG_INFO(identification)<< "ASIC SPI Readback..." << TLOG_ENDL;
+        std::vector<uint32_t> regsReadback(nRegs);
+        for (size_t iReg=0; iReg<nRegs; iReg++)
+        {
+            uint32_t regReadback = ReadFEMB(iFEMB,REG_SPI_BASE_READ+iReg);
+            regsReadback[iReg] = regReadback;
+            sleep(0.01);
+        }
+  
+        bool verbose = false;
+        if (verbose) TLOG_INFO(identification) << "ASIC SPI register number, write val, read val:" << TLOG_ENDL;
+        spi_mismatch = false;
+        for (size_t iReg=0; iReg<nRegs; iReg++)
+        {
+          if (verbose)
+          {
+            TLOG_INFO(identification) << std::dec << std::setfill (' ') << std::setw(3) << iReg 
+                      << "  " 
+                      << std::hex << std::setfill ('0') << std::setw(8) << regs[iReg] 
+                      << "  "
+                      << std::hex << std::setfill ('0') << std::setw(8) << regsReadback[iReg] 
+                      << TLOG_ENDL;
+          } // if verbose
+          if (regs[iReg] != regsReadback[iReg])
+          {
+            spi_mismatch = true;
+            size_t asicFailNum = 0;
+            if (iReg > 0) asicFailNum = (iReg-1) / 9;
+            TLOG_INFO(identification) << "FE-ADC ASIC " << asicFailNum << " SPI faled" << TLOG_ENDL;
+          } // if regs don't match
+        } // for iReg
+        if (!spi_mismatch) break;
+      } // for iSPIRead
+      
+      if(spi_mismatch)
+      {
+        if(ContinueOnFEMBSPIError)
+        {
+          TLOG_INFO(identification) << "FEMB ASIC SPI readback mismatch--problems communicating with ASICs for FEMB: " << int(iFEMB) << TLOG_ENDL;
+        }
+        else
+        {
+          WIBException::FEMB_SPI_READBACK_MISMATCH e;
+          std::stringstream expstr;
+          expstr << " for FEMB: " << int(iFEMB);
+          e.Append(expstr.str().c_str());
+          throw e;
+        }
+      } // if spi_mismatch
+    } // if iSPIWrite == 1
+  } // for iSPIWrite
+  
+  return 1;
 }

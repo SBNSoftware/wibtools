@@ -230,6 +230,11 @@ class WIB: public WIBBase {
   void SetContinueOnFEMBSPIError(bool enable);
   void SetContinueOnFEMBSyncError(bool enable);
   void SetContinueIfListOfFEMBClockPhasesDontSync(bool enable); // if true try to hunt for the phase else raise exception
+  std::map<std::string,double> WIB_STATUS(); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void New_ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector<uint16_t> clk_phases,uint8_t pls_mode=0, uint8_t pls_dac_val=0, uint8_t start_frame_mode_sel=1, uint8_t start_frame_swap=1); // This function is a modified version of existing ConfigFEMB function in wibtools
+  uint16_t New_SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t highBaseline, 
+                        bool highLeakage, bool leakagex10, bool acCoupling, bool buffer, bool useExtClock, 
+                        uint8_t internalDACControl, uint8_t internalDACValue); // This function pretty same to the function SetupFEMBASICs here with some removed register writes
 
  private:
   WIB(); //disallow the default constructor
@@ -245,6 +250,14 @@ class WIB: public WIBBase {
   bool ContinueOnFEMBRegReadError;
   bool ContinueOnFEMBSPIError;
   bool ContinueOnFEMBSyncError; // if phase hunt fails keep going else raise exception
+  bool CheckWIB_FEMB_REGs = true;
   bool ContinueIfListOfFEMBClockPhasesDontSync; // if true try to hunt for the phase else raise exception
+  void CheckWIBRegisters(uint32_t expected_val, std::string reg_addrs, int tries);
+  void CheckWIBRegisters(uint32_t expected_val, uint32_t reg_addrs, int tries);
+  void CheckFEMBRegisters(uint32_t expected_val, std::string reg_addrs, int FEMB_NO, int tries);
+  void CheckFEMBRegisters(uint32_t expected_val, uint32_t reg_addrs, int FEMB_NO, int tries);
+  void WIB_UDP_CTL(bool WIB_UDP_EN = false); // This function is copied from shanshan's python script to configure WIB/FEMB
+  void FEMB_ASIC_CS(int femb_addr, int asic); // This function is copied from shanshan's python script to configure WIB/FEMB
+  void FEMB_UDPACQ(int femb_addr); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
 };
 #endif

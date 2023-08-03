@@ -66,17 +66,20 @@ void WIB::configWIB(uint8_t clockSource){
   UDP_enable(true); 
   TLOG_INFO(identification) << "UDP ENABLE VALUE (After enabling) : " << int(Read("UDP_DISABLE")) << TLOG_ENDL;
   Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0xEFB, "UDP_FRAME_SIZE", 30);
   TLOG_INFO(identification) << "WRITE VALUE (UDP_FRAME_SIZE) : EFB" << TLOG_ENDL;
   TLOG_INFO(identification) << "READ (UDP_FRAME_SIZE) : " << std::hex << int(Read("UDP_FRAME_SIZE")) << TLOG_ENDL;
   //Write(0x1F,Read(0x1F)|0xEFB);
   //TLOG_INFO(identification) << "****** UDP FRAME SIZE 1 : " << int(Read("UDP_FRAME_SIZE")) << " UDP FRAME SIZE 2 : " << int(Read(0x1F)&0xFFF) << TLOG_ENDL;
   Write("UDP_SAMP_TO_SAVE",0x7F00);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0x7F00, "UDP_SAMP_TO_SAVE", 30);
   TLOG_INFO(identification) << "WRITE VALUE (UDP_SAMP_TO_SAVE) : 0x7F00" << TLOG_ENDL;
   TLOG_INFO(identification) << "READ (UDP_SAMP_TO_SAVE) : " << std::hex << int(Read("UDP_SAMP_TO_SAVE")) << TLOG_ENDL;
   //Write(0x10,Read(0x10)|0x7F00); // Wrong
   //Write(0x10,(Read(0x10)&0xFFFF0000)|0x7F00); // Right
   //TLOG_INFO(identification) << " UDP SAMPLE TO SAVE VALUE : " << int(Read("UDP_SAMP_TO_SAVE")) << TLOG_ENDL;
   Write("UDP_BURST_MODE",0); // normal UDP operation
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "UDP_BURST_MODE", 30);
   TLOG_INFO(identification) << "WRITE VALUE (UDP_BURST_MODE) : 0" << TLOG_ENDL;
   TLOG_INFO(identification) << "READ (UDP_BURST_MODE) : " << std::hex << int(Read("UDP_BURST_MODE")) << TLOG_ENDL;
   //Write(0x0F,(Read(0x0F)&0xFFFFFFF0)|0x3);
@@ -105,8 +108,11 @@ void WIB::configWIB(uint8_t clockSource){
     if( lol_flag ){
       TLOG_INFO(identification)  << "** Si5344 PLL locked!! :) **";
       Write("FEMB_CLK_SEL",1);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "FEMB_CLK_SEL", 30);
       Write("FEMB_CMD_SEL",1);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "FEMB_CMD_SEL", 30);
       Write("FEMB_INT_CLK_SEL",0);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "FEMB_INT_CLK_SEL", 30);
       usleep(10000);
     } else {
       TLOG_INFO(identification) <<"PLL failed to lock.";
@@ -118,8 +124,11 @@ void WIB::configWIB(uint8_t clockSource){
   else if(clockSource == 1){
     TLOG_INFO(identification)  << "--> using 100MHz from oscillator (bypass Si5344)";
     Write("FEMB_CLK_SEL",0);
+    if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "FEMB_CLK_SEL", 30);
     Write("FEMB_CMD_SEL",0);
+    if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "FEMB_CMD_SEL", 30);
     Write("FEMB_INT_CLK_SEL",0x2);
+    if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0x2, "FEMB_INT_CLK_SEL", 30);
     usleep(10000);
     //int clk_sel = Read(0x4) & 0xF;
     //std::cout << "  Clock bits (reg 4) are " << std::hex << clk_sel << std::dec << std::endl;
@@ -148,16 +157,25 @@ bool WIB::PLL_check(int iTries){
 }
 
 void WIB::UDP_enable(bool enable){
-  if( enable == true )  Write("UDP_DISABLE",0);
-  else                  Write("UDP_DISABLE",1);
+  if( enable == true ){  
+      Write("UDP_DISABLE",0);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "UDP_DISABLE", 30);
+  }
+  else {
+      Write("UDP_DISABLE",1);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "UDP_DISABLE", 30);
+  }
 }
 
 void WIB::ResetSi5344(){
   const std::string identification = "WIB::ResetSi5344"; 
   TLOG_INFO(identification)<<"Resetting Si5344\n";
   Write(10,0x0);
-  Write("SILABS_RST",1);   
-  Write("SILABS_RST",0);   
+  if(CheckWIB_FEMB_REGs) CheckWIBRegisters(0x0, 10, 30);
+  Write("SILABS_RST",1);
+  if(CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "SILABS_RST", 30);   
+  Write("SILABS_RST",0); 
+  if(CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "SILABS_RST", 30);  
   usleep(100000);
 }
 
@@ -254,10 +272,13 @@ void WIB::PLL_write(uint16_t addr, uint16_t data){
   //std::cout<<std::hex<<"Addr: "<<addr<<"   data: "<<data<<"\n";
   size_t value = 0x01 + ((addr&0xFF)<<8) + ((data&0x00FF)<<16);
   Write(0x0B,value);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(value, 0x0B, 30);
   usleep(1000);
   Write("I2C_WR_STRB",1); 
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "I2C_WR_STRB", 30);
   usleep(1000);
   Write("I2C_WR_STRB",0);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "I2C_WR_STRB", 30);
   usleep(1000);
 }
 
@@ -825,3 +846,210 @@ WIBTool.exe, or WIBBoardReader processes. Then, delete the semaphores /dev/shm/s
 and /dev/shm/sem.WIB_YLD. If you intend to run both FEMBreceiver and WIBTool.exe or \
 WIBBoardReader, start with FEMBreceiver first.\n";
 }
+
+void WIB::CheckWIBRegisters(uint32_t expected_val, std::string reg_addrs, int tries){
+  const std::string identification = "WIB::CheckWIBRegisters";
+  bool throw_excpt = true;
+  uint32_t reg_value = -9999;
+  for (int i = 0; i < tries; i++){
+       sleep(0.1);
+       reg_value = Read(reg_addrs);
+       if (reg_value == expected_val){
+           throw_excpt = false;
+	   break;
+       }
+       Write(reg_addrs, expected_val);
+  }
+  if(throw_excpt){
+     WIBException::FEMB_REG_READ_ERROR e;
+     std::stringstream expstr;
+     expstr << "WIB" << " register " << reg_addrs << " value is " << reg_value << " and expected value is " << expected_val;
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+}
+
+void WIB::CheckWIBRegisters(uint32_t expected_val, uint32_t reg_addrs, int tries){
+  const std::string identification = "WIB::CheckWIBRegisters";
+  bool throw_excpt = true;
+  uint32_t reg_value = -9999;
+  for (int i = 0; i < tries; i++){
+       sleep(0.1);
+       reg_value = Read(reg_addrs);
+       if (reg_value == expected_val){
+           throw_excpt = false;
+	   break;
+       }
+       Write(reg_addrs, expected_val);
+  }
+  if(throw_excpt){
+     WIBException::FEMB_REG_READ_ERROR e;
+     std::stringstream expstr;
+     expstr << "WIB" << " register " << reg_addrs << " value is " << reg_value << " and expected value is " << expected_val;
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+}
+
+void WIB::WIB_UDP_CTL(bool WIB_UDP_EN){
+    // This function is copied from Shanshan's python script
+    // to configure WIB/FEMB.
+    // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+    const std::string identification = "WIB::WIB_UDP_CTL";
+    auto wib_reg_7_value = Read(7);
+    if (WIB_UDP_EN) wib_reg_7_value = wib_reg_7_value & 0x00000000; // bit31 of reg7 for disable wib udp control
+    else wib_reg_7_value = wib_reg_7_value | 0x80000000; // bit31 of reg7 for disable wib udp control 
+    Write(7, wib_reg_7_value);
+    CheckWIBRegisters(wib_reg_7_value, 7, 30);
+}
+
+void WIB::FEMB_ASIC_CS(int femb_addr, int asic){
+   // This function is copied from Shanshan's python script
+   // to configure WIB/FEMB.
+   // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+   const std::string identification = "WIB::FEMB_ASIC_CS";
+   auto femb_asic = asic & 0x0F;
+   auto wib_asic =  ( ((femb_addr << 16)&0x000F0000) + ((femb_asic << 8) &0xFF00) );
+   Write(7, wib_asic | 0x80000000);
+   CheckWIBRegisters(wib_asic | 0x80000000, 7, 30);
+   Write(7, wib_asic);
+   CheckWIBRegisters(wib_asic, 7, 30);
+}
+
+void WIB::FEMB_UDPACQ(int femb_addr){
+     // This function is a modified version of one of the funcitons available in Shanshan's python script
+     // to configure WIB/FEMB.
+     // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+     const std::string identification = "WIB::FEMB_UDPACQ";
+     WIB_UDP_CTL(true);
+     for (int i=0; i<8; i++) FEMB_ASIC_CS(femb_addr, i);
+     WIB_UDP_CTL(false);
+}
+
+std::map<std::string,double> WIB::WIB_STATUS(){
+     // This function is copied from Shanshan's python script
+     // to configure WIB/FEMB.
+     // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+     const std::string identification = "WIB::WIB_STATUS";
+     Write(0x12, 0x8000);
+     CheckWIBRegisters(0x8000, 0x12, 30);
+     Write(0x12, 0x100);
+     CheckWIBRegisters(0x100, 0x12, 30);
+     sleep(0.02);
+     
+     int link_status = -1;
+     int eq_status = -1;
+     
+     for (int i=0; i<5; i++){
+        link_status = Read(0x21);
+	eq_status = Read(0x24);
+	sleep(0.001); 
+     }
+     
+     std::map<std::string,double> map;
+     
+     map.insert( std::pair<std::string,double>("FEMB1_LINK",link_status&0xFF) );
+     map.insert( std::pair<std::string,double>("FEMB1_EQ",eq_status&0x0F) );
+     map.insert( std::pair<std::string,double>("FEMB2_LINK",(link_status&0xFF00)>>8) );
+     map.insert( std::pair<std::string,double>("FEMB2_EQ",(eq_status&0xF0)>>4) );
+     map.insert( std::pair<std::string,double>("FEMB3_LINK",(link_status&0xFF0000)>>16) );
+     map.insert( std::pair<std::string,double>("FEMB3_EQ",(eq_status&0xF00)>>8) );
+     map.insert( std::pair<std::string,double>("FEMB4_LINK",(link_status&0xFF000000)>>24) );
+     map.insert( std::pair<std::string,double>("FEMB4_EQ",(eq_status&0xF000)>>12) );
+     
+     Write(0x12, 0x000);
+     CheckWIBRegisters(0x000, 0x12, 30);
+     
+     for (int i=0; i<4; i++){
+        for (int j=0; j<4; j++){
+	     Write(0x12, (i<<2) + j);
+	     CheckWIBRegisters((i<<2) + j, 0x12, 30);
+	     auto reg34 = Read(0x22);
+	     auto femb_ts_cnt = (reg34&0xFFFF0000)>>16;
+	     auto chkerr_cnt = (reg34&0xFFFF);
+	     auto reg35 = Read(0x25);
+	     auto frameerr_cnt =(reg35&0xFFFF);
+	     map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_TS_LINK"+std::to_string(j+1),femb_ts_cnt) );
+	     map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_CHK_ERR_LINK"+std::to_string(j+1),chkerr_cnt) );
+	     map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FRAME_ERR_LINK"+std::to_string(j+1),frameerr_cnt) );
+	}
+     }
+     
+     std::vector<int> vcts;
+     for (int j=0; j<3; j++){
+        for (int k=0; k<5; k++){
+	   Write(5, 0x00000);
+	   CheckWIBRegisters(0x00000, 5, 30);
+	   Write(5, 0x00000 | 0x10000);
+	   CheckWIBRegisters(0x00000 | 0x10000, 5, 30);
+	   sleep(0.01);
+	   Write(5, 0x00000);
+	   CheckWIBRegisters(0x00000, 5, 30);
+	}
+ 
+	for (int i=0; i<35; i++){
+	   Write(5, i);
+	   CheckWIBRegisters(i, 5, 30);
+	   sleep(0.001);
+	   auto tmp = Read(6) & 0xFFFFFFFF;
+	   if ( (tmp&0x40000000)>>16 == 0x4000 ) tmp = tmp & 0x3fff;
+	   if ((tmp&0x3f00) == 0x3f00) tmp = tmp & 0x3fff0000;
+	   if (j == 2) vcts.push_back(tmp);
+	   sleep(0.001);
+	} 
+     }
+     
+     auto wib_vcc   = (((vcts[0x19]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001  + 2.5;
+     auto wib_t     = (((vcts[0x19]&0x0FFFF) & 0x3FFF) * 62.5) * 0.001; 
+     auto wib_vbias = (((vcts[0x1A]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001;
+     auto wib_ibias = ((vcts[0x1A]& 0x3FFF) * 19.075) * 0.000001 / 0.1;
+     auto wib_v18   = (((vcts[0x1B]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001;
+     auto wib_i18   = ((vcts[0x1B]& 0x3FFF) * 19.075) * 0.000001 / 0.01;
+     auto wib_v36   = (((vcts[0x1C]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001;
+     auto wib_i36   = ((vcts[0x1C]& 0x3FFF) * 19.075) * 0.000001 / 0.01;
+     auto wib_v28   = (((vcts[0x1D]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001;
+     auto wib_i28   = ((vcts[0x1D]& 0x3FFF) * 19.075) * 0.000001 / 0.01;
+     
+     map.insert( std::pair<std::string,double>("WIB_2991_VCC",wib_vcc) );
+     map.insert( std::pair<std::string,double>("WIB_2991_T",wib_t) );
+     map.insert( std::pair<std::string,double>("WIB_BIAS_V",wib_vbias) ); 
+     map.insert( std::pair<std::string,double>("WIB_BIAS_I",wib_ibias) );
+     map.insert( std::pair<std::string,double>("WIB_V18_V",wib_v18) );
+     map.insert( std::pair<std::string,double>("WIB_V18_I",wib_i18) );
+     map.insert( std::pair<std::string,double>("WIB_V36_V",wib_v36) );
+     map.insert( std::pair<std::string,double>("WIB_V36_I",wib_i36) ); 
+     map.insert( std::pair<std::string,double>("WIB_V28_V",wib_v28) );  
+     map.insert( std::pair<std::string,double>("WIB_V28_I",wib_i28) );  
+     
+     auto bias_vcc  = (((vcts[0x00]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001  + 2.5;
+     auto bias_t    = (((vcts[0x00]&0x0FFFF) & 0x3FFF) * 62.5) * 0.001;
+     
+     map.insert( std::pair<std::string,double>("BIAS_2991_V",bias_vcc) ); 
+     map.insert( std::pair<std::string,double>("BIAS_2991_T",bias_t) ); 
+     map.insert( std::pair<std::string,double>("WIB_PC",(map.find("WIB_BIAS_V")->second * map.find("WIB_BIAS_I")->second) + (map.find("WIB_V18_V")->second * map.find("WIB_V18_I")->second) + (map.find("WIB_V36_V")->second * map.find("WIB_V36_I")->second) + (map.find("WIB_V28_V")->second * map.find("WIB_V28_I")->second)) );
+     
+     for (int i=0; i<4; i++){
+         std::vector<int> vct;
+	 for (int j=i*6+1; j<i*6+7; j++) vct.push_back(vcts[j]);
+	 auto vc25 = vcts[31+i];
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_2991_VCC",(((vct[0]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001 + 2.5) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_2991_T",(((vct[0]&0x0FFFF) & 0x3FFF) * 62.5) * 0.001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV39_V",(((vct[1]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV39_I",((vct[1]& 0x3FFF) * 19.075) * 0.000001 / 0.1) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV30_V",(((vct[2]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV30_I",((vct[2]& 0x3FFF) * 19.075) * 0.000001 / 0.1) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV18_V",(((vct[4]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV18_I",((vct[4]& 0x3FFF) * 19.075) * 0.000001 / 0.1) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_AMV33_V",(((vct[3]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_AMV33_I",((vct[3]& 0x3FFF) * 19.075) * 0.000001 / 0.01) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_BIAS_V",(((vct[5]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_BIAS_I",((vct[5]& 0x3FFF) * 19.075) * 0.000001 / 0.1) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_AMV28_V",(((vc25&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_AMV28_I",((vc25& 0x3FFF) * 19.075) * 0.000001 / 0.01) );
+	 map.find("FEMB"+std::to_string(i+1)+"_AMV33_I")->second = map.find("FEMB"+std::to_string(i+1)+"_AMV33_I")->second - map.find("FEMB"+std::to_string(i+1)+"_AMV28_I")->second;
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_PC",(map.find("FEMB"+std::to_string(i+1)+"_FMV39_V")->second * map.find("FEMB"+std::to_string(i+1)+"_FMV39_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_FMV30_V")->second * map.find("FEMB"+std::to_string(i+1)+"_FMV30_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_FMV18_V")->second * map.find("FEMB"+std::to_string(i+1)+"_FMV18_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_AMV33_V")->second * map.find("FEMB"+std::to_string(i+1)+"_AMV33_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_BIAS_V")->second * map.find("FEMB"+std::to_string(i+1)+"_BIAS_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_AMV28_V")->second * map.find("FEMB"+std::to_string(i+1)+"_AMV28_I")->second)  ) );
+     }
+     
+     return map;
+}
+
