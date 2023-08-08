@@ -27,6 +27,10 @@ class MBB{
   void StartFEMBDaq();
   void StopFEMBDaq();
   void CalibrationPulse();
+  void SystemReset();
+  void RegisterReset();
+  void UDPReset();
+  void AlgReset();
 
   // Basic I/O methods
   uint32_t Read(uint16_t address);
