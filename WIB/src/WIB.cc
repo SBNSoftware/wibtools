@@ -1239,3 +1239,12 @@ void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
   CheckWIBRegisters(0x00, 20, 30);
   TLOG_INFO(identification) << "WIB scanning is done" << TLOG_ENDL;
 }
+
+/*void WIB::WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  // This function is called on only a single FEMB at once
+  
+  std::vector<int> pwr_ctl = {0x31000F, 0x5200F0, 0x940F00, 0x118F000};
+}*/

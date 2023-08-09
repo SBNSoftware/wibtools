@@ -239,8 +239,8 @@ class WIB: public WIBBase {
   void WIB_PLL_cfg(); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
   void WIB_CLKCMD_cs(uint8_t clockSource = 0); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
   void WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource = 0); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
-  void WIB_PWR_FEMB(int FEMB_NO); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a single given FEMB at once
-  void WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a given set of FEMB at once
+  void WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f = false); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a single given FEMB at once
+  void WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f = false); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a given set of FEMB at once
 
  private:
   WIB(); //disallow the default constructor
