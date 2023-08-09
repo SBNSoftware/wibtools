@@ -235,6 +235,12 @@ class WIB: public WIBBase {
   uint16_t New_SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t highBaseline, 
                         bool highLeakage, bool leakagex10, bool acCoupling, bool buffer, bool useExtClock, 
                         uint8_t internalDACControl, uint8_t internalDACValue); // This function pretty same to the function SetupFEMBASICs here with some removed register writes
+  void WIB_PLL_wr(int addr, int din); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void WIB_PLL_cfg(); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void WIB_CLKCMD_cs(uint8_t clockSource = 0); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource = 0); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void WIB_PWR_FEMB(int FEMB_NO); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a single given FEMB at once
+  void WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a given set of FEMB at once
 
  private:
   WIB(); //disallow the default constructor

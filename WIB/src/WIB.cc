@@ -1053,3 +1053,189 @@ std::map<std::string,double> WIB::WIB_STATUS(){
      return map;
 }
 
+void WIB::WIB_PLL_wr(int addr, int din){
+   // This function is copied from Shanshan's python script
+   // to configure WIB/FEMB.
+   // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+   const std::string identification = "WIB::WIB_PLL_wr";
+   auto value = 0x01 + ((addr&0xFF)<<8) + ((din&0x00FF)<<16);
+   Write(11,value);
+   CheckWIBRegisters(value, 11, 30);
+   sleep(0.001);
+   Write(10,1);
+   CheckWIBRegisters(1, 10, 30);
+   sleep(0.001);
+   Write(10,0);
+   CheckWIBRegisters(0, 10, 30);
+}
+
+void WIB::WIB_PLL_cfg(){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  const std::string identification = "WIB::WIB_PLL_cfg";
+  
+  std::string fullPath = getenv(WIB_CONFIG_PATH);
+  fullPath += "/";
+  fullPath += SI5344_CONFIG_FILENAME;
+  std::ifstream confFile(fullPath.c_str());
+  WIBException::WIB_BAD_ARGS e;
+  
+  if(confFile.fail()){
+     std::stringstream expstr;
+     expstr << "Cannot find config file  " << fullPath;
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+  
+  std::string line;
+  std::vector<int> adrs_h;
+  std::vector<int> adrs_l;
+  std::vector<int> datass;
+  int cnt = 0;
+  while(getline(confFile, line)){
+    cnt = cnt + 1;
+    int tmp = line.find(",");
+    if (tmp > 0){
+       int adr = int(strtoul(line.substr(2,(tmp-2)).c_str(),NULL,16));
+       adrs_h.push_back((adr&0xFF00)>>8);
+       adrs_l.push_back((adr&0xFF));
+       datass.push_back(int(strtoul(line.substr(tmp+3,2).c_str(),NULL,16))&0xFF);
+    }
+  }
+  
+  confFile.close();
+  
+  bool lol_flg = false;
+  
+  for (int i=0; i<5; i++){
+    TLOG_INFO(identification) << "check PLL status, please wait..." << TLOG_ENDL;
+    sleep(1);
+    int ver_value = Read(12);
+    ver_value = Read(12);
+    int lol = (ver_value & 0x10000)>>16;
+    int lolXAXB = (ver_value & 0x20000)>>17;
+    int INTR = (ver_value & 0x40000)>>18;
+    if (lol == 1){
+       lol_flg = true;
+       break;
+    }
+  }
+  
+  if (lol_flg){
+     TLOG_INFO(identification) << "PLL of WIB " << wib->GetRemoteAddress() <<  " has locked" << TLOG_ENDL;
+     TLOG_INFO(identification) << "Select system clock and CMD from MBB" << TLOG_ENDL;
+     Write(4, 0x03);
+     CheckWIBRegisters(0x03, 4, 30);  
+  }
+  
+  else{
+    Write(10,0xFF0);
+    sleep(0.01);
+    Write(10,0xFF0);
+    sleep(0.2);
+    TLOG_INFO(identification) << "configurate PLL of WIB " << wib->GetRemoteAddress() <<  "please wait a few minutes..." << TLOG_ENDL;
+    int p_addr = 1;
+    //step1
+    int page4 = adrs_h[0];
+    WIB_PLL_wr(p_addr, page4);
+    WIB_PLL_wr(adrs_l[0], datass[0]);
+    //step2
+    page4 = adrs_h[1];
+    WIB_PLL_wr(p_addr, page4);
+    WIB_PLL_wr(adrs_l[1], datass[1]);
+    //step3
+    page4 = adrs_h[2];
+    WIB_PLL_wr(p_addr, page4);
+    WIB_PLL_wr(adrs_l[2], datass[2]);
+    sleep(0.5);
+    //step4
+    for (unsigned int i=3; i<adrs_h.size(); i++){
+       if (page4 == adrs_h[i]){
+           WIB_PLL_wr(adrs_l[i], datass[i]);
+       }
+       else{
+          page4 = adrs_h[i];
+	  WIB_PLL_wr(p_addr, page4);
+	  WIB_PLL_wr(adrs_l[i], datass[i]);
+       }
+    }
+    
+    for (int i=0; i<10; i++){
+        sleep(3);
+	TLOG_INFO(identification) << "check PLL status, please wait..." << TLOG_ENDL;
+	int ver_value = Read(12);
+	ver_value = Read(12);
+	int lol = (ver_value & 0x10000)>>16;
+	int lolXAXB = (ver_value & 0x20000)>>17;
+	int INTR = (ver_value & 0x40000)>>18;
+	if (lol == 1){
+	   TLOG_INFO(identification) << "PLL of WIB " << wib->GetRemoteAddress() << " is locked" << TLOG_ENDL;
+	   Write(4, 0x01);
+	   CheckWIBRegisters(0x01, 4, 30);
+	   break; 
+	}
+	if (i == 9){
+	    WIBException::WIB_ERROR e;
+	    std::stringstream expstr;
+            expstr << "Fail to configurate PLL of WIB  " << wib->GetRemoteAddress() << ". Please check if MBB is on or 16MHz from dAQ.";
+            e.Append(expstr.str().c_str());
+            throw e;
+	}
+    }
+    
+  }
+}
+
+void WIB::WIB_CLKCMD_cs(uint8_t clockSource){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  
+  const std::string identification = "WIB::WIB_CLKCMD_cs";
+  
+  if(clockSource){
+     Write(0x04, 0x08); // select WIB onboard system clock and CMD
+     CheckWIBRegisters(0x08, 0x04, 30);
+     TLOG_WARNING(identification) << "select WIB onboard system clock and CMD, plese select system clock and CMD from MBB " << TLOG_ENDL;
+  }
+  
+  else{
+     WIB_PLL_cfg(); //select system clock and CMD from MBB
+     TLOG_INFO(identification) << "select system clock and CMD from MBB" << TLOG_ENDL;
+  }
+}
+
+void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  
+  const std::string identification = "WIB::WIBs_SCAN";
+  
+  for (int i=0; i<5; i++){
+     int wib_ver_rb = Read(0xFF); 
+     wib_ver_rb = Read(0xFF);
+     if ((wib_ver_rb&0x0FFF) == (WIB_ver&0x0FFF) && ( wib_ver_rb >= 0)){
+        WIB_CLKCMD_cs(clockSource); // choose clock source
+	break;
+     }
+     
+     if (i == 4){
+         WIBException::WIB_ERROR e;
+	 std::stringstream expstr;
+	 expstr << "WIB with IP  " << wib->GetRemoteAddress() << " readback error with read back value " << wib_ver_rb;
+	 e.Append(expstr.str().c_str());
+	 throw e;
+     }
+  }
+  WIB_UDP_CTL();
+  TLOG_INFO(identification) << "enable data stream and synchronize to Nevis" << TLOG_ENDL;
+  Write(20, 0x00); // disable data stream and synchronize to Nevis
+  CheckWIBRegisters(0x00, 20, 30);
+  Write(20, 0x03); // disable data stream and synchronize to Nevis
+  CheckWIBRegisters(0x03, 20, 30);
+  Write(20, 0x00); // disable data stream and synchronize to Nevis
+  CheckWIBRegisters(0x00, 20, 30);
+  TLOG_INFO(identification) << "WIB scanning is done" << TLOG_ENDL;
+}
