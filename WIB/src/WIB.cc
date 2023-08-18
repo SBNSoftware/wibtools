@@ -937,8 +937,8 @@ std::map<std::string,double> WIB::WIB_STATUS(){
      CheckWIBRegisters(0x100, 0x12, 30);
      sleep(0.02);
      
-     int link_status = -1;
-     int eq_status = -1;
+     uint32_t link_status = -1; // earlier int link_status = 
+     uint32_t eq_status = -1; // earlier int eq_status = 
      
      for (int i=0; i<5; i++){
         link_status = Read(0x21);
@@ -1089,15 +1089,15 @@ void WIB::WIB_PLL_cfg(){
   }
   
   std::string line;
-  std::vector<int> adrs_h;
-  std::vector<int> adrs_l;
+  std::vector<int> adrs_h; 
+  std::vector<int> adrs_l; 
   std::vector<int> datass;
   int cnt = 0;
   while(getline(confFile, line)){
     cnt = cnt + 1;
     int tmp = line.find(",");
     if (tmp > 0){
-       int adr = int(strtoul(line.substr(2,(tmp-2)).c_str(),NULL,16));
+       auto adr = int(strtoul(line.substr(2,(tmp-2)).c_str(),NULL,16)); // earlier int adr
        adrs_h.push_back((adr&0xFF00)>>8);
        adrs_l.push_back((adr&0xFF));
        datass.push_back(int(strtoul(line.substr(tmp+3,2).c_str(),NULL,16))&0xFF);
@@ -1111,11 +1111,11 @@ void WIB::WIB_PLL_cfg(){
   for (int i=0; i<5; i++){
     TLOG_INFO(identification) << "check PLL status, please wait..." << TLOG_ENDL;
     sleep(1);
-    int ver_value = Read(12);
+    uint32_t ver_value = Read(12); // earlier int ver_value = Read(12)
     ver_value = Read(12);
-    int lol = (ver_value & 0x10000)>>16;
-    int lolXAXB = (ver_value & 0x20000)>>17;
-    int INTR = (ver_value & 0x40000)>>18;
+    auto lol = (ver_value & 0x10000)>>16; // earlier int lol =
+    auto lolXAXB = (ver_value & 0x20000)>>17; // earlier int lolXAXB = 
+    auto INTR = (ver_value & 0x40000)>>18; // earlier int INTR = 
     if (lol == 1){
        lol_flg = true;
        break;
@@ -1137,7 +1137,7 @@ void WIB::WIB_PLL_cfg(){
     TLOG_INFO(identification) << "configurate PLL of WIB " << wib->GetRemoteAddress() <<  "please wait a few minutes..." << TLOG_ENDL;
     int p_addr = 1;
     //step1
-    int page4 = adrs_h[0];
+    auto page4 = adrs_h[0]; // earlier int page4
     WIB_PLL_wr(p_addr, page4);
     WIB_PLL_wr(adrs_l[0], datass[0]);
     //step2
@@ -1164,11 +1164,11 @@ void WIB::WIB_PLL_cfg(){
     for (int i=0; i<10; i++){
         sleep(3);
 	TLOG_INFO(identification) << "check PLL status, please wait..." << TLOG_ENDL;
-	int ver_value = Read(12);
+	uint32_t ver_value = Read(12); // earlier int ver_value
 	ver_value = Read(12);
-	int lol = (ver_value & 0x10000)>>16;
-	int lolXAXB = (ver_value & 0x20000)>>17;
-	int INTR = (ver_value & 0x40000)>>18;
+	auto lol = (ver_value & 0x10000)>>16; // earlier int lol
+	auto lolXAXB = (ver_value & 0x20000)>>17; // earlier int lolXAXB
+	auto INTR = (ver_value & 0x40000)>>18; // earlier int INTR
 	if (lol == 1){
 	   TLOG_INFO(identification) << "PLL of WIB " << wib->GetRemoteAddress() << " is locked" << TLOG_ENDL;
 	   Write(4, 0x01);
@@ -1214,7 +1214,7 @@ void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
   const std::string identification = "WIB::WIBs_SCAN";
   
   for (int i=0; i<5; i++){
-     int wib_ver_rb = Read(0xFF); 
+     uint32_t wib_ver_rb = Read(0xFF); 
      wib_ver_rb = Read(0xFF);
      if ((wib_ver_rb&0x0FFF) == (WIB_ver&0x0FFF) && ( wib_ver_rb >= 0)){
         WIB_CLKCMD_cs(clockSource); // choose clock source
@@ -1240,11 +1240,123 @@ void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
   TLOG_INFO(identification) << "WIB scanning is done" << TLOG_ENDL;
 }
 
-/*void WIB::WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f){
+void WIB::WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f, int power){
   // This function is copied from Shanshan's python script
   // to configure WIB/FEMB.
   // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
-  // This function is called on only a single FEMB at once
+  // This function is called on only a single FEMB at once (FEMB_NO = 1, 2, 3, 4)
   
-  std::vector<int> pwr_ctl = {0x31000F, 0x5200F0, 0x940F00, 0x118F000};
-}*/
+  const std::string identification = "WIB::WIB_PWR_FEMB";
+  
+  std::vector<uint32_t> pwr_ctl = {0x31000F, 0x5200F0, 0x940F00, 0x118F000};
+  
+  if (pwr_int_f){
+    int pwr_wr = 0;
+    if (power == 1){
+       pwr_wr = pwr_wr | pwr_ctl[FEMB_NO-1];
+    }
+    else{
+      pwr_wr = pwr_wr | 0;
+    }
+    Write(0x8, 0); // All off
+    CheckWIBRegisters(0, 0x8, 30);
+    sleep(5);
+    Write(0x8, pwr_wr);
+    CheckWIBRegisters(pwr_wr, 0x8, 30);
+    sleep(5);
+    Write(0x8, 0); // All off
+    CheckWIBRegisters(0, 0x8, 30);
+    sleep(0.1);
+    Write(0x8, pwr_wr);
+    CheckWIBRegisters(pwr_wr, 0x8, 30);
+  } // pwr_int_f == true
+  
+  else{
+    auto pwr_status = Read(0x8);
+    if (power == 1){
+      pwr_status = pwr_status | pwr_ctl[FEMB_NO-1];
+      Write(0x8, pwr_status);
+      CheckWIBRegisters(pwr_status, 0x8, 30);
+      sleep(0.5);
+    }
+    else{
+      if ((FEMB_NO-1 == 3) && (((Read(0x8) & 0xFFF)) == 0xFFF) && ((((Read(0x8) & 0x70000))>>16) == 0x07) && (((Read(0x08) && 0xE00000)>>21) == 0x07)){
+         pwr_status = 0x00000000;
+      }
+      else{
+        pwr_status = pwr_status & ((~(pwr_ctl[FEMB_NO-1])) | 0x00100000);
+      }
+      TLOG_INFO(identification) << "FEMB # : " << FEMB_NO << " register 8 value : " << std::hex << pwr_status << TLOG_ENDL;
+      Write(0x8, pwr_status);
+      CheckWIBRegisters(pwr_status, 0x8, 30);
+      sleep(0.5);
+    }
+  } // pwr_int_f == false
+  
+  sleep(1);
+}
+
+void WIB::WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f, std::vector<int> power){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  // This function is called on all 4 FEMBs at once
+  
+  const std::string identification = "WIB::WIB_PWR_FEMB";
+  
+  std::vector<uint32_t> pwr_ctl = {0x31000F, 0x5200F0, 0x940F00, 0x118F000};
+  
+  if (pwr_int_f){
+     int pwr_wr = 0;
+     for (unsigned int i=0; i<FEMB_NOs.size(); i++){
+         if (FEMB_NOs[i]){
+	   if (power[i] == 1){
+	     pwr_wr = pwr_wr | pwr_ctl[i];
+	   }
+	   else{
+	    pwr_wr = pwr_wr | 0; 
+	   }
+	 }
+     }
+     Write(0x8, 0); // All off
+     CheckWIBRegisters(0, 0x8, 30);
+     sleep(5);
+     Write(0x8, pwr_wr);
+     CheckWIBRegisters(pwr_wr, 0x8, 30);
+     sleep(5);
+     Write(0x8, 0); // All off
+     CheckWIBRegisters(0, 0x8, 30);
+     sleep(0.1);
+     Write(0x8, pwr_wr);
+     CheckWIBRegisters(pwr_wr, 0x8, 30);
+  } // pwr_int_f == true
+  
+  else{
+    auto pwr_status = Read(0x8);
+    for (unsigned int i=0; i<FEMB_NOs.size(); i++){
+        if (FEMB_NOs[i]){
+	  if (power[i] == 1){
+	     pwr_status = pwr_status | pwr_ctl[i];
+             Write(0x8, pwr_status);
+             CheckWIBRegisters(pwr_status, 0x8, 30);
+             sleep(0.5);
+	  }
+	  
+	  else{
+	    if ((i == 3) && (((Read(0x8) & 0xFFF)) == 0xFFF) && ((((Read(0x8) & 0x70000))>>16) == 0x07) && (((Read(0x08) && 0xE00000)>>21) == 0x07)){
+	      pwr_status = 0x00000000;
+	    }
+	    else{
+	      pwr_status = pwr_status & ((~(pwr_ctl[i])) | 0x00100000);
+	    }
+	    Write(0x8, pwr_status);
+            CheckWIBRegisters(pwr_status, 0x8, 30);
+	    sleep(0.5);
+	  }
+	}
+    }
+  } // pwr_int_f == false
+  
+  if (std::count(power.begin(), power.end(), 1)) sleep(3);
+  else sleep(1);
+}
