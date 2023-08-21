@@ -1289,11 +1289,11 @@ void WIB::WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f, int power){
       TLOG_INFO(identification) << "FEMB # : " << FEMB_NO << " register 8 value : " << std::hex << pwr_status << TLOG_ENDL;
       Write(0x8, pwr_status);
       CheckWIBRegisters(pwr_status, 0x8, 30);
-      sleep(0.5);
+      //sleep(0.5);
     }
   } // pwr_int_f == false
   
-  sleep(1);
+  sleep(2);
 }
 
 void WIB::WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f, std::vector<int> power){
