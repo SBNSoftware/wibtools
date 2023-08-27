@@ -1360,3 +1360,24 @@ void WIB::WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f, std::vector<
   if (std::count(power.begin(), power.end(), 1)) sleep(3);
   else sleep(1);
 }
+
+void WIB::WIBs_CFG_INIT(bool jumbo_flag){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  
+  const std::string identification = "WIB::WIB_PWR_FEMB";
+  
+  WIB_UDP_CTL();
+  if (jumbo_flag){
+     Write(0x1F, 0xEFB); // normal operation
+     CheckWIBRegisters(0xEFB, 0x1F, 30);
+  }
+  else{
+    Write(0x1F, 0x1FB); // normal operation
+    CheckWIBRegisters(0x1FB, 0x1F, 30);
+  }
+  
+  Write(0x0F, 0x0); // normal operation
+  CheckWIBRegisters(0x0, 0x0F, 30);
+}
