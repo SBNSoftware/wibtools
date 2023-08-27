@@ -44,6 +44,16 @@ private:
   //MBB
   CommandReturn::status ConfigMBB(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
 
+  //Other functions.
+  CommandReturn::status CalibrationPulse(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status TimeStampReset(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status StartFEMBDaq(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status StopFEMBDaq(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status SystemReset(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status RegisterReset(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status UDPReset(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status AlgReset(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+
   //PTC
   CommandReturn::status ConfigPTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
   CommandReturn::status WritePTC(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
