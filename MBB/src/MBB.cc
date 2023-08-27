@@ -204,7 +204,7 @@ void MBB::SetContinueOnMBBRegReadError(bool enable){
   }
 
 
-void MBB::TimeStampReset(){
+void MBB::TimeStampReset(){//Transition from 0 to 1 will generate a timestamp reset signal to all FEMBs.
   Write("TIMESTAMP_RESET", 1);
   sleep(1);
   Write("TIMESTAMP_RESET", 0);
@@ -227,3 +227,27 @@ void MBB::CalibrationPulse(){//Transition from 0 to 1 will generate a calibratio
   sleep(1);
   Write("CALIBRATION_PULSE", 0);
   }
+
+void MBB::SystemReset(){//Set to reset entire system (AUTO Clears)
+  Write("SYS_RESET", 1);
+  sleep(1);
+  //auto clears.
+}
+
+void MBB::RegisterReset(){//Set to reset system registers (AUTO Clears)
+  Write("REG_RESET", 1);
+  sleep(1);
+  //auto clears.                                                                                                                                             
+}
+
+void MBB::UDPReset(){//Set to reset UDP interface (AUTO Clears)                                                                                      
+  Write("UDP_RESET", 1);
+  sleep(1);
+  //auto clears.                                                                                                                                             
+}
+
+void MBB::AlgReset(){//Set to reset MBB state machine (AUTO Clears)                                                                                       
+  Write("ALG_RESET", 1);
+  sleep(1);
+  //auto clears.                                                                                                                                             
+}

@@ -103,7 +103,55 @@ void WIBTool::MBBDevice::LoadCommandList()
 	     "  Usage:\n"					\
 	      "  configMBB  <PULSE_SOURCE 0-1> <PULSE_PERIOD 0-0xffffffff>\n",
 	      &MBBDevice::autoComplete_MBBAddressTable);
-  
+
+   AddCommand("CalibrationPulse",&MBBDevice::CalibrationPulse,
+             "Will generate a calibration signal sent to all FEMBs.\n"                              \
+             "  Usage:\n"                                       \
+              "  CalibrationPulse()\n",
+              &MBBDevice::autoComplete_MBBAddressTable);
+
+   AddCommand("TimeStampReset",&MBBDevice::TimeStampReset,
+             "Will generate a timestamp reset signal sent to all FEMBs.\n"                              \
+             "  Usage:\n"                                       \
+              "  TimeStampReset()\n",
+              &MBBDevice::autoComplete_MBBAddressTable);
+
+   AddCommand("StartFEMBDaq",&MBBDevice::StartFEMBDaq,
+             "Will start all FEMBs generating data (Synchronous start).\n"                              \
+             "  Usage:\n"                                       \
+              "  StartFEMBDaq()\n",
+              &MBBDevice::autoComplete_MBBAddressTable);
+
+   AddCommand("StopFEMBDaq",&MBBDevice::StopFEMBDaq,
+             "Will stop all FEMBs generating data (Synchronous stop).\n"                              \
+             "  Usage:\n"                                       \
+              "  StopFEMBDaq()\n",
+              &MBBDevice::autoComplete_MBBAddressTable);
+
+   AddCommand("SystemReset",&MBBDevice::SystemReset,
+             "Set to reset entire system (AUTO clears).\n"                              \
+             "  Usage:\n"                                       \
+              "  SystemReset()\n",
+              &MBBDevice::autoComplete_MBBAddressTable);
+
+   AddCommand("RegisterReset",&MBBDevice::RegisterReset,
+             "Set to reset system registers (AUTO clears).\n"                              \
+             "  Usage:\n"                                       \
+              "  RegisterReset()\n",
+              &MBBDevice::autoComplete_MBBAddressTable);
+
+   AddCommand("UDPReset",&MBBDevice::UDPReset,
+             "Set to reset UDP interface (AUTO clears).\n"                              \
+             "  Usage:\n"                                       \
+              "  UDPReset()\n",
+              &MBBDevice::autoComplete_MBBAddressTable);
+
+   AddCommand("AlgReset",&MBBDevice::AlgReset,
+             "Set to reset MBB state machine (AUTO clears).\n"                              \
+             "  Usage:\n"                                       \
+              "  AlgReset()\n",
+              &MBBDevice::autoComplete_MBBAddressTable);
+
 }
 
 std::string WIBTool::MBBDevice::autoComplete_MBBAddressTable(std::vector<std::string> const & line,
@@ -459,5 +507,119 @@ CommandReturn::status WIBTool::MBBDevice::ConfigMBB(std::vector<std::string> str
   uint32_t PULSE_SOURCE = intArg[0];
   uint32_t PULSE_PERIOD = intArg[1];
   mbb->ConfigMBB(PULSE_SOURCE, PULSE_PERIOD);
+  return CommandReturn::OK;
+}
+
+
+CommandReturn::status WIBTool::MBBDevice::CalibrationPulse(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+  
+  if(nArgs > 0){
+    std::cout << "Error: No arguments should be provided" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  mbb->CalibrationPulse();
+  return CommandReturn::OK;
+}
+
+CommandReturn::status WIBTool::MBBDevice::TimeStampReset(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+
+  if(nArgs > 0){
+    std::cout << "Error: No arguments should be provided" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  mbb->TimeStampReset();
+  return CommandReturn::OK;
+}
+
+
+CommandReturn::status WIBTool::MBBDevice::StartFEMBDaq(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+
+  if(nArgs > 0){
+    std::cout << "Error: No arguments should be provided" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  mbb->StartFEMBDaq();
+  return CommandReturn::OK;
+}
+
+CommandReturn::status WIBTool::MBBDevice::StopFEMBDaq(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+
+  if(nArgs > 0){
+    std::cout << "Error: No arguments should be provided" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  mbb->StopFEMBDaq();
+  return CommandReturn::OK;
+}
+
+CommandReturn::status WIBTool::MBBDevice::SystemReset(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+
+  if(nArgs > 0){
+    std::cout << "Error: No arguments should be provided" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  mbb->SystemReset();
+  return CommandReturn::OK;
+}
+
+CommandReturn::status WIBTool::MBBDevice::RegisterReset(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+
+  if(nArgs > 0){
+    std::cout << "Error: No arguments should be provided" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  mbb->RegisterReset();
+  return CommandReturn::OK;
+}
+
+CommandReturn::status WIBTool::MBBDevice::UDPReset(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+
+  if(nArgs > 0){
+    std::cout << "Error: No arguments should be provided" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  mbb->UDPReset();
+  return CommandReturn::OK;
+}
+
+CommandReturn::status WIBTool::MBBDevice::AlgReset(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+
+  (void) strArg;
+  const size_t nArgs = intArg.size();
+
+  if(nArgs > 0){
+    std::cout << "Error: No arguments should be provided" << std::endl;
+    return CommandReturn::BAD_ARGS;
+  }
+
+  mbb->AlgReset();
   return CommandReturn::OK;
 }
