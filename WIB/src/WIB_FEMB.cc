@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <bitset>
+#include <fstream>
 #include "trace.h"
 
 #define sleep(x) usleep((useconds_t) x * 1e6)
@@ -1906,7 +1907,7 @@ uint16_t WIB::New_SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uin
   return 1;
 }
 
-void WIB::CE_CHK_CFG(uint32_t iFEMB, uint32_t pls_cs, uint32_t dac_sel, uint32_t fpgadac_en, uint32_t asicdac_en, uint32_t fpgadac_v,
+void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, uint32_t pls_cs, uint32_t dac_sel, uint32_t fpgadac_en, uint32_t asicdac_en, uint32_t fpgadac_v,
                   uint32_t pls_gap, uint32_t pls_dly, uint32_t mon_cs, uint32_t data_cs,
 		  uint32_t sts, uint32_t snc, uint32_t sg0, uint32_t sg1, uint32_t st0, uint32_t st1, uint32_t smn, uint32_t sdf,
 		  uint32_t slk0, uint32_t stb1, uint32_t stb, uint32_t s16, uint32_t slk1, uint32_t sdc, uint32_t swdac1, uint32_t swdac2,                                 uint32_t dac,bool fecfg_loadflg){
@@ -1923,12 +1924,16 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint32_t pls_cs, uint32_t dac_sel, uint32_t
    if (mon_cs == 0) tp_sel = ((asicdac_en&0x01) <<1) + (fpgadac_en&0x01) + ((dac_sel&0x1)<<8);
    else tp_sel = 0x402;
    
+   TLOG_INFO(identification) << "tp_sel value : " << tp_sel << TLOG_ENDL;
+   
    uint32_t pls_cs_value = 0x3;
    
    if (pls_cs == 0) pls_cs_value = 0x3; //disable all
    else if (pls_cs == 1) pls_cs_value = 0x2; // internal pls
    else if (pls_cs == 2) pls_cs_value = 0x1; // external pls
    else if (pls_cs == 3) pls_cs_value = 0x0; // enable int and ext pls
+   
+   TLOG_INFO(identification) << "pls_cs value : " << pls_cs_value << TLOG_ENDL;
    
    uint32_t reg_5_value;
    
@@ -1939,6 +1944,8 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint32_t pls_cs, uint32_t dac_sel, uint32_t
    else{
       reg_5_value = ((pls_gap<<16)&0xFFFF0000) + ((pls_dly<<8)&0xFF00) + (0x00);
    }
+   
+   TLOG_INFO(identification) << "Register 5 value : " << reg_5_value << TLOG_ENDL;
    
    WriteFEMB(iFEMB,0,1);
    sleep(0.001);
@@ -1964,14 +1971,28 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint32_t pls_cs, uint32_t dac_sel, uint32_t
    
    if (fecfg_loadflg) regs = {};
    else{
-     FEREG_MAP.set_fe_board(sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);
+     FEREG_MAP.set_fe_board(sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);// global configuration
+     //FEREG_MAP.set_fe_board(config_no,sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);
+     //FEREG_MAP.set_collection_fe_board(sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);
      regs = FEREG_MAP.REGS;
    }
    
    std::vector<uint32_t>fe_regs((8+1)*4,0x00000000);
    std::vector<int> range_vec = {0,2,4,6};
    
+   std::ofstream debug_file,debug_file_1,debug_file_2,debug_file_3,debug_file_4;
+   
+   debug_file.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_file_1.txt");
+debug_file_1.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_values.txt");
+debug_file_2.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_writes.txt");
+debug_file_3.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_reads.txt");
+debug_file_4.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_all_regs.txt");
+
+   for (unsigned int i=0; i<regs.size(); i++) debug_file_4 << i << " Value : " << regs[i] << "\n";
+   debug_file_4.close();
+   
    for (unsigned int i=0; i<range_vec.size(); i++){
+       debug_file << "************** Range vector value : " << range_vec[i] << " *****************\n";
        int chip_bits_len = 8*(16+2);
        
        std::vector<bool> chip_fe_regs0(((range_vec[i]+1)* chip_bits_len)-(range_vec[i]*chip_bits_len));
@@ -1979,6 +2000,16 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint32_t pls_cs, uint32_t dac_sel, uint32_t
        
        std::vector<bool> chip_fe_regs1(((range_vec[i]+2)* chip_bits_len)-((range_vec[i]+1)*chip_bits_len));
        copy(regs.begin()+((range_vec[i]+1)*chip_bits_len), regs.begin()+((range_vec[i]+2)* chip_bits_len), chip_fe_regs1.begin());
+       
+       TLOG_INFO(identification) << "Length of chip_fe_regs0 vector : " << chip_fe_regs0.size() << TLOG_ENDL;
+       TLOG_INFO(identification) << "Length of chip_fe_regs1 vector : " << chip_fe_regs1.size() << TLOG_ENDL;
+       TLOG_INFO(identification) << "Range vector value : " << range_vec[i] << TLOG_ENDL;
+       debug_file << "====== Size of the chip_fe_regs0 vector : " << chip_fe_regs0.size() 
+                  << " Size of the chip_fe_regs1 vector : " <<   chip_fe_regs1.size() << " ============\n";
+       for (unsigned int ele=0; ele<chip_fe_regs0.size(); ele++){
+          TLOG_INFO(identification) << ele << " chip reg 0 : " << chip_fe_regs0[ele] << "  chip reg 1 : " << chip_fe_regs1[ele] << TLOG_ENDL;
+	  debug_file << ele << " chip reg 0 : " << chip_fe_regs0[ele] << " chip reg 1 : " << chip_fe_regs1[ele] << "\n";
+       }
        
        std::vector<bool> chip_regs;
        
@@ -2015,31 +2046,48 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint32_t pls_cs, uint32_t dac_sel, uint32_t
        } 
    } // loop over range vector
    
+   debug_file.close();
+   
    int i = 0;
+   
+   for (unsigned int i=0; i<fe_regs.size(); i++){
+      debug_file_1 << i << "  " << fe_regs[i] << "\n";
+   }
+   
+   debug_file_1.close();
    
    for (int regNum=0x200; regNum<(0x200+int(fe_regs.size())); regNum++){
       WriteFEMB(iFEMB,regNum,fe_regs[i]);
       CheckFEMBRegisters(fe_regs[i],regNum,iFEMB,30);
-      i++;
+      debug_file_2 << "Register : " << regNum << " Value : " << fe_regs[i] << "\n";
+      i++; 
    }
+   
+   debug_file_2.close();
    
    WriteFEMB(iFEMB,2,1); // SPI write
    //CheckFEMBRegisters(1,2,iFEMB,30);
-   sleep(0.001);
+   sleep(1);
    WriteFEMB(iFEMB,2,1); // SPI write
    //CheckFEMBRegisters(1,2,iFEMB,30);
-   sleep(0.001);
+   sleep(1);
    WriteFEMB(iFEMB,2,1); // SPI write
    //CheckFEMBRegisters(1,2,iFEMB,30);
-   sleep(0.001);
+   sleep(1);
    
    std::vector<uint32_t> fe_rb_regs;
    
    for (int regNum=0x250; regNum<(0x250+int(fe_regs.size())); regNum++){
       auto val = ReadFEMB(iFEMB,regNum);
+      //sleep(0.1);
+      //val = ReadFEMB(iFEMB,regNum);
+      //sleep(0.1);
+      //val = ReadFEMB(iFEMB,regNum);
+      debug_file_3 << "Register : " << regNum << " Value 1 : " << val << " Value 2 : " << ReadFEMB(iFEMB,regNum) << "\n";
       fe_rb_regs.push_back(val);
    }
    
+   debug_file_3.close();
    
    for (unsigned int j=0; j<fe_regs.size(); j++){
       if ((fe_regs[j] != fe_rb_regs[j]) && (data_cs == 0)){
@@ -2111,5 +2159,7 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint32_t pls_cs, uint32_t dac_sel, uint32_t
    
    WriteFEMB(iFEMB,9,9); // enable data stream to WIB and reset transceiver
    CheckFEMBRegisters(9,9,iFEMB,30);
+   sleep(2);
+   FEMB_UDPACQ_V2(iFEMB-1);
    TLOG_INFO(identification) << "************ END OF FEMB CONFIGURATION FEMB " << iFEMB << " ******************" << TLOG_ENDL;
 }

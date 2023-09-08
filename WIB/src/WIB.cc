@@ -926,6 +926,22 @@ void WIB::FEMB_UDPACQ(int femb_addr){
      WIB_UDP_CTL(false);
 }
 
+void WIB::FEMB_UDPACQ_V2(int femb_addr){
+    // This function is a modified version of one of the funcitons available in Shanshan's python script
+    // to configure WIB/FEMB.
+    // The original function is in cls_config.py module inside the repository CE_LD with name FEMB_UDPACQ(git branch name is, Installation_Support)
+    const std::string identification = "WIB::FEMB_UDPACQ_V2";
+    Write(0x01,0x2); // Time Stamp Reset command encoded in 2MHz
+    CheckWIBRegisters(0x2,0x01,30); 
+    Write(0x01,0x0);
+    CheckWIBRegisters(0x0,0x01,30);
+    Write(18,0x8000);
+    CheckWIBRegisters(0x8000,18,30); // reset error counters
+    WIB_UDP_CTL(true); // Enable HS data from the WIB to PC through UDP
+    for (int i=0; i<8; i++) FEMB_ASIC_CS(femb_addr, i);
+    WIB_UDP_CTL(false); // disable HS data from this WIB to PC through UDP
+}
+
 std::map<std::string,double> WIB::WIB_STATUS(){
      // This function is copied from Shanshan's python script
      // to configure WIB/FEMB.
