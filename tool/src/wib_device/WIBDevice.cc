@@ -316,6 +316,10 @@ void WIBTool::WIBDevice::LoadCommandList(){
 	     "  Usage:\n"\
 	     "  rdWSFP address value <byte_count>\n"
 	     );
-
+  AddCommand("BNLFEMBStatus",&WIBDevice::Dump_WIB_FEMB_Status,
+	     "Dump WIB and FEMB Status"\
+	     "  Usage:\n"\
+	     "  BNLFEMBStatus <iFEMB 1-4>\n"
+	     ); 
 }
 
