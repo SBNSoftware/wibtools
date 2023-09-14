@@ -51,51 +51,22 @@ void WIB::FullStart()
 }
 
 void WIB::configWIB(uint8_t clockSource){
-  
-  int fw_version = Read("FW_VERSION");
-  int crate = Read("CRATE_ADDR");
-  int slot = Read("SLOT_ADDR");
   const std::string identification = "WIB::configWIB";
-  //TLOG_INFO(identification) << "***** FW VERSION : " << fw_version << "  " << std::bitset<32>(fw_version).to_string() << " *******" << TLOG_ENDL;
-  //TLOG_INFO(identification) << "***** FW VERSION 1: " << fw_version << " FW VERSION 2: " << int(Read(0xFF)&0xFFFF) << TLOG_ENDL;
-  //TLOG_INFO(identification) << "***** CRATE ADDR. 1: " << crate << " CRATE ADDR. 2: " << int((Read(0xFF)&0xFF000000)>>24) << TLOG_ENDL;
-  //TLOG_INFO(identification) << "***** SLOT ADDR. 1: " << slot << " SLOT ADDR. 2: " << int((Read(0xFF)&0xFF0000)>>16) << TLOG_ENDL;
-  TLOG_INFO(identification) << "Configure WIB in crate " << std::hex << crate << " slot " << std::hex << slot << " with fw version " << std::hex << fw_version << " clockSource " << int(clockSource) << TLOG_ENDL; 
-
+  TLOG_INFO(identification) << "************* Now Starting configWIB ****************" << TLOG_ENDL;
   // setup
   UDP_enable(true); 
-  TLOG_INFO(identification) << "UDP ENABLE VALUE (After enabling) : " << int(Read("UDP_DISABLE")) << TLOG_ENDL;
   Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
   if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0xEFB, "UDP_FRAME_SIZE", 30);
-  TLOG_INFO(identification) << "WRITE VALUE (UDP_FRAME_SIZE) : EFB" << TLOG_ENDL;
-  TLOG_INFO(identification) << "READ (UDP_FRAME_SIZE) : " << std::hex << int(Read("UDP_FRAME_SIZE")) << TLOG_ENDL;
-  //Write(0x1F,Read(0x1F)|0xEFB);
-  //TLOG_INFO(identification) << "****** UDP FRAME SIZE 1 : " << int(Read("UDP_FRAME_SIZE")) << " UDP FRAME SIZE 2 : " << int(Read(0x1F)&0xFFF) << TLOG_ENDL;
   Write("UDP_SAMP_TO_SAVE",0x7F00);
   if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0x7F00, "UDP_SAMP_TO_SAVE", 30);
-  TLOG_INFO(identification) << "WRITE VALUE (UDP_SAMP_TO_SAVE) : 0x7F00" << TLOG_ENDL;
-  TLOG_INFO(identification) << "READ (UDP_SAMP_TO_SAVE) : " << std::hex << int(Read("UDP_SAMP_TO_SAVE")) << TLOG_ENDL;
-  //Write(0x10,Read(0x10)|0x7F00); // Wrong
-  //Write(0x10,(Read(0x10)&0xFFFF0000)|0x7F00); // Right
-  //TLOG_INFO(identification) << " UDP SAMPLE TO SAVE VALUE : " << int(Read("UDP_SAMP_TO_SAVE")) << TLOG_ENDL;
   Write("UDP_BURST_MODE",0); // normal UDP operation
   if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "UDP_BURST_MODE", 30);
-  TLOG_INFO(identification) << "WRITE VALUE (UDP_BURST_MODE) : 0" << TLOG_ENDL;
-  TLOG_INFO(identification) << "READ (UDP_BURST_MODE) : " << std::hex << int(Read("UDP_BURST_MODE")) << TLOG_ENDL;
-  //Write(0x0F,(Read(0x0F)&0xFFFFFFF0)|0x3);
-  //TLOG_INFO(identification) << " UDP_BURST_MODE : " << int(Read("UDP_BURST_MODE")) << TLOG_ENDL;
   UDP_enable(false); 
-  TLOG_INFO(identification) << "UDP ENABLE VALUE (After disabling) : " << int(Read("UDP_DISABLE")) << TLOG_ENDL;
   // clock select
   if(clockSource == 0){
     TLOG_INFO(identification)  << "--> configuring Si5344 PLL...";
 
     ResetSi5344();
-    
-    //UDP_enable(true);// copied from BNL CE ce_runs.py (Varuna)
-    //Write(0x0A,0xFF0); // copied from BNL CE ce_runs.py (Varuna)
-    //Write(0x0A,0xFF0); // copied from BNL CE ce_runs.py (Varuna)
-    //usleep(10000); copied from BNL CE ce_runs.py (Varuna)
     
     // check PLL status; if PLL is not already locked, 
     // then load from the configuration from a file
@@ -139,7 +110,7 @@ void WIB::configWIB(uint8_t clockSource){
   }
 
   UDP_enable(false);
-  TLOG_INFO(identification) << "configureing WIB is finished" << TLOG_ENDL;
+  TLOG_INFO(identification) << "***************** configWIB completed **************************" << TLOG_ENDL;
 }
 
 bool WIB::PLL_check(int iTries){
@@ -947,6 +918,9 @@ std::map<std::string,double> WIB::WIB_STATUS(){
      // to configure WIB/FEMB.
      // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
      const std::string identification = "WIB::WIB_STATUS";
+     
+     TLOG_INFO(identification) << "************* Now Starting WIB_STATUS  ****************" << TLOG_ENDL;
+     
      Write(0x12, 0x8000);
      CheckWIBRegisters(0x8000, 0x12, 30);
      Write(0x12, 0x100);
@@ -1067,6 +1041,7 @@ std::map<std::string,double> WIB::WIB_STATUS(){
      }
      
      return map;
+     TLOG_INFO(identification) << "************* WIB_STATUS completed ****************" << TLOG_ENDL;
 }
 
 void WIB::WIB_PLL_wr(int addr, int din){
@@ -1229,6 +1204,8 @@ void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
   
   const std::string identification = "WIB::WIBs_SCAN";
   
+  TLOG_INFO(identification) << "************* Now Starting WIBs_SCAN  ****************" << TLOG_ENDL;
+  
   for (int i=0; i<5; i++){
      uint32_t wib_ver_rb = Read(0xFF); 
      wib_ver_rb = Read(0xFF);
@@ -1254,6 +1231,8 @@ void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
   Write(20, 0x00); // disable data stream and synchronize to Nevis
   CheckWIBRegisters(0x00, 20, 30);
   TLOG_INFO(identification) << "WIB scanning is done" << TLOG_ENDL;
+  
+  TLOG_INFO(identification) << "************* WIBs_SCAN completed ****************" << TLOG_ENDL;
 }
 
 void WIB::WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f, int power){
@@ -1263,6 +1242,8 @@ void WIB::WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f, int power){
   // This function is called on only a single FEMB at once (FEMB_NO = 1, 2, 3, 4)
   
   const std::string identification = "WIB::WIB_PWR_FEMB";
+  
+  TLOG_INFO(identification) << "************* Now Starting WIB_PWR_FEMB  ****************" << TLOG_ENDL;
   
   std::vector<uint32_t> pwr_ctl = {0x31000F, 0x5200F0, 0x940F00, 0x118F000};
   
@@ -1310,6 +1291,7 @@ void WIB::WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f, int power){
   } // pwr_int_f == false
   
   sleep(2);
+  TLOG_INFO(identification) << "************* WIB_PWR_FEMB completed ****************" << TLOG_ENDL;
 }
 
 void WIB::WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f, std::vector<int> power){
@@ -1319,6 +1301,8 @@ void WIB::WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f, std::vector<
   // This function is called on all 4 FEMBs at once
   
   const std::string identification = "WIB::WIB_PWR_FEMB";
+  
+  TLOG_INFO(identification) << "************* Now Starting WIB_PWR_FEMB  ****************" << TLOG_ENDL;
   
   std::vector<uint32_t> pwr_ctl = {0x31000F, 0x5200F0, 0x940F00, 0x118F000};
   
@@ -1375,6 +1359,7 @@ void WIB::WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f, std::vector<
   
   if (std::count(power.begin(), power.end(), 1)) sleep(3);
   else sleep(1);
+  TLOG_INFO(identification) << "************* WIB_PWR_FEMB completed ****************" << TLOG_ENDL;
 }
 
 void WIB::WIBs_CFG_INIT(bool jumbo_flag){
@@ -1383,6 +1368,8 @@ void WIB::WIBs_CFG_INIT(bool jumbo_flag){
   // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
   
   const std::string identification = "WIB::WIB_PWR_FEMB";
+  
+  TLOG_INFO(identification) << "************* Now Starting WIBs_CFG_INIT  ****************" << TLOG_ENDL;
   
   WIB_UDP_CTL();
   if (jumbo_flag){
@@ -1396,4 +1383,6 @@ void WIB::WIBs_CFG_INIT(bool jumbo_flag){
   
   Write(0x0F, 0x0); // normal operation
   CheckWIBRegisters(0x0, 0x0F, 30);
+  
+  TLOG_INFO(identification) << "************* WIBs_CFG_INIT completed  ****************" << TLOG_ENDL;
 }

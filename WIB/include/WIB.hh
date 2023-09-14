@@ -231,8 +231,9 @@ class WIB: public WIBBase {
   void SetContinueOnFEMBSyncError(bool enable);
   void SetContinueIfListOfFEMBClockPhasesDontSync(bool enable); // if true try to hunt for the phase else raise exception
   std::map<std::string,double> WIB_STATUS(); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
-  void New_ConfigFEMB(uint8_t iFEMB, std::vector<uint32_t> fe_config, std::vector<uint16_t> clk_phases,uint8_t pls_mode=0, uint8_t pls_dac_val=0, uint8_t start_frame_mode_sel=1, uint8_t start_frame_swap=1); // This function is a modified version of existing ConfigFEMB function in wibtools
-  uint16_t New_SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t highBaseline, 
+  void New_ConfigFEMB(uint8_t iFEMB, uint8_t config_no, std::vector<uint32_t> fe_config, std::vector<uint16_t> clk_phases,uint8_t pls_mode=0, 
+                      uint8_t  pls_dac_val=0, uint8_t start_frame_mode_sel=1, uint8_t start_frame_swap=1); // This function is a modified version of existing ConfigFEMB function in wibtools
+  uint16_t New_SetupFEMBASICs(uint8_t iFEMB, uint8_t config_no, uint8_t gain, uint8_t shape, uint8_t highBaseline, 
                         bool highLeakage, bool leakagex10, bool acCoupling, bool buffer, bool useExtClock, 
                         uint8_t internalDACControl, uint8_t internalDACValue); // This function pretty same to the function SetupFEMBASICs here with some removed register writes
   void WIB_PLL_wr(int addr, int din); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
