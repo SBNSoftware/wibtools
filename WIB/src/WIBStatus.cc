@@ -386,6 +386,7 @@ void WIBTool::WIBStatus::PrintFEMBTable(){
 std::map<std::string,double> WIBTool::WIBStatus::RetrieveStatusVars(){
   StartPowerMes();
   ProcessWIB();
+  std::map<std::string,double> wib_map = wib->WIB_STATUS();
   for(uint8_t i=1; i<=FEMB_COUNT;i++) ProcessFEMB(i);
   
   std::map<std::string,double> map;
@@ -442,6 +443,8 @@ std::map<std::string,double> WIBTool::WIBStatus::RetrieveStatusVars(){
       map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_LINK"+std::to_string(iLink+1)+"_CHKSUM_ERRCOUNT", CHKSUM_ERROR_COUNT[i][iLink] ));
       map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_LINK"+std::to_string(iLink+1)+"_FRAME_ERRCOUNT", FRAME_ERROR_COUNT[i][iLink] ));
     }
+    
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_AMV28_I", wib_map.find("FEMB"+std::to_string(ibrd)+"_AMV28_I")->second ));
          
   }  
 
