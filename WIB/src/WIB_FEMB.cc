@@ -1596,8 +1596,7 @@ void WIB::CheckFEMBRegisters(uint32_t expected_val, uint32_t reg_addrs, int FEMB
   }
 }
 
-void WIB::New_ConfigFEMB(uint8_t iFEMB,std::vector<uint32_t> fe_config,std::vector<uint16_t> clk_phases,uint8_t pls_mode, uint8_t pls_dac_val, 
-uint8_t start_frame_mode_sel, uint8_t start_frame_swap){
+void WIB::New_ConfigFEMB(uint8_t iFEMB,uint8_t config_no,std::vector<uint32_t> fe_config,std::vector<uint16_t> clk_phases,uint8_t pls_mode, uint8_t pls_dac_val,uint8_t start_frame_mode_sel, uint8_t start_frame_swap){
   const std::string identification = "WIB::New_ConfigFEMB";
   // This function is written as a temporary solution to some of the problems, we
   // see in running the WIB board reader (Sometimes all FEMBs are not configured at once).
@@ -1609,6 +1608,8 @@ uint8_t start_frame_mode_sel, uint8_t start_frame_swap){
   
   // All modifications were made by looking at "CE_CHK_CFG" function in the "cls_config.py" module 
   // inside the repository "CE_LD"(git branch name is, Installation_Support)
+  
+  TLOG_INFO(identification) << "************* Now Starting New_ConfigFEMB  ****************" << TLOG_ENDL;
   
   if (iFEMB < 1 || iFEMB > 4)
   {
@@ -1719,7 +1720,7 @@ uint8_t start_frame_mode_sel, uint8_t start_frame_swap){
   if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(0, 42, iFEMB, 30);
   sleep(0.001);
   
-  New_SetupFEMBASICs(iFEMB, fe_config[0], fe_config[1], fe_config[2], fe_config[3], fe_config[4], fe_config[5], fe_config[6], fe_config[7], pls_mode, internal_daq_value);
+  New_SetupFEMBASICs(iFEMB, config_no, fe_config[0], fe_config[1], fe_config[2], fe_config[3], fe_config[4], fe_config[5], fe_config[6], fe_config[7], pls_mode, internal_daq_value);
   
   WriteFEMB(iFEMB,9, 9);
   if (CheckWIB_FEMB_REGs) CheckFEMBRegisters(9, 9, iFEMB, 30);
@@ -1740,9 +1741,11 @@ uint8_t start_frame_mode_sel, uint8_t start_frame_swap){
   if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0x8000, 18, 30);
   
   FEMB_UDPACQ(iFEMB-1);
+  
+  TLOG_INFO(identification) << "************* New_ConfigFEMB completed ****************" << TLOG_ENDL;
 }
 
-uint16_t WIB::New_SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uint8_t highBaseline, bool highLeakage, bool leakagex10, bool acCoupling,bool buffer, bool useExtClock, uint8_t internalDACControl, uint8_t internalDACValue)
+uint16_t WIB::New_SetupFEMBASICs(uint8_t iFEMB, uint8_t config_no, uint8_t gain, uint8_t shape, uint8_t highBaseline, bool highLeakage, bool leakagex10, bool acCoupling,bool buffer, bool useExtClock, uint8_t internalDACControl, uint8_t internalDACValue)
 {
   // This function is written as a temporary solution to some of the problems, we
   // see in running the WIB board reader (Sometimes all FEMBs are not configured at once).
@@ -1756,6 +1759,9 @@ uint16_t WIB::New_SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uin
   // inside the repository "CE_LD"(git branch name is, Installation_Support)
   
   const std::string identification = "WIB::New_SetupFEMBASICs";
+  
+  TLOG_INFO(identification) << "************* Now Starting New_SetupFEMBASICs  ****************" << TLOG_ENDL;
+  
   (void) buffer; // to make compiler not complain about unused arguments
 
   if (gain > 3) 
@@ -1808,7 +1814,8 @@ uint16_t WIB::New_SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uin
                       leakagex10,acCoupling,internalDACControl,internalDACValue
                   );
     // Now just set collection channels to low baseline
-    fe_map.set_collection_baseline(1); // !bypassOutputBuffer
+    //fe_map.set_collection_baseline(1); // !bypassOutputBuffer
+    fe_map.set_collection_baseline(1,config_no);
   }
   else
   {
@@ -1904,6 +1911,7 @@ uint16_t WIB::New_SetupFEMBASICs(uint8_t iFEMB, uint8_t gain, uint8_t shape, uin
     } // if iSPIWrite == 1
   } // for iSPIWrite
   
+  TLOG_INFO(identification) << "************* New_SetupFEMBASICs completed ****************" << TLOG_ENDL;
   return 1;
 }
 
@@ -1917,7 +1925,7 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, uint32_t pls_cs, uint32_
    
    const std::string identification = "WIB::CE_CHK_CFG";
    
-   TLOG_INFO(identification) << "************ START OF FEMB CONFIGURATION FEMB " << iFEMB << " ******************" << TLOG_ENDL;
+   TLOG_INFO(identification) << "************* Now Starting CE_CHK_CFG  ****************" << TLOG_ENDL;
    
    uint32_t tp_sel;
    
@@ -1971,9 +1979,9 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, uint32_t pls_cs, uint32_
    
    if (fecfg_loadflg) regs = {};
    else{
-     FEREG_MAP.set_fe_board(sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);// global configuration
-     //FEREG_MAP.set_fe_board(config_no,sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);
-     //FEREG_MAP.set_collection_fe_board(sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);
+     //FEREG_MAP.set_fe_board(sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);// global configuration
+     FEREG_MAP.set_fe_board(config_no,sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // ch. by ch. config.
+     //FEREG_MAP.set_collection_fe_board(config_no, sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // only collection plane config.
      regs = FEREG_MAP.REGS;
    }
    
@@ -2161,5 +2169,5 @@ debug_file_4.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sb
    CheckFEMBRegisters(9,9,iFEMB,30);
    sleep(2);
    FEMB_UDPACQ_V2(iFEMB-1);
-   TLOG_INFO(identification) << "************ END OF FEMB CONFIGURATION FEMB " << iFEMB << " ******************" << TLOG_ENDL;
+   TLOG_INFO(identification) << "************* CE_CHK_CFG completed ****************" << TLOG_ENDL;
 }
