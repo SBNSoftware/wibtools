@@ -1,6 +1,7 @@
 #include <wib_device/WIBDevice.hh>
 #include <WIBStatus.hh>
 #include <fstream>
+#include <set>
 #include <time.h> //time
 
 CommandReturn::status WIBTool::WIBDevice::DumpAddressTable(std::vector<std::string> strArg,std::vector<uint64_t> /*intArg*/){
