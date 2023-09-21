@@ -25,7 +25,8 @@ cet_make_library(LIBRARY_NAME
   SOURCE
   ${CMAKE_CURRENT_BINARY_DIR}/WIBBase_version.cc
 	LIBRARIES
-	ToolException
+	wibtools::ToolException
+	Boost::boost
 	-lreadline
 	-ldl
 	)
@@ -35,20 +36,20 @@ cet_make(
 	WIBTool
   LIBRARIES
   WIB
-	ToolException
-	WIBBase_version
+	wibtools::ToolException
+	wibtools::WIBBase_version
 	-lreadline
   -lpthread
   )
   
-cet_make_exec(WIBTool.exe
+cet_make_exec(NAME WIBTool.exe
 	SOURCE
 	WIBTool.cxx
   LIBRARIES
-	ToolException
-	WIBTool
-        WIBTool_WIBDevice
-        WIBTool_MBBDevice
+	wibtools::ToolException
+	wibtools::WIBTool
+        wibtools::WIBTool_WIBDevice
+        wibtools::WIBTool_MBBDevice
 	-lreadline
   )
   
