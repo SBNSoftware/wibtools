@@ -1,10 +1,16 @@
-include_directories(../../../exception/include)
-include_directories(../../../MBB/include)
-include_directories(../../../WIB/include)
-
-cet_make(
+cet_make_library(
 	LIBRARY_NAME
 	WIBTool_WIBDevice
+	SOURCE
+	WIBDevice.cc
+	WIBDevice_Control.cc 
+	WIBDevice_Event.cc 
+	WIBDevice_FEMB.cc 
+	WIBDevice_init.cc 
+	WIBDevice_IO.cc 
+	WIBDevice_SI5342.cc 
+	WIBDevice_SI5344.cc 
+	WIBDevice_status.cc
   LIBRARIES
 	ToolException
 	MBB

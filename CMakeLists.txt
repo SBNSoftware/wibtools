@@ -10,19 +10,14 @@
 cmake_minimum_required (VERSION 3.18.2)
 
 find_package(cetmodules)
-set(CET_CETBUILDTOOLS_COMPAT TRUE)
-include(Compatibility)
-set(CET_WARN_DEPRECATED)
 
 project(wibtools VERSION 1.08.02)
 
-set(CMAKE_MODULE_PATH
-  ${CMAKE_CURRENT_SOURCE_DIR}/Modules
-  ${CMAKE_MODULE_PATH})
 include(CetCMakeEnv)
-
-include(InstallOther)
 cet_cmake_env()
+
+cet_cmake_module_directories(Modules BINARY)
+include(InstallOther)
 
 cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
@@ -71,12 +66,12 @@ cet_add_compiler_flags( -Wno-unused )
 cet_add_compiler_flags( -Wno-type-limits )
 cet_add_compiler_flags( -Wno-non-virtual-dtor )
 
-cet_report_compiler_flags()
+#cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
-find_ups_boost  ( v1_75_0 )
-find_ups_product( TRACE )
-find_ups_product( cetpkgsupport )
+find_package(Boost 1.75.0 COMPONENTS regex QUIET)
+find_package( TRACE )
+find_package( cetpkgsupport )
 
 
 # source

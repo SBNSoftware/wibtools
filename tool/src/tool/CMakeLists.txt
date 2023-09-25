@@ -1,7 +1,3 @@
-include_directories(../../../exception/include)
-include_directories(../../../MBB/include)
-include_directories(../../../WIB/include)
-
 find_program(BASH bash HINTS /bin)
 get_cmake_property(_variableNames VARIABLES)
 
@@ -25,30 +21,39 @@ cet_make_library(LIBRARY_NAME
   SOURCE
   ${CMAKE_CURRENT_BINARY_DIR}/WIBBase_version.cc
 	LIBRARIES
-	ToolException
+	wibtools::ToolException
+	wibtools::WIB
+	Boost::boost
 	-lreadline
 	-ldl
 	)
 
-cet_make(
+cet_make_library(
 	LIBRARY_NAME
 	WIBTool
+	SOURCE
+	CLI.cc
+	CLIHelper.cc
+	DeviceFactory.cc
+	Launcher.cc
+	Launcher_addDevice.cc
+	Launcher_commands.cc
   LIBRARIES
   WIB
-	ToolException
-	WIBBase_version
+	wibtools::ToolException
+	wibtools::WIBBase_version
 	-lreadline
   -lpthread
   )
   
-cet_make_exec(WIBTool.exe
+cet_make_exec(NAME WIBTool.exe
 	SOURCE
 	WIBTool.cxx
   LIBRARIES
-	ToolException
-	WIBTool
-        WIBTool_WIBDevice
-        WIBTool_MBBDevice
+	wibtools::ToolException
+	wibtools::WIBTool
+        wibtools::WIBTool_WIBDevice
+        wibtools::WIBTool_MBBDevice
 	-lreadline
   )
   
