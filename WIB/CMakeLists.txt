@@ -1,5 +1,3 @@
-include_directories(include)
-include_directories(../exception/include)
 
 add_subdirectory(src)
 
