@@ -1988,19 +1988,19 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, uint32_t pls_cs, uint32_
    std::vector<uint32_t>fe_regs((8+1)*4,0x00000000);
    std::vector<int> range_vec = {0,2,4,6};
    
-   std::ofstream debug_file,debug_file_1,debug_file_2,debug_file_3,debug_file_4;
+   //std::ofstream debug_file,debug_file_1,debug_file_2,debug_file_3,debug_file_4;
    
-   debug_file.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_file_1.txt");
-debug_file_1.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_values.txt");
-debug_file_2.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_writes.txt");
-debug_file_3.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_reads.txt");
-debug_file_4.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_all_regs.txt");
+   //debug_file.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_file_1.txt");
+//debug_file_1.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_values.txt");
+//debug_file_2.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_writes.txt");
+//debug_file_3.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_reads.txt");
+//debug_file_4.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_all_regs.txt");
 
-   for (unsigned int i=0; i<regs.size(); i++) debug_file_4 << i << " Value : " << regs[i] << "\n";
-   debug_file_4.close();
+   /*for (unsigned int i=0; i<regs.size(); i++) debug_file_4 << i << " Value : " << regs[i] << "\n";
+   debug_file_4.close();*/
    
    for (unsigned int i=0; i<range_vec.size(); i++){
-       debug_file << "************** Range vector value : " << range_vec[i] << " *****************\n";
+       //debug_file << "************** Range vector value : " << range_vec[i] << " *****************\n";
        int chip_bits_len = 8*(16+2);
        
        std::vector<bool> chip_fe_regs0(((range_vec[i]+1)* chip_bits_len)-(range_vec[i]*chip_bits_len));
@@ -2009,15 +2009,15 @@ debug_file_4.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sb
        std::vector<bool> chip_fe_regs1(((range_vec[i]+2)* chip_bits_len)-((range_vec[i]+1)*chip_bits_len));
        copy(regs.begin()+((range_vec[i]+1)*chip_bits_len), regs.begin()+((range_vec[i]+2)* chip_bits_len), chip_fe_regs1.begin());
        
-       TLOG_INFO(identification) << "Length of chip_fe_regs0 vector : " << chip_fe_regs0.size() << TLOG_ENDL;
-       TLOG_INFO(identification) << "Length of chip_fe_regs1 vector : " << chip_fe_regs1.size() << TLOG_ENDL;
-       TLOG_INFO(identification) << "Range vector value : " << range_vec[i] << TLOG_ENDL;
-       debug_file << "====== Size of the chip_fe_regs0 vector : " << chip_fe_regs0.size() 
-                  << " Size of the chip_fe_regs1 vector : " <<   chip_fe_regs1.size() << " ============\n";
-       for (unsigned int ele=0; ele<chip_fe_regs0.size(); ele++){
+       //TLOG_INFO(identification) << "Length of chip_fe_regs0 vector : " << chip_fe_regs0.size() << TLOG_ENDL;
+       //TLOG_INFO(identification) << "Length of chip_fe_regs1 vector : " << chip_fe_regs1.size() << TLOG_ENDL;
+       //TLOG_INFO(identification) << "Range vector value : " << range_vec[i] << TLOG_ENDL;
+       //debug_file << "====== Size of the chip_fe_regs0 vector : " << chip_fe_regs0.size() 
+                  //<< " Size of the chip_fe_regs1 vector : " <<   chip_fe_regs1.size() << " ============\n";
+       /*for (unsigned int ele=0; ele<chip_fe_regs0.size(); ele++){
           TLOG_INFO(identification) << ele << " chip reg 0 : " << chip_fe_regs0[ele] << "  chip reg 1 : " << chip_fe_regs1[ele] << TLOG_ENDL;
 	  debug_file << ele << " chip reg 0 : " << chip_fe_regs0[ele] << " chip reg 1 : " << chip_fe_regs1[ele] << "\n";
-       }
+       }*/
        
        std::vector<bool> chip_regs;
        
@@ -2054,24 +2054,24 @@ debug_file_4.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sb
        } 
    } // loop over range vector
    
-   debug_file.close();
+   //debug_file.close();
    
    int i = 0;
    
-   for (unsigned int i=0; i<fe_regs.size(); i++){
+   /*for (unsigned int i=0; i<fe_regs.size(); i++){
       debug_file_1 << i << "  " << fe_regs[i] << "\n";
-   }
+   }*/
    
-   debug_file_1.close();
+   //debug_file_1.close();
    
    for (int regNum=0x200; regNum<(0x200+int(fe_regs.size())); regNum++){
       WriteFEMB(iFEMB,regNum,fe_regs[i]);
       CheckFEMBRegisters(fe_regs[i],regNum,iFEMB,30);
-      debug_file_2 << "Register : " << regNum << " Value : " << fe_regs[i] << "\n";
+      //debug_file_2 << "Register : " << regNum << " Value : " << fe_regs[i] << "\n";
       i++; 
    }
    
-   debug_file_2.close();
+   //debug_file_2.close();
    
    WriteFEMB(iFEMB,2,1); // SPI write
    //CheckFEMBRegisters(1,2,iFEMB,30);
@@ -2091,11 +2091,11 @@ debug_file_4.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sb
       //val = ReadFEMB(iFEMB,regNum);
       //sleep(0.1);
       //val = ReadFEMB(iFEMB,regNum);
-      debug_file_3 << "Register : " << regNum << " Value 1 : " << val << " Value 2 : " << ReadFEMB(iFEMB,regNum) << "\n";
+      //debug_file_3 << "Register : " << regNum << " Value 1 : " << val << " Value 2 : " << ReadFEMB(iFEMB,regNum) << "\n";
       fe_rb_regs.push_back(val);
    }
    
-   debug_file_3.close();
+   //debug_file_3.close();
    
    for (unsigned int j=0; j<fe_regs.size(); j++){
       if ((fe_regs[j] != fe_rb_regs[j]) && (data_cs == 0)){
