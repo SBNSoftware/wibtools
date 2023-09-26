@@ -1,6 +1,7 @@
 #include <wib_device/WIBDevice.hh>
 #include <WIBStatus.hh>
 #include <fstream>
+#include <set>
 #include <time.h> //time
 #include <iomanip>
 
