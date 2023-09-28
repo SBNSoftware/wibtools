@@ -1,4 +1,3 @@
-include_directories(include)
 
 add_subdirectory(src/helpers)
 add_subdirectory(src/helpers/StatusDisplay)
