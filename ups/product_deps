@@ -21,6 +21,7 @@ perllib  product_dir
 product         version         optional
 boost           v1_75_0         s112
 boost           v1_75_0         s117
+boost           v1_80_0         s120a
 TRACE           v3_17_09        -       only_for_build
 cetmodules      v3_21_02        -       only_for_build
 end_product_list
@@ -31,8 +32,8 @@ end_product_list
 qualifier          boost      TRACE  notes
 e20:s112:debug     e20:debug  -nq-   -std=c++17
 e20:s112:prof      e20:prof   -nq-   -std=c++17
-e20:s117:debug     e20:debug  -nq-   -std=c++17
-e20:s117:prof      e20:prof   -nq-   -std=c++17
+e20:s120a:debug    e20:debug  -nq-   -std=c++17
+e20:s120a:prof     e20:prof   -nq-   -std=c++17
 end_qualifier_list
 
 
