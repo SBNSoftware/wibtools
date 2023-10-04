@@ -1915,10 +1915,8 @@ uint16_t WIB::New_SetupFEMBASICs(uint8_t iFEMB, uint8_t config_no, uint8_t gain,
   return 1;
 }
 
-void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, uint32_t pls_cs, uint32_t dac_sel, uint32_t fpgadac_en, uint32_t asicdac_en, uint32_t fpgadac_v,
-                  uint32_t pls_gap, uint32_t pls_dly, uint32_t mon_cs, uint32_t data_cs,
-		  uint32_t sts, uint32_t snc, uint32_t sg0, uint32_t sg1, uint32_t st0, uint32_t st1, uint32_t smn, uint32_t sdf,
-		  uint32_t slk0, uint32_t stb1, uint32_t stb, uint32_t s16, uint32_t slk1, uint32_t sdc, uint32_t swdac1, uint32_t swdac2,                                 uint32_t dac,bool fecfg_loadflg){
+void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint32_t chnl_no, uint32_t pls_cs, uint32_t dac_sel, uint32_t fpgadac_en,                         uint32_t asicdac_en,uint32_t fpgadac_v, uint32_t pls_gap, uint32_t pls_dly, uint32_t mon_cs, uint32_t data_cs, uint32_t sts,                             uint32_t snc, uint32_t sg0, uint32_t sg1, uint32_t st0, uint32_t st1, uint32_t smn, uint32_t sdf,
+		     uint32_t slk0, uint32_t stb1, uint32_t stb, uint32_t s16, uint32_t slk1, uint32_t sdc, uint32_t swdac1, uint32_t swdac2,                                 uint32_t dac,bool fecfg_loadflg){
    // This function is copied from Shanshan's python script
    // to configure WIB/FEMB.
    // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
@@ -1979,9 +1977,13 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, uint32_t pls_cs, uint32_
    
    if (fecfg_loadflg) regs = {};
    else{
-     //FEREG_MAP.set_fe_board(sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);// global configuration
-     FEREG_MAP.set_fe_board(config_no,sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // ch. by ch. config.
-     //FEREG_MAP.set_collection_fe_board(config_no, sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // only collection plane config.
+     if (test_chnl_map) FEREG_MAP.set_fe_board_for_chnl_testing(config_no,chnl_no, sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);
+     else{
+       FEREG_MAP.set_fe_board(config_no,sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // ch. by ch.
+       
+       //FEREG_MAP.set_fe_board(sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // global configuration
+       //FEREG_MAP.set_collection_fe_board(config_no, sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // set only collection plane channels
+     }
      regs = FEREG_MAP.REGS;
    }
    

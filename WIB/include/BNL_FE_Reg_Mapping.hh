@@ -47,9 +47,16 @@ class BNL_FE_Reg_Mapping {
                                uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, 
 		               uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);	
 			       
-  // sec_board sets registers of a whole board with given configuration
+  // sec_board sets channel registers to a given configuration
   
   void set_fe_board(uint8_t config_no, uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, 
+                    uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1, 
+                    uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, 
+		    uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);
+		    
+  // sec_board used to test channel mapping
+  
+  void set_fe_board_for_chnl_testing(uint8_t config_no, uint32_t test_chnl, uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, 
                     uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1, 
                     uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, 
 		    uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);			       

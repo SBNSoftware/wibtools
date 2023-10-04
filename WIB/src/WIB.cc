@@ -10,6 +10,8 @@
 
 #define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
 #define SI5344_CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
+#define PORT 32003
+#define MAXLINE 8112
 
 WIB::WIB(std::string const & address, 
 	 std::string const & WIBAddressTable, 
@@ -909,8 +911,87 @@ void WIB::FEMB_UDPACQ_V2(int femb_addr){
     Write(18,0x8000);
     CheckWIBRegisters(0x8000,18,30); // reset error counters
     WIB_UDP_CTL(true); // Enable HS data from the WIB to PC through UDP
-    for (int i=0; i<8; i++) FEMB_ASIC_CS(femb_addr, i);
+    for (int i=0; i<8; i++) {
+         FEMB_ASIC_CS(femb_addr, i);
+	 get_rawdata_packets(femb_addr+1,10);
+    }
     WIB_UDP_CTL(false); // disable HS data from this WIB to PC through UDP
+}
+
+void WIB::get_rawdata_packets(int femb_addr, int val){
+    const std::string identification = "WIB::get_rawdata_packets";
+    int sockfd;
+    
+    WIBException::BAD_SOCKET e;
+    
+    // Creating socket file descriptor
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) { // Internet, UDP
+        std::stringstream expstr;
+        expstr << "FEMB " << femb_addr << " socket creation failed.";
+        e.Append(expstr.str().c_str());
+        throw e;
+    }
+    
+    // Forcefully attaching socket to the port 8080
+    int opt = 1;
+    if (setsockopt(sockfd, SOL_SOCKET,SO_REUSEADDR, &opt,sizeof(opt))){
+        std::stringstream expstr;
+	expstr << "FEMB " << femb_addr << " setsockopt failed.";
+	e.Append(expstr.str().c_str());
+	throw e;
+    }
+    
+    // Bind the socket with the server address
+    struct sockaddr_in servaddr;
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family    = AF_INET; // IPv4
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+    servaddr.sin_port = htons(PORT);
+    if (bind(sockfd, (const struct sockaddr *)&servaddr,sizeof(servaddr)) < 0){
+        std::stringstream expstr;
+	expstr << "FEMB " << femb_addr << " socket bind failed.";
+	e.Append(expstr.str().c_str());
+	throw e;
+    }
+    
+    struct timeval timeout;
+    timeout.tv_sec = 3;
+    timeout.tv_usec = 0;
+    
+    if(setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout,sizeof timeout) < 0){
+       std::stringstream expstr;
+       expstr << "FEMB " << femb_addr << " setsockopt timeout failed.";
+       e.Append(expstr.str().c_str());
+       throw e;
+    }
+    
+    int n;
+        
+    for (int i=0; i<val; i++){
+         char buffer[MAXLINE];
+	 n = recv(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL);
+	 if (n == 0 || n == -1){
+	     if (i != (val-1)){
+	         TLOG_WARNING(identification) << "FEMB " << femb_addr << " not sending data. May be UDP timeout happened. Retrying in 3 seconds. Please check for any missing connections. The error code is " << errno << TLOG_ENDL;
+		 Write(15,0);
+		 CheckWIBRegisters(0,15,30); 
+		 continue;
+	     }
+	     else{
+	       close(sockfd);
+	       std::stringstream expstr;
+	       expstr << "FEMB " << femb_addr << " is not sending data.";
+	       e.Append(expstr.str().c_str());
+	       throw e;
+	     }
+	 }
+	 
+	 else{
+	   TLOG_INFO(identification) << "FEMB " << femb_addr << " is sending data." << TLOG_ENDL;
+	   close(sockfd);
+	   break;
+	 }
+    }
 }
 
 std::map<std::string,double> WIB::WIB_STATUS(){

@@ -145,8 +145,56 @@ void BNL_FE_Reg_Mapping::set_fe_board(uint8_t config_no, uint32_t sts, uint32_t 
      
      for (int i=0; i<8; i++){
         for (int j=0; j<16; j++){
-	   if (channel_wire_plane[i][j] == 2) set_fechn_reg(i, j, sts, snc, 0, 1, st0, st1, smn, sdf); // change parameters here
-	   else set_fechn_reg(i, j, sts, snc, 0, 0, st0, st1, smn, sdf);
+	   if (channel_wire_plane[i][j] == 2) set_fechn_reg(i, j, sts, 1, sg0, sg1, st0, st1, smn, sdf); // change parameters here
+	   else set_fechn_reg(i, j, sts, 0, sg0, sg1, st0, st1, smn, sdf); // change parameters here
+	} // loop over 16 channels in each chip
+	set_fechip_global(i, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);
+     } // loop over all 8 chips
+}
+
+void BNL_FE_Reg_Mapping::set_fe_board_for_chnl_testing(uint8_t config_no, uint32_t test_chnl, uint32_t sts, uint32_t snc, uint32_t sg0, uint32_t sg1, 
+                                      uint32_t st0, uint32_t st1, uint32_t smn, uint32_t sdf, 
+                                      uint32_t slk0, uint32_t stb1, uint32_t stb, uint32_t s16, 
+		                      uint32_t slk1, uint32_t sdc, uint32_t swdac1, uint32_t swdac2, uint32_t dac){
+     const std::string identification = "BNL_FE_Reg_Mapping::set_fe_board_for_chnl_testing";
+     uint8_t channel_wire_plane[8][16];
+     if (config_no == 0){
+       for (int i=0; i<8; i++){
+          for (int j=0; j<16; j++){
+	     channel_wire_plane[i][j] = sbnd_channel_wire_plane_config_1[i][j];
+	  }
+       } 
+     }
+     
+     else if(config_no == 1){
+       for (int i=0; i<8; i++){
+          for (int j=0; j<16; j++){
+	      channel_wire_plane[i][j] = sbnd_channel_wire_plane_config_2[i][j];
+	  }
+       }
+     }
+     
+     else{
+       for (int i=0; i<8; i++){
+          for (int j=0; j<16; j++){
+	     channel_wire_plane[i][j] = sbnd_channel_wire_plane_config_3[i][j];
+	  }
+       }
+     }
+     
+     int chip_id = test_chnl/16;
+     int local_chnl_id = test_chnl%16;
+     
+     for (int i=0; i<8; i++){
+        for (int j=0; j<16; j++){
+	   if (channel_wire_plane[i][j] == 2){ 
+	       if (i == chip_id && j == local_chnl_id) set_fechn_reg(i, j, sts, 1, sg0, sg1, st0, st1, smn, sdf);
+	       else set_fechn_reg(i, j, 0, 1, sg0, sg1, st0, st1, smn, sdf);
+	   }
+	   else{
+	      if (i == chip_id && j == local_chnl_id) set_fechn_reg(i, j, sts, 0, sg0, sg1, st0, st1, smn, sdf);
+	      else set_fechn_reg(i, j, 0, 0, sg0, sg1, st0, st1, smn, sdf);
+	   }
 	} // loop over 16 channels in each chip
 	set_fechip_global(i, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);
      } // loop over all 8 chips
