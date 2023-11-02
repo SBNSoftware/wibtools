@@ -1555,7 +1555,7 @@ void WIB::SetContinueIfListOfFEMBClockPhasesDontSync(bool enable){
 void WIB::CheckFEMBRegisters(uint32_t expected_val, std::string reg_addrs, int FEMB_NO, int tries){
   const std::string identification = "WIB::CheckFEMBRegisters";
   bool throw_excpt = true;
-  uint32_t reg_value = -9999;
+  uint32_t reg_value = 9999; // earlier -9999
   for (int i = 0; i < tries; i++){
        sleep(0.1);
        reg_value = ReadFEMB(FEMB_NO, reg_addrs);
@@ -1577,7 +1577,7 @@ void WIB::CheckFEMBRegisters(uint32_t expected_val, std::string reg_addrs, int F
 void WIB::CheckFEMBRegisters(uint32_t expected_val, uint32_t reg_addrs, int FEMB_NO, int tries){
   const std::string identification = "WIB::CheckFEMBRegisters";
   bool throw_excpt = true;
-  uint32_t reg_value = -9999;
+  uint32_t reg_value = 9999; // earlier -9999
   for (int i = 0; i < tries; i++){
        sleep(0.1);
        reg_value = ReadFEMB(FEMB_NO, reg_addrs);

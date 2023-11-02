@@ -823,7 +823,7 @@ WIBBoardReader, start with FEMBreceiver first.\n";
 void WIB::CheckWIBRegisters(uint32_t expected_val, std::string reg_addrs, int tries){
   const std::string identification = "WIB::CheckWIBRegisters";
   bool throw_excpt = true;
-  uint32_t reg_value = -9999;
+  uint32_t reg_value = 9999; // earlier -9999
   for (int i = 0; i < tries; i++){
        sleep(0.1);
        reg_value = Read(reg_addrs);
@@ -845,7 +845,7 @@ void WIB::CheckWIBRegisters(uint32_t expected_val, std::string reg_addrs, int tr
 void WIB::CheckWIBRegisters(uint32_t expected_val, uint32_t reg_addrs, int tries){
   const std::string identification = "WIB::CheckWIBRegisters";
   bool throw_excpt = true;
-  uint32_t reg_value = -9999;
+  uint32_t reg_value = 9999; // earlier -9999
   for (int i = 0; i < tries; i++){
        sleep(0.1);
        reg_value = Read(reg_addrs);
