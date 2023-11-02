@@ -320,6 +320,11 @@ void WIBTool::WIBDevice::LoadCommandList(){
 	     "Dump WIB and FEMB Status"\
 	     "  Usage:\n"\
 	     "  BNLFEMBStatus <iFEMB 1-4>\n"
+	     );
+  AddCommand("CheckFEMBDAQConnection",&WIBDevice::CheckFEMBDAQConnection,
+	     "Dump Which FEMBs are connected to DAQ1 and DAQ2 connections"\
+	     "  Usage:\n"\
+	     "  CheckFEMBDAQConnection <FEMB1 0-1> <FEMB2 0-1> <FEMB3 0-1> <FEMB4 0-1>\n"
 	     ); 
 }
 
