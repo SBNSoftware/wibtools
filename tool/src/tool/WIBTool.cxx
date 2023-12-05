@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
   sigaction(SIGALRM,&sa, NULL);
 
   //Create semaphores
-  int sem_timeout_ms=10000;
+  int sem_timeout_ms=20000; // 10000
   std::cout << "Acquiring semaphores.\n";
   sem_t *sem_wib_lck = sem_open(WIB::SEMNAME_WIBLCK, O_CREAT, 0666, 1);
   sem_t *sem_wib_yld = sem_open(WIB::SEMNAME_WIBYLD, O_CREAT, 0666, 1);

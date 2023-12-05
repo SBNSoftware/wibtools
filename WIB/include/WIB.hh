@@ -187,6 +187,7 @@ class WIB: public WIBBase {
 
   void SetupFPGAPulser(uint8_t iFEMB, uint8_t dac_val);
   void SetupInternalPulser(uint8_t iFEMB);
+  /*void SetupInternalPulser(uint8_t iFEMB, uint8_t dac_val);*/
   uint16_t SetupASICPulserBits(uint8_t iFEMB);
 
   /** \brief Setup FEMB ASICs
@@ -229,6 +230,23 @@ class WIB: public WIBBase {
   void SetContinueOnFEMBSPIError(bool enable);
   void SetContinueOnFEMBSyncError(bool enable);
   void SetContinueIfListOfFEMBClockPhasesDontSync(bool enable); // if true try to hunt for the phase else raise exception
+  std::map<std::string,double> WIB_STATUS(); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void New_ConfigFEMB(uint8_t iFEMB, uint8_t config_no, std::vector<uint32_t> fe_config, std::vector<uint16_t> clk_phases,uint8_t pls_mode=0, 
+                      uint8_t  pls_dac_val=0, uint8_t start_frame_mode_sel=1, uint8_t start_frame_swap=1); // This function is a modified version of existing ConfigFEMB function in wibtools
+  uint16_t New_SetupFEMBASICs(uint8_t iFEMB, uint8_t config_no, uint8_t gain, uint8_t shape, uint8_t highBaseline, 
+                        bool highLeakage, bool leakagex10, bool acCoupling, bool buffer, bool useExtClock, 
+                        uint8_t internalDACControl, uint8_t internalDACValue); // This function pretty same to the function SetupFEMBASICs here with some removed register writes
+  void WIB_PLL_wr(int addr, int din); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void WIB_PLL_cfg(); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void WIB_CLKCMD_cs(uint8_t clockSource = 0); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource = 0); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f = false, int power = 1); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a single given FEMB at once
+  void WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f = false, std::vector<int> power = {1, 1, 1, 1}); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a given set of FEMB at once
+  void WIBs_CFG_INIT(bool jumbo_flag = false); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint32_t chnl_no, uint32_t pls_cs=0, uint32_t dac_sel=0, uint32_t fpgadac_en=0,                   uint32_t asicdac_en=0,uint32_t fpgadac_v=0, uint32_t pls_gap=500, uint32_t pls_dly=10, uint32_t mon_cs=0, uint32_t data_cs=0,
+		  uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1,
+		  uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, 
+		  uint32_t swdac2=0, uint32_t dac=0, bool fecfg_loadflg=false); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
 
  private:
   WIB(); //disallow the default constructor
@@ -244,6 +262,16 @@ class WIB: public WIBBase {
   bool ContinueOnFEMBRegReadError;
   bool ContinueOnFEMBSPIError;
   bool ContinueOnFEMBSyncError; // if phase hunt fails keep going else raise exception
+  bool CheckWIB_FEMB_REGs = true;
   bool ContinueIfListOfFEMBClockPhasesDontSync; // if true try to hunt for the phase else raise exception
+  void CheckWIBRegisters(uint32_t expected_val, std::string reg_addrs, int tries);
+  void CheckWIBRegisters(uint32_t expected_val, uint32_t reg_addrs, int tries);
+  void CheckFEMBRegisters(uint32_t expected_val, std::string reg_addrs, int FEMB_NO, int tries);
+  void CheckFEMBRegisters(uint32_t expected_val, uint32_t reg_addrs, int FEMB_NO, int tries);
+  void WIB_UDP_CTL(bool WIB_UDP_EN = false); // This function is copied from shanshan's python script to configure WIB/FEMB
+  void FEMB_ASIC_CS(int femb_addr, int asic); // This function is copied from shanshan's python script to configure WIB/FEMB
+  void FEMB_UDPACQ(int femb_addr); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void FEMB_UDPACQ_V2(int femb_addr); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  void get_rawdata_packets(int femb_addr, int val);
 };
 #endif

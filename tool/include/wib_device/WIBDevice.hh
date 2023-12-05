@@ -67,7 +67,8 @@ private:
   CommandReturn::status PrintFEMBCaptureInfo(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
   CommandReturn::status DumpAddressTable(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
   CommandReturn::status DumpFEMBAddressTable(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
-  CommandReturn::status PrintPDTSERRHistory(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
+  CommandReturn::status PrintPDTSERRHistory(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status Dump_WIB_FEMB_Status(std::vector<std::string> strArg,std::vector<uint64_t> intArg); // Added by Varuna	   
   
 
   //Flash
@@ -106,7 +107,8 @@ CommandReturn::status DTSStartSync(std::vector<std::string> strArg,std::vector<u
   CommandReturn::status SetupFEMBExtClock(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
   CommandReturn::status SetupFEMBASICs(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
   CommandReturn::status SetupFPGAPulser(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
-  CommandReturn::status SetupASICPulserBits(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
+  CommandReturn::status SetupASICPulserBits(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status CheckFEMBDAQConnection(std::vector<std::string> strArg,std::vector<uint64_t> intArg); // Added by Varuna	   
 
   //Names
   CommandReturn::status Names(std::vector<std::string> strArg,std::vector<uint64_t> intArg);

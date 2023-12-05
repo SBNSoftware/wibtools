@@ -1,143 +1,69 @@
-#include <FE_ASIC_reg_mapping.hh>
-#include <iostream>
-#include "trace.h"
+#ifndef __BNL_FE_REG_MAPPING_HH__
+#define __BNL_FE_REG_MAPPING_HH__
 
-FE_ASIC_reg_mapping::FE_ASIC_reg_mapping(): BITS()
-{
-}
+#include <stdint.h>
+#include <bitset>
+#include <vector>
 
-void FE_ASIC_reg_mapping::set_ch(uint8_t chip, uint8_t chn, uint8_t sts, uint8_t snc, 
-           uint8_t sg, uint8_t st, uint8_t smn, uint8_t sdf)
-{
-  unsigned long chn_reg = ((sts&0x01)<<7) + ((snc&0x01)<<6) + ((sg&0x03)<<4) 
-                    + ((st&0x03)<<2)  + ((smn&0x01)<<1) + ((sdf&0x01)<<0);
-  std::bitset<8> bits(chn_reg);
-  size_t start_pos = (8*16+16)*chip + (16-chn)*8;
-  for(size_t iBit=0; iBit < 8; iBit++)
-  {
-    BITS[iBit+start_pos-8] = bits[iBit];
-  }
-}
-void FE_ASIC_reg_mapping::set_global(uint8_t chip, uint8_t slk0, uint8_t stb1,
-           uint8_t stb, uint8_t s16, uint8_t slk1, 
-           uint8_t sdc, uint8_t swdac, uint8_t dac)
-{
-  unsigned long global_reg = ((slk0&0x01)<<0) + ((stb1&0x01)<<1) + ((stb&0x01)<<2) 
-               + ((s16&0x01)<<3) + ((slk1&0x01)<<4) + ((sdc&0x01)<<5) +((0&0x03)<<6);
+// This is copied from Shanshan's python scripts to configure
+// WIB/FEMBs.
+// The referred function from Shanshan's scripts to write this class is fe_reg_mapping.py
+// The location of this function in SBND ND servers is /home/nfs/sbnd/NEW_BNL_CE_CODE_Apr27_2023/CE_LD
 
-  unsigned long dac_reg = (((dac&0x01)/0x01)<<7)+(((dac&0x02)/0x02)<<6)
-            +(((dac&0x04)/0x04)<<5)+(((dac&0x08)/0x08)<<4)
-            +(((dac&0x10)/0x10)<<3)+(((dac&0x20)/0x20)<<2)
-            +(((swdac&0x03))<<0);
-
-  std::bitset<8> global_bits(global_reg);
-  std::bitset<8> dac_bits(dac_reg);
-
-  std::bitset<16> bits;
-  for(size_t iBit=0; iBit < 8; iBit++)
-  {
-    bits[iBit] = global_bits[iBit];
-    bits[iBit+8] = dac_bits[iBit];
-  }
-
-  size_t start_pos = (8*16+16)*chip + 16*8;
-  for(size_t iBit=0; iBit < 16; iBit++)
-  {
-    BITS[iBit+start_pos] = bits[iBit];
-  }
-}
-
-void FE_ASIC_reg_mapping::set_chip(uint8_t chip, 
-         uint8_t sts, uint8_t snc, uint8_t sg, uint8_t st, 
-         uint8_t smn, uint8_t sdf, uint8_t slk0, 
-         uint8_t stb1, uint8_t stb, uint8_t s16, 
-         uint8_t slk1, uint8_t sdc, uint8_t swdac, uint8_t dac)
-{
-  for (size_t chn=0; chn<16; chn++)
-  {
-      set_ch(chip, chn, sts, snc, sg, st, smn, sdf);
-  }
-  set_global (chip, slk0, stb1, stb, s16, slk1, sdc, swdac, dac);
-}
-
-void FE_ASIC_reg_mapping::set_board(uint8_t sts, uint8_t snc, uint8_t sg, uint8_t st, 
-         uint8_t smn, uint8_t sdf, uint8_t slk0, 
-         uint8_t stb1, uint8_t stb, uint8_t s16, 
-         uint8_t slk1, uint8_t sdc, uint8_t swdac, uint8_t dac)
-{
-  for (size_t chip=0; chip<8; chip++)
-  {
-     set_chip( chip, sts, snc, sg, st, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac, dac);
-  }
-}
-
-std::bitset<1152> FE_ASIC_reg_mapping::get_bits() const
-{
-  return BITS;
-}
-
-
-void FE_ASIC_reg_mapping::set_collection_baseline(uint8_t snc)
-{
-  for (size_t chip=0; chip<8; chip++)
-  {
-    for (size_t chn=0; chn<16; chn++)
-    {
-      bool isCollection = (channel_wire_plane[chip][chn] == 2);
-      size_t start_pos = (8*16+16)*chip + (16-chn)*8;
-      if (isCollection)
-      {
-        BITS[6+start_pos-8] = snc & 0x1;
-      }
-    }
-  }
-}
-
-void FE_ASIC_reg_mapping::print() const
-{
-  const std::string identification = "FE_ASIC_reg_mapping::print";
-  TLOG_INFO(identification) << "FE_ASIC_reg_mapping (binary):" << TLOG_ENDL;
-  std::string bitString = BITS.to_string<char,std::string::traits_type,std::string::allocator_type>();
-  for(size_t iLine=0; iLine < 36; iLine++)
-  {
-    for(size_t iByte=0; iByte < 4; iByte++)
-    {
-      for(size_t iBit=0; iBit < 8; iBit++)
-      {
-        TLOG_INFO(identification) << bitString[iLine*32+iByte*8+iBit];
-      }
-      TLOG_INFO(identification) << ' ';
-    }
-    TLOG_INFO(identification) << TLOG_ENDL;
-  }
-  //std::cout << BITS << std::endl;
-}
-
-// wire plane [asic 0-7][channel 0-15] 
-// U=0, V=1, W/X/Z/collection=2; increasing in direction electrons drift as larsoft does
-const uint8_t FE_ASIC_reg_mapping::channel_wire_plane[8][16] = {
-  /* protodune
-  {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2},
-  {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2},
-  {2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
-  {2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2},
-  {0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2},
-  {2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0},
-  {2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0}
-  */
-  // sbnd
-  {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-  {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-  {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-  {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-  {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-  {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-  {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-  {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}
-};
-
-// Following FE ASIC channel mapping is valid for following FEMBs
+class BNL_FE_Reg_Mapping {
+ public:
+  BNL_FE_Reg_Mapping();
+  
+  // sec_chn_reg only sets a channel register, the other registers remains as before
+  
+  void set_fechn_reg(uint32_t chip=0, uint32_t chn=0, uint32_t sts=0, 
+                     uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, 
+		     uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1);
+  
+  // sec_chip_global only sets a chip global register, the other registers remains as before
+  
+  void set_fechip_global(uint32_t chip=0, uint32_t slk0=0, uint32_t stb1=0, 
+                         uint32_t stb=0, uint32_t s16=0, uint32_t slk1=0, 
+			 uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);
+			 
+  // sec_chip sets registers of a whole chip, registers of the other chips remains as before
+  
+  void set_fechip(uint32_t chip=0, uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, 
+                  uint32_t sg1=1, uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, 
+		  uint32_t sdf=1, uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, 
+		  uint32_t s16=0, uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);
+		  
+  // sec_board sets registers of a whole board
+  
+  void set_fe_board(uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, 
+                    uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1, 
+                    uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, 
+		    uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);
+		    
+  // set_collection_fe_board sets the registers of only collection plane wires with given configuration
+  
+  void set_collection_fe_board(uint8_t config_no, uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, 
+                               uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1, 
+                               uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, 
+		               uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);	
+			       
+  // sec_board sets channel registers to a given configuration
+  
+  void set_fe_board(uint8_t config_no, uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, 
+                    uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1, 
+                    uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, 
+		    uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);
+		    
+  // sec_board used to test channel mapping
+  
+  void set_fe_board_for_chnl_testing(uint8_t config_no, uint32_t test_chnl, uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, 
+                    uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1, 
+                    uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, 
+		    uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);			       
+			       		     		       
+  std::vector<bool> REGS{std::vector<bool>(1152, false)}; // declare board specific registers
+  
+  // Following FE ASIC channel mapping is valid for following FEMBs
   //************************************************
   //*    Crate    *  WIB Slot   *     FEMB Slot    *
   //************************************************
@@ -183,7 +109,7 @@ const uint8_t FE_ASIC_reg_mapping::channel_wire_plane[8][16] = {
   //*    4        *     3       *        3         *
   //*    4        *     3       *        4         *
   //*    4        *     4       *        1         *
-  //************************************************   
+  //************************************************            
   
   const uint8_t sbnd_channel_wire_plane_config_1[8][16] = { // U=0, V=1, W/X/Z/collection=2
         {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
@@ -218,7 +144,7 @@ const uint8_t FE_ASIC_reg_mapping::channel_wire_plane[8][16] = {
   //*    4        *     5       *        4         *
   //*    4        *     6       *        1         *
   //*    4        *     6       *        2         *
-  //************************************************     
+  //************************************************          
   
   const uint8_t sbnd_channel_wire_plane_config_2[8][16] = { // U=0, V=1, W/X/Z/collection=2
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -263,7 +189,7 @@ const uint8_t FE_ASIC_reg_mapping::channel_wire_plane[8][16] = {
   //*     3       *     2       *       3          *
   //*     3       *     2       *       4          *
   //*     3       *     3       *       1          *
-  //************************************************ 
+  //************************************************         
   
   const uint8_t sbnd_channel_wire_plane_config_3[8][16] = {
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -276,42 +202,5 @@ const uint8_t FE_ASIC_reg_mapping::channel_wire_plane[8][16] = {
 	{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
   };
   
- void FE_ASIC_reg_mapping::set_collection_baseline(uint8_t snc, uint8_t config){
- 
- uint8_t channel_wire_plane[8][16];
- 
- if (config == 0){
-    for (int i=0; i<8; i++){
-        for (int j=0; j<16; j++){
-	   channel_wire_plane[i][j] = sbnd_channel_wire_plane_config_1[i][j];
-	}
-    } 
- }
-     
- else if(config == 1){
-    for (int i=0; i<8; i++){
-       for (int j=0; j<16; j++){
-	  channel_wire_plane[i][j] = sbnd_channel_wire_plane_config_2[i][j];
-       }
-    }
- }
-     
- else{
-    for (int i=0; i<8; i++){
-       for (int j=0; j<16; j++){
-	  channel_wire_plane[i][j] = sbnd_channel_wire_plane_config_3[i][j];
-       }
-    }
- }
- 
- for (size_t chip=0; chip<8; chip++){
-    for (size_t chn=0; chn<16; chn++){
-      bool isCollection = (channel_wire_plane[chip][chn] == 2);
-      size_t start_pos = (8*16+16)*chip + (16-chn)*8;
-      if (isCollection)
-      {
-        BITS[6+start_pos-8] = snc & 0x1;
-      }
-    }
-  }
-}
+};
+#endif
