@@ -243,6 +243,8 @@ CommandReturn::status WIBTool::WIBDevice::Dump_WIB_FEMB_Status(std::vector<std::
    auto FMV18_curr = map.find("FEMB"+std::to_string(intArg[0])+"_FMV18_I")->second;
    auto AMV33_curr = map.find("FEMB"+std::to_string(intArg[0])+"_AMV33_I")->second;
    auto AMV28_curr = map.find("FEMB"+std::to_string(intArg[0])+"_AMV28_I")->second;
+   auto AMV33_volt = map.find("FEMB"+std::to_string(intArg[0])+"_AMV33_V")->second;
+   auto AMV28_volt = map.find("FEMB"+std::to_string(intArg[0])+"_AMV28_V")->second;
  
    std::string link_comment = link_status != 0xFF ? "Brocken":"Good";
    std::string eq_comment = EQ_status != 0xF ? "Brocken":"Good";
@@ -263,6 +265,8 @@ CommandReturn::status WIBTool::WIBDevice::Dump_WIB_FEMB_Status(std::vector<std::
    std::cout << std::left << std::setw(20) << "FM_V18 Current" << std::left << std::setw(20) << FMV18_curr << std::left << std::setw(80) << FMV18_curr_comment << "\n";
    std::cout << std::left << std::setw(20) << "AM_V33 Current" << std::left << std::setw(20) << AMV33_curr << std::left << std::setw(80) << AMV33_curr_comment << "\n";
    std::cout << std::left << std::setw(20) << "AM_V28 Current" << std::left << std::setw(20) << AMV28_curr << std::left << std::setw(80) << AMV28_curr_comment << "\n";
+   std::cout << std::left << std::setw(20) << "AM_V33 Voltage" << std::left << std::setw(20) << AMV33_volt << "\n";
+   std::cout << std::left << std::setw(20) << "AM_V28 Voltage" << std::left << std::setw(20) << AMV28_volt << "\n";
    
    ret = CommandReturn::OK;
  }  
