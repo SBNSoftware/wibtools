@@ -4,6 +4,7 @@
 #include <inttypes.h> // for PRI macros
 #include <BNL_UDP_Exception.hh>
 #include <iostream>
+#define PORT 32002
 
 CommandReturn::status WIBTool::WIBDevice::WriteLocalFlash(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
   (void) strArg; // to make compiler not complain about unused arguments
@@ -705,3 +706,49 @@ CommandReturn::status WIBTool::WIBDevice::Write_QSFP_I2C(std::vector<std::string
   printf("I2C:%"PRIX16": 0x%0*X\n",address,2*byte_count,val);      
   return CommandReturn::OK;
 }
+
+//===============================================================================================================
+
+CommandReturn::status WIBTool::WIBDevice::Close_WIB_socket(std::vector<std::string> strArg,std::vector<uint64_t> intArg){
+ (void) strArg; // to make compiler not complain about unused args
+ 
+ int sockfd;
+ 
+ // Creating socket file descriptor
+ if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) { // Internet, UDP
+      std::cout << "Socket creation stage failed." << std::endl;
+      return CommandReturn::OK;
+ }
+ 
+ // Forcefully attaching socket to the port 8080
+ int opt = 1;
+ if (setsockopt(sockfd, SOL_SOCKET,SO_REUSEADDR, &opt,sizeof(opt))){
+     std::cout << "Setsockopt stage failed." << std::endl;   
+     return CommandReturn::OK;	
+ }
+ 
+ // Bind the socket with the server address
+ struct sockaddr_in servaddr;
+ memset(&servaddr, 0, sizeof(servaddr));
+ servaddr.sin_family    = AF_INET; // IPv4
+ servaddr.sin_addr.s_addr = INADDR_ANY;
+ servaddr.sin_port = htons(PORT);
+ if (bind(sockfd, (const struct sockaddr *)&servaddr,sizeof(servaddr)) < 0){
+     std::cout << "Socket bind stage failed." << std::endl;
+     return CommandReturn::OK;
+ }
+ 
+ struct timeval timeout;
+ timeout.tv_sec = 3;
+ timeout.tv_usec = 0;
+    
+ if(setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout,sizeof timeout) < 0){
+    std::cout << "Setsockopt timeout failed." << std::endl;   
+    return CommandReturn::OK;
+ }
+ 
+ close(sockfd);
+ std::cout << "Socket closed." << std::endl;
+ return CommandReturn::OK;
+}
+

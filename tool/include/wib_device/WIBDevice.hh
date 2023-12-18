@@ -49,7 +49,8 @@ private:
   CommandReturn::status Write_DAQ_SI5342_Config(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
   CommandReturn::status Write_DAQ_SI5342_Page(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
   CommandReturn::status Read_DAQ_SI5342_Page(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
-  CommandReturn::status EnableADC(std::vector<std::string> strArg,std::vector<uint64_t> intArg);	   
+  CommandReturn::status EnableADC(std::vector<std::string> strArg,std::vector<uint64_t> intArg);
+  CommandReturn::status Close_WIB_socket(std::vector<std::string> strArg,std::vector<uint64_t> intArg); // Added by Varuna	   
 
 
   //Status display

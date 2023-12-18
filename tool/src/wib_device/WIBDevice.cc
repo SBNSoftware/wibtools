@@ -325,6 +325,11 @@ void WIBTool::WIBDevice::LoadCommandList(){
 	     "Dump Which FEMBs are connected to DAQ1 and DAQ2 connections"\
 	     "  Usage:\n"\
 	     "  CheckFEMBDAQConnection <FEMB1 0-1> <FEMB2 0-1> <FEMB3 0-1> <FEMB4 0-1>\n"
+	     );
+  AddCommand("CloseSock",&WIBDevice::Close_WIB_socket,
+	     "Close WIB sockets."\
+	     "  Usage:\n"\
+	     "  CloseSock \n"
 	     ); 
 }
 
