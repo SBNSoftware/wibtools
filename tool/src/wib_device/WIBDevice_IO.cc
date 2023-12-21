@@ -721,7 +721,7 @@ CommandReturn::status WIBTool::WIBDevice::Close_WIB_socket(std::vector<std::stri
  }
  
  // Forcefully attaching socket to the port 8080
- int opt = 1;
+ /*int opt = 1;
  if (setsockopt(sockfd, SOL_SOCKET,SO_REUSEADDR, &opt,sizeof(opt))){
      std::cout << "Setsockopt stage failed." << std::endl;   
      return CommandReturn::OK;	
@@ -745,7 +745,7 @@ CommandReturn::status WIBTool::WIBDevice::Close_WIB_socket(std::vector<std::stri
  if(setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout,sizeof timeout) < 0){
     std::cout << "Setsockopt timeout failed." << std::endl;   
     return CommandReturn::OK;
- }
+ }*/
  
  close(sockfd);
  std::cout << "Socket closed." << std::endl;

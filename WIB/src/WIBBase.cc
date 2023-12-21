@@ -27,6 +27,7 @@ WIBBase::WIBBase(std::string const & address,
 
 WIBBase::~WIBBase(){
   if(wib != NULL){
+    TLOG(TLVL_INFO) << "WIBBase::~WIBBase() deleting wib instance"; 
     delete wib;
     wib = NULL;
   }

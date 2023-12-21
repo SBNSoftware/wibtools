@@ -6,6 +6,7 @@
 #include <boost/regex.hpp> //regex
 #include <boost/algorithm/string/case_conv.hpp> //to_upper
 #include <set>
+#include "trace.h"
 
 AddressTable::AddressTable(std::string const & addressTableName, 
 			   std::string const & deviceAddress,
@@ -20,6 +21,8 @@ AddressTable::AddressTable(std::string const & addressTableName,
 }
 
 AddressTable::~AddressTable(){
+  TLOG(TLVL_INFO)
+    <<"Called AddressTable::~AddressTable() " << TLOG_ENDL;
   if(io!=nullptr) delete io;
 
   for (auto& [key, vec] : addressItemMap){

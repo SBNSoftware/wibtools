@@ -400,6 +400,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 void BNL_UDP::Disconnect()
 {
   const std::string identification = "BNL_UDP::Disconnect";
+  TLOG_INFO(identification)<<"Called " << identification << TLOG_ENDL;
 
   if (!gige_reg_close(reg)){
     TLOG_ERROR(identification)<<"BNLUDP Failed closing connections.";
@@ -669,6 +670,7 @@ uint32_t BNL_UDP::Read(uint16_t address)
 
 BNL_UDP::~BNL_UDP()
 {
+  TLOG(TLVL_INFO)<<"Called  BNL_UDP::~BNL_UDP()" << TLOG_ENDL;
   Clear();
   Disconnect();
 
