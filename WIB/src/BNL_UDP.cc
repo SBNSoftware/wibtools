@@ -173,27 +173,34 @@ bool BNL_UDP::gige_reg_close(gige_reg_t* gige_reg){
   }
 
   int error_count=0;
+  char errorText [256];
 
-  if (close(gige_reg->sock_recv) == -1) {
-    printf("Failed to close recv socket call %s!\n", strerror(errno));
+  if (close(gige_reg->sock_recv) != 0) {
+    sprintf(errorText,"Failed to close recv socket call %s!\n", strerror(errno));
+    TLOG_ERROR(identification) << errorText;
     perror(__func__);
     error_count++;
   }
 
   if (close(gige_reg->sock_read) == -1) {
-    printf("Failed to close read socket call %s!\n", strerror(errno));
+    printf(errorText,"Failed to close read socket call %s!\n", strerror(errno));
+    TLOG_ERROR(identification) << errorText;
     perror(__func__);
     error_count++;
   }
 
   if (close(gige_reg->sock_write) == -1) {
-    printf("Failed to close write socket call %s!\n", strerror(errno));
+    sprintf(errorText,"Failed to close write socket call %s!\n", strerror(errno));
+    TLOG_ERROR(identification) << errorText;
     perror(__func__);
     error_count++;
   }
 
   if (error_count > 0) return false;
-
+  else 
+  {
+    TLOG_INFO(identification) << "Closed BNL communications sockets";
+  }
   free(gige_reg);
 
   return true;
@@ -331,7 +338,8 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   //std::cout << "ReadPort:     " << readPort << std::endl;
   //std::cout << "ResponsePort: " << replyPort << std::dec << std::endl;
   
-  TLOG_INFO(identification)<< "WritePort:    " << std::hex << writePort << TLOG_ENDL;
+  //TLOG_INFO(identification)<< "WritePort:    " << std::hex << writePort << TLOG_ENDL;
+  TLOG_INFO(identification) << "WritePort:    " << writePort << TLOG_ENDL;
   TLOG_INFO(identification) << "ReadPort:     " << readPort << TLOG_ENDL;
   TLOG_INFO(identification) << "ResponsePort: " << replyPort << std::dec << TLOG_ENDL;
 
