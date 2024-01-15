@@ -2173,3 +2173,27 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint
    FEMB_UDPACQ_V2(iFEMB-1);
    TLOG_INFO(identification) << "************* CE_CHK_CFG completed ****************" << TLOG_ENDL;
 }
+
+void WIB::ConfigFEMB_to_send_fake_data(uint8_t iFEMB, uint8_t fk_mode){
+   const std::string identification = "WIB::ConfigFEMB_to_send_fake_data";
+   TLOG_INFO(identification) << "************* Now Starting ConfigFEMB_to_send_fake_data  ****************" << TLOG_ENDL;
+   if (iFEMB < 1 || iFEMB > 4){
+       WIBException::WIB_BAD_ARGS e;
+       std::stringstream expstr;
+       expstr << "FEMB number should be 1, 2, 3 or 4, but you have provided: "<< int(iFEMB);
+       e.Append(expstr.str().c_str());
+       throw e;
+   }
+   
+   if (fk_mode < 1 || fk_mode > 4){
+       WIBException::WIB_BAD_ARGS e;
+       std::stringstream expstr;
+       expstr << "Fake data mode should be 1, 2, 3, or 4, but you have provided"<< int(fk_mode);
+       e.Append(expstr.str().c_str());
+       throw e;
+   }
+   
+   WriteFEMB(iFEMB,"FEMB_TST_SEL",fk_mode);
+   CheckFEMBRegisters(fk_mode,"FEMB_TST_SEL",iFEMB,30);
+   TLOG_INFO(identification) << "************* ConfigFEMB_to_send_fake_data completed ****************" << TLOG_ENDL;
+}
