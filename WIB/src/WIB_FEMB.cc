@@ -2170,7 +2170,7 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint
    WriteFEMB(iFEMB,9,9); // enable data stream to WIB and reset transceiver
    CheckFEMBRegisters(9,9,iFEMB,30);
    sleep(2);
-   FEMB_UDPACQ_V2(iFEMB-1);
+   //FEMB_UDPACQ_V2(iFEMB-1);
    TLOG_INFO(identification) << "************* CE_CHK_CFG completed ****************" << TLOG_ENDL;
 }
 
