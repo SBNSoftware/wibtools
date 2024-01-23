@@ -24,6 +24,7 @@ class FE_ASIC_reg_mapping {
            uint8_t slk1=0, uint8_t sdc=0, uint8_t swdac=0, uint8_t dac=0);
   std::bitset<1152> get_bits() const;
   void set_collection_baseline(uint8_t snc);
+  void set_collection_baseline(uint8_t snc, uint8_t config);
   void print() const;
 
  private:
