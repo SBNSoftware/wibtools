@@ -1128,8 +1128,8 @@ std::map<std::string,double> WIB::WIB_STATUS(){
 	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_PC",(map.find("FEMB"+std::to_string(i+1)+"_FMV39_V")->second * map.find("FEMB"+std::to_string(i+1)+"_FMV39_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_FMV30_V")->second * map.find("FEMB"+std::to_string(i+1)+"_FMV30_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_FMV18_V")->second * map.find("FEMB"+std::to_string(i+1)+"_FMV18_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_AMV33_V")->second * map.find("FEMB"+std::to_string(i+1)+"_AMV33_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_BIAS_V")->second * map.find("FEMB"+std::to_string(i+1)+"_BIAS_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_AMV28_V")->second * map.find("FEMB"+std::to_string(i+1)+"_AMV28_I")->second)  ) );
      }
      
-     return map;
      TLOG_INFO(identification) << "************* WIB_STATUS completed ****************" << TLOG_ENDL;
+     return map;
 }
 
 void WIB::WIB_PLL_wr(int addr, int din){
