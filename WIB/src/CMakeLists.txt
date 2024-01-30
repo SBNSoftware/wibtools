@@ -1,4 +1,8 @@
 
+include_directories($ENV{MESSAGEFACILITY_INC})
+include_directories($ENV{CETLIB_INC})
+include_directories($ENV{CETLIB_EXCEPT_INC})
+
 cet_make_library(
 	LIBRARY_NAME
 	WIB
@@ -30,6 +34,7 @@ cet_make_library(
 	wibtools::ToolException
 	wibtools::WIBTool_Helpers
 	wibtools::WIBTool_StatusDisplay
+  messagefacility::MF_MessageLogger
 	Boost::regex
 	TRACE::TRACE
   )
