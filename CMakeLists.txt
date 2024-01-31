@@ -11,7 +11,7 @@ cmake_minimum_required (VERSION 3.18.2)
 
 find_package(cetmodules)
 
-project(wibtools VERSION 1.08.05)
+project(wibtools VERSION 1.08.06)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -72,6 +72,10 @@ cet_add_compiler_flags( -Wno-non-virtual-dtor )
 find_package(Boost 1.75.0 COMPONENTS regex QUIET)
 find_package( TRACE )
 find_package( cetpkgsupport )
+find_package( messagefacility 2.08.04 REQUIRED EXPORT)
+find_package( cetlib 3.13.04  REQUIRED EXPORT)
+find_package( cetlib_except  1.07.04 REQUIRED EXPORT)
+#find_package( artdaq 3.12.05 REQUIRED EXPORT)
 
 
 # source

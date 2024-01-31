@@ -1,3 +1,6 @@
+#include "TRACE/tracemf.h"
+#define TRACE_NAME "BNL_UDP"
+
 #include <BNL_UDP.hh>
 #include <BNL_UDP_Exception.hh>
 #include <sys/socket.h>
@@ -13,7 +16,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <algorithm> //STD::COUNT
-#include "trace.h"
 
 #define WIB_PACKET_KEY 0xDEADBEEF
 #define WIB_REQUEST_PACKET_TRAILER 0xFFFF
