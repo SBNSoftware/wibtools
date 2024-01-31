@@ -6,9 +6,12 @@
 #include <stdio.h> //snprintf
 #include <iostream>
 #include <fstream>
+#include <bitset>
 
 #define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
 #define SI5344_CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
+#define PORT 32003
+#define MAXLINE 8112
 
 WIB::WIB(std::string const & address, 
 	 std::string const & WIBAddressTable, 
@@ -36,6 +39,13 @@ WIB::WIB(std::string const & address,
 }
 
 WIB::~WIB(){
+  wib->SetWriteAck(false);
+  // Select new style reply port numbering scheme and write read backs
+  // This must be a direct Write, otherwise Write issues a Read first
+  Write(0x1E,0);
+
+  wib->SetWriteAck(true);
+
   TLOG(TLVL_INFO) << "Destructor for WIB class finished"; 
 }
 
@@ -50,26 +60,23 @@ void WIB::FullStart()
 }
 
 void WIB::configWIB(uint8_t clockSource){
-  
-  int fw_version = Read("FW_VERSION");
-  int crate = Read("CRATE_ADDR");
-  int slot = Read("SLOT_ADDR");
   const std::string identification = "WIB::configWIB";
-  TLOG_INFO(identification) << "Configure WIB in crate " << std::hex << crate << ", slot " << slot << " with fw version " << fw_version << " clockSource " << clockSource << TLOG_ENDL; 
-
+  TLOG_INFO(identification) << "************* Now Starting configWIB ****************" << TLOG_ENDL;
   // setup
   UDP_enable(true); 
   Write("UDP_FRAME_SIZE",0xEFB); // 0xEFB = jumbo, 0x1FB = regular
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0xEFB, "UDP_FRAME_SIZE", 30);
   Write("UDP_SAMP_TO_SAVE",0x7F00);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0x7F00, "UDP_SAMP_TO_SAVE", 30);
   Write("UDP_BURST_MODE",0); // normal UDP operation
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "UDP_BURST_MODE", 30);
   UDP_enable(false); 
-
   // clock select
   if(clockSource == 0){
     TLOG_INFO(identification)  << "--> configuring Si5344 PLL...";
 
     ResetSi5344();
-
+    
     // check PLL status; if PLL is not already locked, 
     // then load from the configuration from a file
     bool lol_flag = PLL_check();
@@ -81,8 +88,11 @@ void WIB::configWIB(uint8_t clockSource){
     if( lol_flag ){
       TLOG_INFO(identification)  << "** Si5344 PLL locked!! :) **";
       Write("FEMB_CLK_SEL",1);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "FEMB_CLK_SEL", 30);
       Write("FEMB_CMD_SEL",1);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "FEMB_CMD_SEL", 30);
       Write("FEMB_INT_CLK_SEL",0);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "FEMB_INT_CLK_SEL", 30);
       usleep(10000);
     } else {
       TLOG_INFO(identification) <<"PLL failed to lock.";
@@ -94,8 +104,11 @@ void WIB::configWIB(uint8_t clockSource){
   else if(clockSource == 1){
     TLOG_INFO(identification)  << "--> using 100MHz from oscillator (bypass Si5344)";
     Write("FEMB_CLK_SEL",0);
+    if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "FEMB_CLK_SEL", 30);
     Write("FEMB_CMD_SEL",0);
+    if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "FEMB_CMD_SEL", 30);
     Write("FEMB_INT_CLK_SEL",0x2);
+    if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0x2, "FEMB_INT_CLK_SEL", 30);
     usleep(10000);
     //int clk_sel = Read(0x4) & 0xF;
     //std::cout << "  Clock bits (reg 4) are " << std::hex << clk_sel << std::dec << std::endl;
@@ -106,7 +119,7 @@ void WIB::configWIB(uint8_t clockSource){
   }
 
   UDP_enable(false);
-  TLOG_INFO(identification) << "configureing WIB is finished" << TLOG_ENDL;
+  TLOG_INFO(identification) << "***************** configWIB completed **************************" << TLOG_ENDL;
 }
 
 bool WIB::PLL_check(int iTries){
@@ -124,16 +137,25 @@ bool WIB::PLL_check(int iTries){
 }
 
 void WIB::UDP_enable(bool enable){
-  if( enable == true )  Write("UDP_DISABLE",0);
-  else                  Write("UDP_DISABLE",1);
+  if( enable == true ){  
+      Write("UDP_DISABLE",0);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "UDP_DISABLE", 30);
+  }
+  else {
+      Write("UDP_DISABLE",1);
+      if (CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "UDP_DISABLE", 30);
+  }
 }
 
 void WIB::ResetSi5344(){
   const std::string identification = "WIB::ResetSi5344"; 
   TLOG_INFO(identification)<<"Resetting Si5344\n";
   Write(10,0x0);
-  Write("SILABS_RST",1);   
-  Write("SILABS_RST",0);   
+  if(CheckWIB_FEMB_REGs) CheckWIBRegisters(0x0, 10, 30);
+  Write("SILABS_RST",1);
+  if(CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "SILABS_RST", 30);   
+  Write("SILABS_RST",0); 
+  if(CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "SILABS_RST", 30);  
   usleep(100000);
 }
 
@@ -230,10 +252,13 @@ void WIB::PLL_write(uint16_t addr, uint16_t data){
   //std::cout<<std::hex<<"Addr: "<<addr<<"   data: "<<data<<"\n";
   size_t value = 0x01 + ((addr&0xFF)<<8) + ((data&0x00FF)<<16);
   Write(0x0B,value);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(value, 0x0B, 30);
   usleep(1000);
   Write("I2C_WR_STRB",1); 
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(1, "I2C_WR_STRB", 30);
   usleep(1000);
   Write("I2C_WR_STRB",0);
+  if (CheckWIB_FEMB_REGs) CheckWIBRegisters(0, "I2C_WR_STRB", 30);
   usleep(1000);
 }
 
@@ -800,4 +825,652 @@ resolve the issue. Terminate any running instances of the FEMBreceiver (femb), \
 WIBTool.exe, or WIBBoardReader processes. Then, delete the semaphores /dev/shm/sem.WIB_LCK \
 and /dev/shm/sem.WIB_YLD. If you intend to run both FEMBreceiver and WIBTool.exe or \
 WIBBoardReader, start with FEMBreceiver first.\n";
+}
+
+void WIB::CheckWIBRegisters(uint32_t expected_val, std::string reg_addrs, int tries){
+  const std::string identification = "WIB::CheckWIBRegisters";
+  bool throw_excpt = true;
+  uint32_t reg_value = 9999; // earlier -9999
+  for (int i = 0; i < tries; i++){
+       sleep(0.1);
+       reg_value = Read(reg_addrs);
+       if (reg_value == expected_val){
+           throw_excpt = false;
+	   break;
+       }
+       Write(reg_addrs, expected_val);
+  }
+  if(throw_excpt){
+     WIBException::FEMB_REG_READ_ERROR e;
+     std::stringstream expstr;
+     expstr << "WIB" << " register " << reg_addrs << " value is " << reg_value << " and expected value is " << expected_val;
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+}
+
+void WIB::CheckWIBRegisters(uint32_t expected_val, uint32_t reg_addrs, int tries){
+  const std::string identification = "WIB::CheckWIBRegisters";
+  bool throw_excpt = true;
+  uint32_t reg_value = 9999; // earlier -9999
+  for (int i = 0; i < tries; i++){
+       sleep(0.1);
+       reg_value = Read(reg_addrs);
+       if (reg_value == expected_val){
+           throw_excpt = false;
+	   break;
+       }
+       Write(reg_addrs, expected_val);
+  }
+  if(throw_excpt){
+     WIBException::FEMB_REG_READ_ERROR e;
+     std::stringstream expstr;
+     expstr << "WIB" << " register " << reg_addrs << " value is " << reg_value << " and expected value is " << expected_val;
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+}
+
+void WIB::WIB_UDP_CTL(bool WIB_UDP_EN){
+    // This function is copied from Shanshan's python script
+    // to configure WIB/FEMB.
+    // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+    const std::string identification = "WIB::WIB_UDP_CTL";
+    auto wib_reg_7_value = Read(7);
+    if (WIB_UDP_EN) wib_reg_7_value = wib_reg_7_value & 0x00000000; // bit31 of reg7 for disable wib udp control
+    else wib_reg_7_value = wib_reg_7_value | 0x80000000; // bit31 of reg7 for disable wib udp control 
+    Write(7, wib_reg_7_value);
+    CheckWIBRegisters(wib_reg_7_value, 7, 30);
+}
+
+void WIB::FEMB_ASIC_CS(int femb_addr, int asic){
+   // This function is copied from Shanshan's python script
+   // to configure WIB/FEMB.
+   // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+   const std::string identification = "WIB::FEMB_ASIC_CS";
+   auto femb_asic = asic & 0x0F;
+   auto wib_asic =  ( ((femb_addr << 16)&0x000F0000) + ((femb_asic << 8) &0xFF00) );
+   Write(7, wib_asic | 0x80000000);
+   CheckWIBRegisters(wib_asic | 0x80000000, 7, 30);
+   Write(7, wib_asic);
+   CheckWIBRegisters(wib_asic, 7, 30);
+}
+
+void WIB::FEMB_UDPACQ(int femb_addr){
+     // This function is a modified version of one of the funcitons available in Shanshan's python script
+     // to configure WIB/FEMB.
+     // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+     const std::string identification = "WIB::FEMB_UDPACQ";
+     WIB_UDP_CTL(true);
+     for (int i=0; i<8; i++) FEMB_ASIC_CS(femb_addr, i);
+     WIB_UDP_CTL(false);
+}
+
+void WIB::FEMB_UDPACQ_V2(int femb_addr){
+    // This function is a modified version of one of the funcitons available in Shanshan's python script
+    // to configure WIB/FEMB.
+    // The original function is in cls_config.py module inside the repository CE_LD with name FEMB_UDPACQ(git branch name is, Installation_Support)
+    const std::string identification = "WIB::FEMB_UDPACQ_V2";
+    Write(0x01,0x2); // Time Stamp Reset command encoded in 2MHz
+    CheckWIBRegisters(0x2,0x01,30); 
+    Write(0x01,0x0);
+    CheckWIBRegisters(0x0,0x01,30);
+    Write(18,0x8000);
+    CheckWIBRegisters(0x8000,18,30); // reset error counters
+    WIB_UDP_CTL(true); // Enable HS data from the WIB to PC through UDP
+    for (int i=0; i<8; i++) {
+         FEMB_ASIC_CS(femb_addr, i);
+	 get_rawdata_packets(femb_addr+1,10);
+    }
+    WIB_UDP_CTL(false); // disable HS data from this WIB to PC through UDP
+}
+
+void WIB::get_rawdata_packets(int femb_addr, int val){
+    const std::string identification = "WIB::get_rawdata_packets";
+    int sockfd;
+    
+    WIBException::BAD_SOCKET e;
+    
+    // Creating socket file descriptor
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) { // Internet, UDP
+        std::stringstream expstr;
+        expstr << "FEMB " << femb_addr << " socket creation failed.";
+        e.Append(expstr.str().c_str());
+        throw e;
+    }
+    
+    // Forcefully attaching socket to the port 8080
+    int opt = 1;
+    if (setsockopt(sockfd, SOL_SOCKET,SO_REUSEADDR, &opt,sizeof(opt))){
+        std::stringstream expstr;
+	expstr << "FEMB " << femb_addr << " setsockopt failed.";
+	e.Append(expstr.str().c_str());
+	throw e;
+    }
+    
+    // Bind the socket with the server address
+    struct sockaddr_in servaddr;
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family    = AF_INET; // IPv4
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+    servaddr.sin_port = htons(PORT);
+    if (bind(sockfd, (const struct sockaddr *)&servaddr,sizeof(servaddr)) < 0){
+        std::stringstream expstr;
+	expstr << "FEMB " << femb_addr << " socket bind failed.";
+	e.Append(expstr.str().c_str());
+	throw e;
+    }
+    
+    struct timeval timeout;
+    timeout.tv_sec = 3;
+    timeout.tv_usec = 0;
+    
+    if(setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout,sizeof timeout) < 0){
+       std::stringstream expstr;
+       expstr << "FEMB " << femb_addr << " setsockopt timeout failed.";
+       e.Append(expstr.str().c_str());
+       throw e;
+    }
+    
+    int n;
+        
+    for (int i=0; i<val; i++){
+         char buffer[MAXLINE];
+	 n = recv(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL);
+	 if (n == 0 || n == -1){
+	     if (i != (val-1)){
+	         TLOG_WARNING(identification) << "FEMB " << femb_addr << " not sending data. May be UDP timeout happened. Retrying in 3 seconds. Please check for any missing connections. The error code is " << errno << TLOG_ENDL;
+		 Write(15,0);
+		 CheckWIBRegisters(0,15,30); 
+		 continue;
+	     }
+	     else{
+	       close(sockfd);
+	       std::stringstream expstr;
+	       expstr << "FEMB " << femb_addr << " is not sending data.";
+	       e.Append(expstr.str().c_str());
+	       throw e;
+	     }
+	 }
+	 
+	 else{
+	   TLOG_INFO(identification) << "FEMB " << femb_addr << " is sending data." << TLOG_ENDL;
+	   close(sockfd);
+	   break;
+	 }
+    }
+}
+
+std::map<std::string,double> WIB::WIB_STATUS(){
+     // This function is copied from Shanshan's python script
+     // to configure WIB/FEMB.
+     // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+     const std::string identification = "WIB::WIB_STATUS";
+     
+     TLOG_INFO(identification) << "************* Now Starting WIB_STATUS  ****************" << TLOG_ENDL;
+     
+     Write(0x12, 0x8000);
+     CheckWIBRegisters(0x8000, 0x12, 30);
+     Write(0x12, 0x100);
+     CheckWIBRegisters(0x100, 0x12, 30);
+     sleep(0.02);
+     
+     uint32_t link_status = -1; // earlier int link_status = 
+     uint32_t eq_status = -1; // earlier int eq_status = 
+     
+     for (int i=0; i<5; i++){
+        link_status = Read(0x21);
+	eq_status = Read(0x24);
+	sleep(0.001); 
+     }
+     
+     std::map<std::string,double> map;
+     
+     map.insert( std::pair<std::string,double>("FEMB1_LINK",link_status&0xFF) );
+     map.insert( std::pair<std::string,double>("FEMB1_EQ",eq_status&0x0F) );
+     map.insert( std::pair<std::string,double>("FEMB2_LINK",(link_status&0xFF00)>>8) );
+     map.insert( std::pair<std::string,double>("FEMB2_EQ",(eq_status&0xF0)>>4) );
+     map.insert( std::pair<std::string,double>("FEMB3_LINK",(link_status&0xFF0000)>>16) );
+     map.insert( std::pair<std::string,double>("FEMB3_EQ",(eq_status&0xF00)>>8) );
+     map.insert( std::pair<std::string,double>("FEMB4_LINK",(link_status&0xFF000000)>>24) );
+     map.insert( std::pair<std::string,double>("FEMB4_EQ",(eq_status&0xF000)>>12) );
+     
+     Write(0x12, 0x000);
+     CheckWIBRegisters(0x000, 0x12, 30);
+     
+     for (int i=0; i<4; i++){
+        for (int j=0; j<4; j++){
+	     Write(0x12, (i<<2) + j);
+	     CheckWIBRegisters((i<<2) + j, 0x12, 30);
+	     auto reg34 = Read(0x22);
+	     auto femb_ts_cnt = (reg34&0xFFFF0000)>>16;
+	     auto chkerr_cnt = (reg34&0xFFFF);
+	     auto reg35 = Read(0x25);
+	     auto frameerr_cnt =(reg35&0xFFFF);
+	     map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_TS_LINK"+std::to_string(j+1),femb_ts_cnt) );
+	     map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_CHK_ERR_LINK"+std::to_string(j+1),chkerr_cnt) );
+	     map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FRAME_ERR_LINK"+std::to_string(j+1),frameerr_cnt) );
+	}
+     }
+     
+     std::vector<int> vcts;
+     for (int j=0; j<3; j++){
+        for (int k=0; k<5; k++){
+	   Write(5, 0x00000);
+	   CheckWIBRegisters(0x00000, 5, 30);
+	   Write(5, 0x00000 | 0x10000);
+	   CheckWIBRegisters(0x00000 | 0x10000, 5, 30);
+	   sleep(0.01);
+	   Write(5, 0x00000);
+	   CheckWIBRegisters(0x00000, 5, 30);
+	}
+ 
+	for (int i=0; i<35; i++){
+	   Write(5, i);
+	   CheckWIBRegisters(i, 5, 30);
+	   sleep(0.001);
+	   auto tmp = Read(6) & 0xFFFFFFFF;
+	   if ( (tmp&0x40000000)>>16 == 0x4000 ) tmp = tmp & 0x3fff;
+	   if ((tmp&0x3f00) == 0x3f00) tmp = tmp & 0x3fff0000;
+	   if (j == 2) vcts.push_back(tmp);
+	   sleep(0.001);
+	} 
+     }
+     
+     auto wib_vcc   = (((vcts[0x19]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001  + 2.5;
+     auto wib_t     = (((vcts[0x19]&0x0FFFF) & 0x3FFF) * 62.5) * 0.001; 
+     auto wib_vbias = (((vcts[0x1A]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001;
+     auto wib_ibias = ((vcts[0x1A]& 0x3FFF) * 19.075) * 0.000001 / 0.1;
+     auto wib_v18   = (((vcts[0x1B]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001;
+     auto wib_i18   = ((vcts[0x1B]& 0x3FFF) * 19.075) * 0.000001 / 0.01;
+     auto wib_v36   = (((vcts[0x1C]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001;
+     auto wib_i36   = ((vcts[0x1C]& 0x3FFF) * 19.075) * 0.000001 / 0.01;
+     auto wib_v28   = (((vcts[0x1D]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001;
+     auto wib_i28   = ((vcts[0x1D]& 0x3FFF) * 19.075) * 0.000001 / 0.01;
+     
+     map.insert( std::pair<std::string,double>("WIB_2991_VCC",wib_vcc) );
+     map.insert( std::pair<std::string,double>("WIB_2991_T",wib_t) );
+     map.insert( std::pair<std::string,double>("WIB_BIAS_V",wib_vbias) ); 
+     map.insert( std::pair<std::string,double>("WIB_BIAS_I",wib_ibias) );
+     map.insert( std::pair<std::string,double>("WIB_V18_V",wib_v18) );
+     map.insert( std::pair<std::string,double>("WIB_V18_I",wib_i18) );
+     map.insert( std::pair<std::string,double>("WIB_V36_V",wib_v36) );
+     map.insert( std::pair<std::string,double>("WIB_V36_I",wib_i36) ); 
+     map.insert( std::pair<std::string,double>("WIB_V28_V",wib_v28) );  
+     map.insert( std::pair<std::string,double>("WIB_V28_I",wib_i28) );  
+     
+     auto bias_vcc  = (((vcts[0x00]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001  + 2.5;
+     auto bias_t    = (((vcts[0x00]&0x0FFFF) & 0x3FFF) * 62.5) * 0.001;
+     
+     map.insert( std::pair<std::string,double>("BIAS_2991_V",bias_vcc) ); 
+     map.insert( std::pair<std::string,double>("BIAS_2991_T",bias_t) ); 
+     map.insert( std::pair<std::string,double>("WIB_PC",(map.find("WIB_BIAS_V")->second * map.find("WIB_BIAS_I")->second) + (map.find("WIB_V18_V")->second * map.find("WIB_V18_I")->second) + (map.find("WIB_V36_V")->second * map.find("WIB_V36_I")->second) + (map.find("WIB_V28_V")->second * map.find("WIB_V28_I")->second)) );
+     
+     for (int i=0; i<4; i++){
+         std::vector<int> vct;
+	 for (int j=i*6+1; j<i*6+7; j++) vct.push_back(vcts[j]);
+	 auto vc25 = vcts[31+i];
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_2991_VCC",(((vct[0]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001 + 2.5) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_2991_T",(((vct[0]&0x0FFFF) & 0x3FFF) * 62.5) * 0.001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV39_V",(((vct[1]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV39_I",((vct[1]& 0x3FFF) * 19.075) * 0.000001 / 0.1) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV30_V",(((vct[2]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV30_I",((vct[2]& 0x3FFF) * 19.075) * 0.000001 / 0.1) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV18_V",(((vct[4]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_FMV18_I",((vct[4]& 0x3FFF) * 19.075) * 0.000001 / 0.1) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_AMV33_V",(((vct[3]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_AMV33_I",((vct[3]& 0x3FFF) * 19.075) * 0.000001 / 0.01) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_BIAS_V",(((vct[5]&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_BIAS_I",((vct[5]& 0x3FFF) * 19.075) * 0.000001 / 0.1) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_AMV28_V",(((vc25&0x0FFFF0000) >> 16) & 0x3FFF) * 305.18 * 0.000001) );
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_AMV28_I",((vc25& 0x3FFF) * 19.075) * 0.000001 / 0.01) );
+	 map.find("FEMB"+std::to_string(i+1)+"_AMV33_I")->second = map.find("FEMB"+std::to_string(i+1)+"_AMV33_I")->second - map.find("FEMB"+std::to_string(i+1)+"_AMV28_I")->second;
+	 map.insert( std::pair<std::string,double>("FEMB"+std::to_string(i+1)+"_PC",(map.find("FEMB"+std::to_string(i+1)+"_FMV39_V")->second * map.find("FEMB"+std::to_string(i+1)+"_FMV39_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_FMV30_V")->second * map.find("FEMB"+std::to_string(i+1)+"_FMV30_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_FMV18_V")->second * map.find("FEMB"+std::to_string(i+1)+"_FMV18_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_AMV33_V")->second * map.find("FEMB"+std::to_string(i+1)+"_AMV33_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_BIAS_V")->second * map.find("FEMB"+std::to_string(i+1)+"_BIAS_I")->second) + (map.find("FEMB"+std::to_string(i+1)+"_AMV28_V")->second * map.find("FEMB"+std::to_string(i+1)+"_AMV28_I")->second)  ) );
+     }
+     
+     TLOG_INFO(identification) << "************* WIB_STATUS completed ****************" << TLOG_ENDL;
+     return map;
+}
+
+void WIB::WIB_PLL_wr(int addr, int din){
+   // This function is copied from Shanshan's python script
+   // to configure WIB/FEMB.
+   // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+   const std::string identification = "WIB::WIB_PLL_wr";
+   auto value = 0x01 + ((addr&0xFF)<<8) + ((din&0x00FF)<<16);
+   Write(11,value);
+   CheckWIBRegisters(value, 11, 30);
+   sleep(0.001);
+   Write(10,1);
+   CheckWIBRegisters(1, 10, 30);
+   sleep(0.001);
+   Write(10,0);
+   CheckWIBRegisters(0, 10, 30);
+}
+
+void WIB::WIB_PLL_cfg(){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  const std::string identification = "WIB::WIB_PLL_cfg";
+  
+  std::string fullPath = getenv(WIB_CONFIG_PATH);
+  fullPath += "/";
+  fullPath += SI5344_CONFIG_FILENAME;
+  std::ifstream confFile(fullPath.c_str());
+  WIBException::WIB_BAD_ARGS e;
+  
+  if(confFile.fail()){
+     std::stringstream expstr;
+     expstr << "Cannot find config file  " << fullPath;
+     e.Append(expstr.str().c_str());
+     throw e;
+  }
+  
+  std::string line;
+  std::vector<int> adrs_h; 
+  std::vector<int> adrs_l; 
+  std::vector<int> datass;
+  int cnt = 0;
+  while(getline(confFile, line)){
+    cnt = cnt + 1;
+    int tmp = line.find(",");
+    if (tmp > 0){
+       auto adr = int(strtoul(line.substr(2,(tmp-2)).c_str(),NULL,16)); // earlier int adr
+       adrs_h.push_back((adr&0xFF00)>>8);
+       adrs_l.push_back((adr&0xFF));
+       datass.push_back(int(strtoul(line.substr(tmp+3,2).c_str(),NULL,16))&0xFF);
+    }
+  }
+  
+  confFile.close();
+  
+  bool lol_flg = false;
+  
+  for (int i=0; i<5; i++){
+    TLOG_INFO(identification) << "check PLL status, please wait..." << TLOG_ENDL;
+    sleep(1);
+    uint32_t ver_value = Read(12); // earlier int ver_value = Read(12)
+    ver_value = Read(12);
+    auto lol = (ver_value & 0x10000)>>16; // earlier int lol =
+    auto lolXAXB = (ver_value & 0x20000)>>17; // earlier int lolXAXB = 
+    auto INTR = (ver_value & 0x40000)>>18; // earlier int INTR = 
+    if (lol == 1){
+       lol_flg = true;
+       break;
+    }
+  }
+  
+  if (lol_flg){
+     TLOG_INFO(identification) << "PLL of WIB " << wib->GetRemoteAddress() <<  " has locked" << TLOG_ENDL;
+     TLOG_INFO(identification) << "Select system clock and CMD from MBB" << TLOG_ENDL;
+     Write(4, 0x03);
+     CheckWIBRegisters(0x03, 4, 30);  
+  }
+  
+  else{
+    Write(10,0xFF0);
+    sleep(0.01);
+    Write(10,0xFF0);
+    sleep(0.2);
+    TLOG_INFO(identification) << "configurate PLL of WIB " << wib->GetRemoteAddress() <<  "please wait a few minutes..." << TLOG_ENDL;
+    int p_addr = 1;
+    //step1
+    auto page4 = adrs_h[0]; // earlier int page4
+    WIB_PLL_wr(p_addr, page4);
+    WIB_PLL_wr(adrs_l[0], datass[0]);
+    //step2
+    page4 = adrs_h[1];
+    WIB_PLL_wr(p_addr, page4);
+    WIB_PLL_wr(adrs_l[1], datass[1]);
+    //step3
+    page4 = adrs_h[2];
+    WIB_PLL_wr(p_addr, page4);
+    WIB_PLL_wr(adrs_l[2], datass[2]);
+    sleep(0.5);
+    //step4
+    for (unsigned int i=3; i<adrs_h.size(); i++){
+       if (page4 == adrs_h[i]){
+           WIB_PLL_wr(adrs_l[i], datass[i]);
+       }
+       else{
+          page4 = adrs_h[i];
+	  WIB_PLL_wr(p_addr, page4);
+	  WIB_PLL_wr(adrs_l[i], datass[i]);
+       }
+    }
+    
+    for (int i=0; i<10; i++){
+        sleep(3);
+	TLOG_INFO(identification) << "check PLL status, please wait..." << TLOG_ENDL;
+	uint32_t ver_value = Read(12); // earlier int ver_value
+	ver_value = Read(12);
+	auto lol = (ver_value & 0x10000)>>16; // earlier int lol
+	auto lolXAXB = (ver_value & 0x20000)>>17; // earlier int lolXAXB
+	auto INTR = (ver_value & 0x40000)>>18; // earlier int INTR
+	if (lol == 1){
+	   TLOG_INFO(identification) << "PLL of WIB " << wib->GetRemoteAddress() << " is locked" << TLOG_ENDL;
+	   Write(4, 0x01);
+	   CheckWIBRegisters(0x01, 4, 30);
+	   break; 
+	}
+	if (i == 9){
+	    WIBException::WIB_ERROR e;
+	    std::stringstream expstr;
+            expstr << "Fail to configurate PLL of WIB  " << wib->GetRemoteAddress() << ". Please check if MBB is on or 16MHz from dAQ.";
+            e.Append(expstr.str().c_str());
+            throw e;
+	}
+    }
+    
+  }
+}
+
+void WIB::WIB_CLKCMD_cs(uint8_t clockSource){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  
+  const std::string identification = "WIB::WIB_CLKCMD_cs";
+  
+  if(clockSource){
+     Write(0x04, 0x08); // select WIB onboard system clock and CMD
+     CheckWIBRegisters(0x08, 0x04, 30);
+     TLOG_WARNING(identification) << "select WIB onboard system clock and CMD, plese select system clock and CMD from MBB " << TLOG_ENDL;
+  }
+  
+  else{
+     WIB_PLL_cfg(); //select system clock and CMD from MBB
+     TLOG_INFO(identification) << "select system clock and CMD from MBB" << TLOG_ENDL;
+  }
+}
+
+void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  
+  const std::string identification = "WIB::WIBs_SCAN";
+  
+  TLOG_INFO(identification) << "************* Now Starting WIBs_SCAN  ****************" << TLOG_ENDL;
+  
+  for (int i=0; i<5; i++){
+     uint32_t wib_ver_rb = Read(0xFF); 
+     wib_ver_rb = Read(0xFF);
+     if ((wib_ver_rb&0x0FFF) == (WIB_ver&0x0FFF) && ( wib_ver_rb >= 0)){
+        WIB_CLKCMD_cs(clockSource); // choose clock source
+	break;
+     }
+     
+     if (i == 4){
+         WIBException::WIB_ERROR e;
+	 std::stringstream expstr;
+	 expstr << "WIB with IP  " << wib->GetRemoteAddress() << " readback error with read back value " << wib_ver_rb;
+	 e.Append(expstr.str().c_str());
+	 throw e;
+     }
+  }
+  WIB_UDP_CTL();
+  TLOG_INFO(identification) << "enable data stream and synchronize to Nevis" << TLOG_ENDL;
+  Write(20, 0x00); // disable data stream and synchronize to Nevis
+  CheckWIBRegisters(0x00, 20, 30);
+  Write(20, 0x03); // disable data stream and synchronize to Nevis
+  CheckWIBRegisters(0x03, 20, 30);
+  Write(20, 0x00); // disable data stream and synchronize to Nevis
+  CheckWIBRegisters(0x00, 20, 30);
+  TLOG_INFO(identification) << "WIB scanning is done" << TLOG_ENDL;
+  
+  TLOG_INFO(identification) << "************* WIBs_SCAN completed ****************" << TLOG_ENDL;
+}
+
+void WIB::WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f, int power){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  // This function is called on only a single FEMB at once (FEMB_NO = 1, 2, 3, 4)
+  
+  const std::string identification = "WIB::WIB_PWR_FEMB";
+  
+  TLOG_INFO(identification) << "************* Now Starting WIB_PWR_FEMB  ****************" << TLOG_ENDL;
+  
+  std::vector<uint32_t> pwr_ctl = {0x31000F, 0x5200F0, 0x940F00, 0x118F000};
+  
+  if (pwr_int_f){
+    int pwr_wr = 0;
+    if (power == 1){
+       pwr_wr = pwr_wr | pwr_ctl[FEMB_NO-1];
+    }
+    else{
+      pwr_wr = pwr_wr | 0;
+    }
+    Write(0x8, 0); // All off
+    CheckWIBRegisters(0, 0x8, 30);
+    sleep(5);
+    Write(0x8, pwr_wr);
+    CheckWIBRegisters(pwr_wr, 0x8, 30);
+    sleep(5);
+    Write(0x8, 0); // All off
+    CheckWIBRegisters(0, 0x8, 30);
+    sleep(0.1);
+    Write(0x8, pwr_wr);
+    CheckWIBRegisters(pwr_wr, 0x8, 30);
+  } // pwr_int_f == true
+  
+  else{
+    auto pwr_status = Read(0x8);
+    if (power == 1){
+      pwr_status = pwr_status | pwr_ctl[FEMB_NO-1];
+      Write(0x8, pwr_status);
+      CheckWIBRegisters(pwr_status, 0x8, 30);
+      sleep(0.5);
+    }
+    else{
+      if ((FEMB_NO-1 == 3) && (((Read(0x8) & 0xFFF)) == 0xFFF) && ((((Read(0x8) & 0x70000))>>16) == 0x07) && (((Read(0x08) && 0xE00000)>>21) == 0x07)){
+         pwr_status = 0x00000000;
+      }
+      else{
+        pwr_status = pwr_status & ((~(pwr_ctl[FEMB_NO-1])) | 0x00100000);
+      }
+      TLOG_INFO(identification) << "FEMB # : " << FEMB_NO << " register 8 value : " << std::hex << pwr_status << TLOG_ENDL;
+      Write(0x8, pwr_status);
+      CheckWIBRegisters(pwr_status, 0x8, 30);
+      //sleep(0.5);
+    }
+  } // pwr_int_f == false
+  
+  sleep(2);
+  TLOG_INFO(identification) << "************* WIB_PWR_FEMB completed ****************" << TLOG_ENDL;
+}
+
+void WIB::WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f, std::vector<int> power){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  // This function is called on all 4 FEMBs at once
+  
+  const std::string identification = "WIB::WIB_PWR_FEMB";
+  
+  TLOG_INFO(identification) << "************* Now Starting WIB_PWR_FEMB  ****************" << TLOG_ENDL;
+  
+  std::vector<uint32_t> pwr_ctl = {0x31000F, 0x5200F0, 0x940F00, 0x118F000};
+  
+  if (pwr_int_f){
+     int pwr_wr = 0;
+     for (unsigned int i=0; i<FEMB_NOs.size(); i++){
+         if (FEMB_NOs[i]){
+	   if (power[i] == 1){
+	     pwr_wr = pwr_wr | pwr_ctl[i];
+	   }
+	   else{
+	    pwr_wr = pwr_wr | 0; 
+	   }
+	 }
+     }
+     Write(0x8, 0); // All off
+     CheckWIBRegisters(0, 0x8, 30);
+     sleep(5);
+     Write(0x8, pwr_wr);
+     CheckWIBRegisters(pwr_wr, 0x8, 30);
+     sleep(5);
+     Write(0x8, 0); // All off
+     CheckWIBRegisters(0, 0x8, 30);
+     sleep(0.1);
+     Write(0x8, pwr_wr);
+     CheckWIBRegisters(pwr_wr, 0x8, 30);
+  } // pwr_int_f == true
+  
+  else{
+    auto pwr_status = Read(0x8);
+    for (unsigned int i=0; i<FEMB_NOs.size(); i++){
+        if (FEMB_NOs[i]){
+	  if (power[i] == 1){
+	     pwr_status = pwr_status | pwr_ctl[i];
+             Write(0x8, pwr_status);
+             CheckWIBRegisters(pwr_status, 0x8, 30);
+             sleep(0.5);
+	  }
+	  
+	  else{
+	    if ((i == 3) && (((Read(0x8) & 0xFFF)) == 0xFFF) && ((((Read(0x8) & 0x70000))>>16) == 0x07) && (((Read(0x08) && 0xE00000)>>21) == 0x07)){
+	      pwr_status = 0x00000000;
+	    }
+	    else{
+	      pwr_status = pwr_status & ((~(pwr_ctl[i])) | 0x00100000);
+	    }
+	    Write(0x8, pwr_status);
+            CheckWIBRegisters(pwr_status, 0x8, 30);
+	    sleep(0.5);
+	  }
+	}
+    }
+  } // pwr_int_f == false
+  
+  if (std::count(power.begin(), power.end(), 1)) sleep(3);
+  else sleep(1);
+  TLOG_INFO(identification) << "************* WIB_PWR_FEMB completed ****************" << TLOG_ENDL;
+}
+
+void WIB::WIBs_CFG_INIT(bool jumbo_flag){
+  // This function is copied from Shanshan's python script
+  // to configure WIB/FEMB.
+  // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+  
+  const std::string identification = "WIB::WIB_PWR_FEMB";
+  
+  TLOG_INFO(identification) << "************* Now Starting WIBs_CFG_INIT  ****************" << TLOG_ENDL;
+  
+  WIB_UDP_CTL();
+  if (jumbo_flag){
+     Write(0x1F, 0xEFB); // normal operation
+     CheckWIBRegisters(0xEFB, 0x1F, 30);
+  }
+  else{
+    Write(0x1F, 0x1FB); // normal operation
+    CheckWIBRegisters(0x1FB, 0x1F, 30);
+  }
+  
+  Write(0x0F, 0x0); // normal operation
+  CheckWIBRegisters(0x0, 0x0F, 30);
+  
+  TLOG_INFO(identification) << "************* WIBs_CFG_INIT completed  ****************" << TLOG_ENDL;
 }

@@ -16,7 +16,8 @@ cet_make_library(
 	ASIC_reg_mapping.cc 
 	BNL_UDP.cc 
 	conversions.cc 
-	FE_ASIC_reg_mapping.cc 
+	FE_ASIC_reg_mapping.cc
+	BNL_FE_Reg_Mapping.cc 
 	WIBBase.cc 
 	WIB.cc 
 	WIB_CDS.cc 

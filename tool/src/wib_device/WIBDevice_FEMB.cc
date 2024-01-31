@@ -392,3 +392,34 @@ CommandReturn::status WIBTool::WIBDevice::SetupFEMBASICs(std::vector<std::string
   std::cout << "FEMB "<< int(iFEMB) <<" ASIC sync status: " << std::bitset<16>(syncStatus) << std::endl;
   return CommandReturn::OK;
 }
+
+CommandReturn::status WIBTool::WIBDevice::CheckFEMBDAQConnection(std::vector<std::string> strArg, std::vector<uint64_t> intArg){
+  (void) strArg;
+
+  if(intArg.size() != 4){
+     std::cout << "There should be 4 arguments for 4 FEMBs." << std::endl;
+     return CommandReturn::BAD_ARGS;
+  }
+  
+  for (size_t iArg=0; iArg < intArg.size(); iArg++){
+     if (intArg[iArg] < 0 || intArg[iArg] > 1){
+         std::cout << "Argument for FEMB " << iArg+1 << " is not acceptable. It should be either 0 or 1." << std::endl;
+	 return CommandReturn::BAD_ARGS;
+     } 
+  }
+  
+  for (size_t iArg=0; iArg < intArg.size(); iArg++){
+     if (intArg[iArg] == 1){
+        wib->WriteFEMB(iArg+1,"FEMB_TST_SEL",3);
+	sleep(1);
+	wib->WriteFEMB(iArg+1,"FEMB_TST_SEL",3);
+	sleep(1);
+	wib->WriteFEMB(iArg+1,"FEMB_TST_SEL",3);
+	//wib->CheckFEMBRegisters(3,"FEMB_TST_SEL",iArg+1,30);
+	std::cout << "FEMB " << iArg+1 << " is configured to send fake data with channel indicator."<< std::endl;
+     } 
+     
+     else if (intArg[iArg] == 0) std::cout << "FEMB " << iArg+1 << " is not sending fake data with channel indicator."<< std::endl;
+  }
+  return CommandReturn::OK;
+}
