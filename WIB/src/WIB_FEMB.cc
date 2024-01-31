@@ -2169,7 +2169,7 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint
    
    WriteFEMB(iFEMB,9,9); // enable data stream to WIB and reset transceiver
    CheckFEMBRegisters(9,9,iFEMB,30);
-   sleep(2);
+   //sleep(2);
    //FEMB_UDPACQ_V2(iFEMB-1);
    TLOG_INFO(identification) << "************* CE_CHK_CFG completed ****************" << TLOG_ENDL;
 }
@@ -2177,7 +2177,7 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint
 void WIB::ConfigFEMB_to_send_fake_data(uint8_t iFEMB, uint8_t fk_mode){
    const std::string identification = "WIB::ConfigFEMB_to_send_fake_data";
    TLOG_INFO(identification) << "************* Now Starting ConfigFEMB_to_send_fake_data  ****************" << TLOG_ENDL;
-   if (iFEMB < 1 || iFEMB > 4){
+   if (iFEMB < 0 || iFEMB > 4){ // iFEMB < 1 || iFEMB > 4
        WIBException::WIB_BAD_ARGS e;
        std::stringstream expstr;
        expstr << "FEMB number should be 1, 2, 3 or 4, but you have provided: "<< int(iFEMB);
@@ -2185,7 +2185,7 @@ void WIB::ConfigFEMB_to_send_fake_data(uint8_t iFEMB, uint8_t fk_mode){
        throw e;
    }
    
-   if (fk_mode < 1 || fk_mode > 4){
+   if (fk_mode < 0 || fk_mode > 4){ // iFEMB < 1 || iFEMB > 4
        WIBException::WIB_BAD_ARGS e;
        std::stringstream expstr;
        expstr << "Fake data mode should be 1, 2, 3, or 4, but you have provided"<< int(fk_mode);
@@ -2195,5 +2195,9 @@ void WIB::ConfigFEMB_to_send_fake_data(uint8_t iFEMB, uint8_t fk_mode){
    
    WriteFEMB(iFEMB,"FEMB_TST_SEL",fk_mode);
    CheckFEMBRegisters(fk_mode,"FEMB_TST_SEL",iFEMB,30);
+   if (fk_mode == 3){
+       WriteFEMB(iFEMB,"FEMB_NUMBER",iFEMB-1);
+       CheckFEMBRegisters(iFEMB-1,"FEMB_NUMBER",iFEMB,30);
+   }
    TLOG_INFO(identification) << "************* ConfigFEMB_to_send_fake_data completed ****************" << TLOG_ENDL;
 }
