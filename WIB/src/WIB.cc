@@ -1,12 +1,12 @@
-#include <WIB.hh>
+#include "TRACE/tracemf.h"
 #define TRACE_NAME "WIB"
+#include <WIB.hh>
 #include <WIBException.hh>
 #include <BNL_UDP_Exception.hh>
 #include <stdio.h> //snprintf
 #include <iostream>
 #include <fstream>
 #include <bitset>
-#include "trace.h"
 
 #define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
 #define SI5344_CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
