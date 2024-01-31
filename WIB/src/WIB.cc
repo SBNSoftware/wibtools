@@ -39,12 +39,13 @@ WIB::WIB(std::string const & address,
 }
 
 WIB::~WIB(){
-  wib->SetWriteAck(false);
-  // Select new style reply port numbering scheme and write read backs
-  // This must be a direct Write, otherwise Write issues a Read first
-  Write(0x1E,0);
-
-  wib->SetWriteAck(true);
+//  We do not need to turn off "MP" mode so commentting the following out.
+//  wib->SetWriteAck(false);
+//  // Select new style reply port numbering scheme and write read backs
+//  // This must be a direct Write, otherwise Write issues a Read first
+//  Write(0x1E,0);
+//
+//  wib->SetWriteAck(true);
 
   TLOG(TLVL_INFO) << "Destructor for WIB class finished"; 
 }
