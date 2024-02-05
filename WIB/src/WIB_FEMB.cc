@@ -2177,7 +2177,7 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint
 void WIB::ConfigFEMB_to_send_fake_data(uint8_t iFEMB, uint8_t fk_mode){
    const std::string identification = "WIB::ConfigFEMB_to_send_fake_data";
    TLOG_INFO(identification) << "************* Now Starting ConfigFEMB_to_send_fake_data  ****************" << TLOG_ENDL;
-   if (iFEMB < 0 || iFEMB > 4){ // iFEMB < 1 || iFEMB > 4
+   if (iFEMB < 1 || iFEMB > 4){ // iFEMB < 1 || iFEMB > 4
        WIBException::WIB_BAD_ARGS e;
        std::stringstream expstr;
        expstr << "FEMB number should be 1, 2, 3 or 4, but you have provided: "<< int(iFEMB);
