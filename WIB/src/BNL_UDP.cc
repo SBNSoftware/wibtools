@@ -36,9 +36,7 @@ struct WIB_packet_t
 gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 {
   const std::string identification = "BNL_UDP::gige_reg_init";
-  TLOG_INFO(identification)<<"IP address is " << IP_address << TLOG_ENDL;
   
-  //std::cout<<"IP address is " << IP_address << std::endl;
   TLOG_INFO(identification)<<"IP address is " << IP_address << TLOG_ENDL;
   int rc = 0;
 
@@ -57,17 +55,17 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
   int  flags;
   if((flags = fcntl(ret->sock_recv,F_GETFL,0)) < 0)
   {
-    printf("Error fcntl %s\n", strerror(errno));
+    TLOG_ERROR(identification)<< "Error on fcntl " << strerror(errno) << TLOG_ENDL;
   }
 
   if(fcntl(ret->sock_recv,F_SETFL,flags ) < 0)
   {
-    printf("Error on fcntl_set %s\n", strerror(errno));
+    TLOG_ERROR(identification)<< "Error on fcntl_set " << strerror(errno) << TLOG_ENDL;
   }
 
   if (ret->sock_recv == -1) 
   {
-    printf("Error defining ret->sock_recv\n");
+    TLOG_ERROR(identification)<< "Error defining ret->sock_recv" << strerror(errno) << TLOG_ENDL;
     perror(__func__);
     return NULL;
   }
@@ -79,10 +77,33 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
   rc = setsockopt(ret->sock_recv,SOL_SOCKET, SO_RCVTIMEO, (const void *)&zeitZuGehen,sizeof(zeitZuGehen));
   if ( rc < 0 )
   {
-    printf("Setting timeout failed! %s\n",strerror(errno));
+    TLOG_ERROR(identification)<< "Error setting socket timeout " << strerror(errno) << TLOG_ENDL;
     perror(__func__);
     return NULL;
   }
+
+  // In clase the Board Reader or WIBTools crashes without closing this recv socket, set two options 
+  //   to make reconnecting and binding easier
+  // On a crash, socket may presist for some time -- this lets a new process take it over right away
+  const int reuse = 0;
+  rc = setsockopt(ret->sock_recv,SOL_SOCKET, SO_REUSEADDR, (const void *)&reuse,sizeof(reuse));
+  if ( rc < 0 )
+  {
+    TLOG_ERROR(identification)<< "Error recv setting socket REUSEADDR [on] " << strerror(errno) << TLOG_ENDL;
+    perror(__func__);
+  }
+
+  struct linger noLinger;
+  noLinger.l_onoff  = 0;
+  noLinger.l_linger = 0;
+  // Do you have to, do you have to let it linger?  No, you don't!
+  rc = setsockopt(ret->sock_recv,SOL_SOCKET, SO_LINGER, (const void *)&noLinger,sizeof(noLinger));
+  if ( rc < 0 )
+  {
+    TLOG_ERROR(identification)<< "Error recv setting socket LINGER [off] " << strerror(errno) << TLOG_ENDL;
+    perror(__func__);
+  }
+
 
   // Recv Port Setup
   bzero(&ret->si_recv, sizeof(ret->si_recv));
@@ -95,7 +116,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 	    sizeof(ret->si_recv));
   if (rc < 0) 
   {
-    printf("Binding failed! %s\n",strerror(errno));
+    TLOG_ERROR(identification)<< "Binding bind() recv socket failed " << strerror(errno) << TLOG_ENDL;
     perror(__func__);
     return NULL;
   }
@@ -104,7 +125,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
   ret->sock_read = socket(AF_INET, SOCK_DGRAM, 0);
   if (ret->sock_read == -1) 
   {
-    printf("Failed sock_read socket call %s!\n", strerror(errno));
+    TLOG_ERROR(identification)<< "Error sock_read socket call " << strerror(errno) << TLOG_ENDL;
     perror(__func__);
     return NULL;
   }
@@ -116,7 +137,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
  
   if (inet_aton(ret->client_ip_addr , &ret->si_read.sin_addr) == 0) 
   {
-    printf("inet_aton() failed %s\n",strerror(errno));
+    TLOG_ERROR(identification)<< "Error on inet_aton() " << strerror(errno) << TLOG_ENDL;
   }
 
   // Bind to Register READ TX Port
@@ -124,7 +145,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 	       sizeof(ret->si_read));
   if (rc < 0) 
   {
-    printf("connect to read port failed %s\n", strerror(errno));
+    TLOG_ERROR(identification)<< "Error on connect() sock_read " << strerror(errno) << TLOG_ENDL;
     perror(__func__);
     return NULL;
   }
@@ -136,7 +157,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
   ret->sock_write =  socket(AF_INET, SOCK_DGRAM, 0);
   if (ret->sock_write == -1) 
   {
-    printf("falied sock_write socket call %s\n", strerror(errno));
+    TLOG_ERROR(identification)<< "Error on socket() sock_write " << strerror(errno) << TLOG_ENDL;
     perror(__func__);
     return NULL;
   }
@@ -148,7 +169,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 
   if (inet_aton(ret->client_ip_addr , &ret->si_write.sin_addr) == 0) 
   {
-    printf("inet_aton() failed %s\n", strerror(errno));
+    TLOG_ERROR(identification)<< "Error on inet_aton() sock_write " << strerror(errno) << TLOG_ENDL;
   }
 
   // Bind to  Write TX Port
@@ -156,6 +177,7 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 		 sizeof(ret->si_write));
   if (rc < 0) 
   {
+    TLOG_ERROR(identification)<< "Error on connect() sock_write " << strerror(errno) << TLOG_ENDL;
     perror(__func__);
     return NULL;
   }
@@ -165,45 +187,50 @@ gige_reg_t* BNL_UDP::gige_reg_init(const char *IP_address, char *iface)
 }
 
 
-bool BNL_UDP::gige_reg_close(gige_reg_t* gige_reg){
+bool BNL_UDP::gige_reg_close(gige_reg_t* gige_reg)
+{
   const std::string identification = "BNL_UDP::gige_reg_close";
 
-  if(!gige_reg) {
-    TLOG_ERROR(identification)<< "gige_reg is a nullptr";
-
+  if(!gige_reg) 
+  {
+    TLOG_ERROR(identification)<< "gige_reg is a nullptr, how? " << TLOG_ENDL;
     return false;
   }
 
   int error_count=0;
-  char errorText [256];
 
-  if (close(gige_reg->sock_recv) != 0) {
-    sprintf(errorText,"Failed to close recv socket call %s!\n", strerror(errno));
-    TLOG_ERROR(identification) << errorText;
+  if (close(gige_reg->sock_recv) != 0) 
+  {
+    TLOG_ERROR(identification) << "Failed to close recv socket "<< strerror(errno) << TLOG_ENDL;
     perror(__func__);
     error_count++;
   }
 
-  if (close(gige_reg->sock_read) == -1) {
-    printf(errorText,"Failed to close read socket call %s!\n", strerror(errno));
-    TLOG_ERROR(identification) << errorText;
+  if (close(gige_reg->sock_read) == -1) 
+  {
+    TLOG_ERROR(identification) << "Failed to close read socket "<< strerror(errno) << TLOG_ENDL;
     perror(__func__);
     error_count++;
   }
 
-  if (close(gige_reg->sock_write) == -1) {
-    sprintf(errorText,"Failed to close write socket call %s!\n", strerror(errno));
-    TLOG_ERROR(identification) << errorText;
+  if (close(gige_reg->sock_write) == -1) 
+  {
+    TLOG_ERROR(identification) << "Failed to close write socket "<< strerror(errno) << TLOG_ENDL;
     perror(__func__);
     error_count++;
   }
 
-  if (error_count > 0) return false;
+  free(gige_reg);
+  if (error_count > 0) 
+  {
+    TLOG_ERROR(identification) << error_count <<
+      " network socket close errors may cause problems later"<< TLOG_ENDL;
+    return false;
+  }
   else 
   {
-    TLOG_INFO(identification) << "Closed BNL communications sockets";
+    TLOG_INFO(identification) << "Closed BNL communications sockets OK";
   }
-  free(gige_reg);
 
   return true;
 }
@@ -251,16 +278,6 @@ void BNL_UDP::Clear()
   connected = false;
 }
 
-//static void printaddress(struct sockaddr_in const * addr){
-//  printf("%u: %u.%u.%u.%u : %u\n",
-//	 addr->sin_family,
-//	 (addr->sin_addr.s_addr >> 0)&0xFF,
-//	 (addr->sin_addr.s_addr >> 8)&0xFF,
-//	 (addr->sin_addr.s_addr >> 16)&0xFF,
-//	 (addr->sin_addr.s_addr >> 24)&0xFF,
-//	 ntohs(addr->sin_port));
-//}
-
 void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
 {
   const std::string identification = "BNL_UDP::Setup";
@@ -283,7 +300,7 @@ void BNL_UDP::Setup(std::string const & address,uint16_t port_offset)
   //   response addresses
   int32_t b3,b2,b1,b0;
   sscanf(address.c_str(), "%d.%d.%d.%d", &b3,&b2,&b1,&b0);
-  //std::cout << "Decoded IP Address: " << b3 << "." << b2 << "." << b1 << "." << b0 <<std::endl;
+
   TLOG_INFO(identification) << "Decoded IP Address: " << b3 << "." << b2 << "." << b1 << "." << b0 <<TLOG_ENDL;
   if (isFEMB )
   {
@@ -412,8 +429,10 @@ void BNL_UDP::Disconnect()
   const std::string identification = "BNL_UDP::Disconnect";
   TLOG_INFO(identification)<<"Called " << identification << TLOG_ENDL;
 
-  if (!gige_reg_close(reg)){
-    TLOG_ERROR(identification)<<"BNLUDP Failed closing connections.";
+  if (!gige_reg_close(reg))
+  {
+    TLOG_ERROR(identification)<<"BNLUDP Failed closing connections, future connections may be problematic"
+			      << TLOG_ENDL;
     return;
   }
 
