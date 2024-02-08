@@ -27,6 +27,7 @@ class MBB{
   void StartFEMBDaq();
   void StopFEMBDaq();
   void CalibrationPulse();
+  void NewCalibrationPulse(); // latest version of CalibrationPulse() function as instructed by Shanshan. (02/05/2024, Varuna Meddage)
   void SystemReset();
   void RegisterReset();
   void UDPReset();

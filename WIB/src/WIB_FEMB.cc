@@ -2201,3 +2201,37 @@ void WIB::ConfigFEMB_to_send_fake_data(uint8_t iFEMB, uint8_t fk_mode){
    }
    TLOG_INFO(identification) << "************* ConfigFEMB_to_send_fake_data completed ****************" << TLOG_ENDL;
 }
+
+void WIB::Prepare_FEMBs_for_MBB_Calib(uint8_t iFEMB){
+   const std::string identification = "WIB::Prepare_FEMBs_for_MBB_Calib";
+   TLOG_INFO(identification) << "************* Now Starting Prepare_FEMBs_for_MBB_Calib  ****************" << TLOG_ENDL;
+   WriteFEMB(iFEMB,"INT_TP_EN",1);
+   CheckFEMBRegisters(1,"INT_TP_EN",iFEMB,30);
+   WriteFEMB(iFEMB,"EXP_TP_EN",0);
+   CheckFEMBRegisters(0,"EXP_TP_EN",iFEMB,30);
+   TLOG_INFO(identification) << "************* Prepare_FEMBs_for_MBB_Calib completed ****************" << TLOG_ENDL;
+}
+
+void WIB::Config_FEMBs_to_ChnlMap_Mode(std::vector<bool> enable_FEMBs){
+    const std::string identification = "WIB::Config_FEMBs_to_ChnlMap_Mode";
+    TLOG_INFO(identification) << "************* Now Starting Config_FEMBs_to_ChnlMap_Mode  ****************" << TLOG_ENDL;
+    for (unsigned int i=0; i<enable_FEMBs.size(); i++){
+         if (enable_FEMBs[i]){
+	    WriteFEMB(i+1,0x2A,(i<<4)+3);
+	    CheckFEMBRegisters((i<<4)+3,0x2A,i+1,30); 
+	 }
+    }
+    TLOG_INFO(identification) << "************* Config_FEMBs_to_ChnlMap_Mode completed ****************" << TLOG_ENDL;
+}
+
+void WIB::Config_FEMBs_to_NormalData_Mode(std::vector<bool> enable_FEMBs){
+    const std::string identification = "WIB::Config_FEMBs_to_NormalData_Mode";
+    TLOG_INFO(identification) << "************* Now Starting Config_FEMBs_to_NormalData_Mode  ****************" << TLOG_ENDL;
+    for (unsigned int i=0; i<enable_FEMBs.size(); i++){
+         if (enable_FEMBs[i]){
+	    WriteFEMB(i+1,0x2A, 0);
+	    CheckFEMBRegisters(0,0x2A,i+1,30); 
+	 }
+    }
+    TLOG_INFO(identification) << "************* Config_FEMBs_to_NormalData_Mode completed ****************" << TLOG_ENDL;
+}

@@ -1311,14 +1311,14 @@ void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
      }
   }
   WIB_UDP_CTL();
-  TLOG_INFO(identification) << "enable data stream and synchronize to Nevis" << TLOG_ENDL;
+  /*TLOG_INFO(identification) << "enable data stream and synchronize to Nevis" << TLOG_ENDL;
   Write(20, 0x00); // disable data stream and synchronize to Nevis
   CheckWIBRegisters(0x00, 20, 30);
   Write(20, 0x03); // disable data stream and synchronize to Nevis
   CheckWIBRegisters(0x03, 20, 30);
   Write(20, 0x00); // disable data stream and synchronize to Nevis
   CheckWIBRegisters(0x00, 20, 30);
-  TLOG_INFO(identification) << "WIB scanning is done" << TLOG_ENDL;
+  TLOG_INFO(identification) << "WIB scanning is done" << TLOG_ENDL;*/
   
   TLOG_INFO(identification) << "************* WIBs_SCAN completed ****************" << TLOG_ENDL;
 }
