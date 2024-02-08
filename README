@@ -1,3 +1,10 @@
+
+
+The below instructions are now obsolete.   This package has been folded 
+  into the sbndaq "mrb" multi-repository build scheme.  See sbndaq documentation
+  for how to compile and build.   Since the pDUNE port, wibtools is now much  
+  more integrated into sbndaq.
+
 SBND port of the BUTools package into wibtools
 
 Library requirements:
