@@ -248,6 +248,9 @@ class WIB: public WIBBase {
 		  uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, 
 		  uint32_t swdac2=0, uint32_t dac=0, bool fecfg_loadflg=false); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
   void ConfigFEMB_to_send_fake_data(uint8_t iFEMB, uint8_t fk_mode); // configure a given femb to send fake data (as per instructions by Shanshan)
+  void Prepare_FEMBs_for_MBB_Calib(uint8_t iFEMB);
+  void Config_FEMBs_to_ChnlMap_Mode(std::vector<bool> enable_FEMBs);
+  void Config_FEMBs_to_NormalData_Mode(std::vector<bool> enable_FEMBs);
 
  private:
   WIB(); //disallow the default constructor
