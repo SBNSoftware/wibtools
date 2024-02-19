@@ -229,7 +229,10 @@ void MBB::CalibrationPulse(){//Transition from 0 to 1 will generate a calibratio
   }
   
 void MBB::NewCalibrationPulse(){ // latest version of CalibrationPulse() function as instructed by Shanshan. (02/05/2024, Varuna Meddage)
+  Write("CALIBRATION_PULSE", 0);
+  sleep(0.001);
   Write("CALIBRATION_PULSE", 1);
+  sleep(0.001);
   Write("CALIBRATION_PULSE", 0);
 }
 
