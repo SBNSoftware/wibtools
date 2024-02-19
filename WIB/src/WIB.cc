@@ -1307,7 +1307,8 @@ void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
      if (i == 4){
          WIBException::WIB_ERROR e;
 	 std::stringstream expstr;
-	 expstr << "WIB with IP  " << wib->GetRemoteAddress() << " readback error with read back value " << wib_ver_rb;
+	 expstr << "WIB with IP  " << wib->GetRemoteAddress() << " readback error with read back value " << wib_ver_rb 
+	        << ". Make sure fcl parameter value for WIB firm ware is correct.";
 	 e.Append(expstr.str().c_str());
 	 throw e;
      }

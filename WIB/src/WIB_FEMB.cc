@@ -2235,3 +2235,18 @@ void WIB::Config_FEMBs_to_NormalData_Mode(std::vector<bool> enable_FEMBs){
     }
     TLOG_INFO(identification) << "************* Config_FEMBs_to_NormalData_Mode completed ****************" << TLOG_ENDL;
 }
+
+void WIB::Write_Missing_FEMB_Regs(uint8_t mode, uint8_t iFEMB){
+    const std::string identification = "WIB::Write_Missing_FEMB_Regs";
+    TLOG_INFO(identification) << "************* Now Starting Write_Missing_FEMB_Regs  ****************" << TLOG_ENDL;
+    if (mode == 0){
+       WriteFEMB(iFEMB,0x10,0x100);
+       CheckFEMBRegisters(0x100,0x10,iFEMB,30);
+       WriteFEMB(iFEMB,0x12,0x03); 
+       CheckFEMBRegisters(0x03,0x12,iFEMB,30);
+       WriteFEMB(iFEMB,0x05,0x1f40a00);
+       CheckFEMBRegisters(0x1f40a00,0x05,iFEMB,30);
+    }
+    else TLOG_INFO(identification) << "***** All registers are already written in FEMB " << iFEMB << " **********" << TLOG_ENDL;
+    TLOG_INFO(identification) << "************* Write_Missing_FEMB_Regs completed ****************" << TLOG_ENDL;
+}
