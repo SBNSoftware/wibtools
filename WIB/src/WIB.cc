@@ -8,6 +8,7 @@
 #include <fstream>
 #include <bitset>
 
+
 #define WIB_CONFIG_PATH "WIB_CONFIG_PATH" 
 #define SI5344_CONFIG_FILENAME "Si5344-RevD-SBND_V2_100MHz_REVD_2.txt"
 #define PORT 32003
@@ -39,12 +40,13 @@ WIB::WIB(std::string const & address,
 }
 
 WIB::~WIB(){
-  wib->SetWriteAck(false);
-  // Select new style reply port numbering scheme and write read backs
-  // This must be a direct Write, otherwise Write issues a Read first
-  Write(0x1E,0);
-
-  wib->SetWriteAck(true);
+//  We do not need to turn off "MP" mode so commentting the following out.
+//  wib->SetWriteAck(false);
+//  // Select new style reply port numbering scheme and write read backs
+//  // This must be a direct Write, otherwise Write issues a Read first
+//  Write(0x1E,0);
+//
+//  wib->SetWriteAck(true);
 
   TLOG(TLVL_INFO) << "Destructor for WIB class finished"; 
 }
@@ -1305,20 +1307,21 @@ void WIB::WIBs_SCAN(uint32_t WIB_ver, uint8_t clockSource){
      if (i == 4){
          WIBException::WIB_ERROR e;
 	 std::stringstream expstr;
-	 expstr << "WIB with IP  " << wib->GetRemoteAddress() << " readback error with read back value " << wib_ver_rb;
+	 expstr << "WIB with IP  " << wib->GetRemoteAddress() << " readback error with read back value " << wib_ver_rb 
+	        << ". Make sure fcl parameter value for WIB firm ware is correct.";
 	 e.Append(expstr.str().c_str());
 	 throw e;
      }
   }
   WIB_UDP_CTL();
-  TLOG_INFO(identification) << "enable data stream and synchronize to Nevis" << TLOG_ENDL;
+  /*TLOG_INFO(identification) << "enable data stream and synchronize to Nevis" << TLOG_ENDL;
   Write(20, 0x00); // disable data stream and synchronize to Nevis
   CheckWIBRegisters(0x00, 20, 30);
   Write(20, 0x03); // disable data stream and synchronize to Nevis
   CheckWIBRegisters(0x03, 20, 30);
   Write(20, 0x00); // disable data stream and synchronize to Nevis
   CheckWIBRegisters(0x00, 20, 30);
-  TLOG_INFO(identification) << "WIB scanning is done" << TLOG_ENDL;
+  TLOG_INFO(identification) << "WIB scanning is done" << TLOG_ENDL;*/
   
   TLOG_INFO(identification) << "************* WIBs_SCAN completed ****************" << TLOG_ENDL;
 }
