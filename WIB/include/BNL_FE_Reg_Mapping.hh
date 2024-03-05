@@ -59,7 +59,17 @@ class BNL_FE_Reg_Mapping {
   void set_fe_board_for_chnl_testing(uint8_t config_no, uint32_t test_chnl, uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, 
                     uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1, 
                     uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, 
-		    uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);			       
+		    uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);
+		    
+  // NEW PIECE OF CODE USED FOR TESTING CHANNEL MAP (written 03/05/2024)
+  // This function replaces the previous function with same name.
+  // This new function is capable of sending a pulse in a selected group of 
+  // channels and also in a single channel. But the previous function was only
+  // capable of sending a pulse only in a selected single channel.		    
+  void new_set_fe_board_for_chnl_testing(uint8_t config_no, uint32_t test_fst_chnl, uint32_t test_lst_chnl, uint32_t sts=0, uint32_t snc=0, 
+                                         uint32_t sg0=0, uint32_t sg1=1, uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1, 
+                                         uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, 
+		                         uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0);			       			       
 			       		     		       
   std::vector<bool> REGS{std::vector<bool>(1152, false)}; // declare board specific registers
   
