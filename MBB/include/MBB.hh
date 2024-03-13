@@ -27,7 +27,13 @@ class MBB{
   void StartFEMBDaq();
   void StopFEMBDaq();
   void CalibrationPulse();
-  void NewCalibrationPulse(); // latest version of CalibrationPulse() function as instructed by Shanshan. (02/05/2024, Varuna Meddage)
+  void NewCalibrationPulse(); // latest version of CalibrationPulse() function as instructed by Shanshan. (03/11/2024, Varuna Meddage)
+  void UseMBBPeriodicalCalibSrc(uint32_t pls_prd); // Implemented as instructed by Shanshan (03/11/2024, Varuna Meddage)
+  // Implemented as instructed by Shanshan (03/11/2024, Varuna Meddage)
+  // Makse sure to connect an external signal generator
+  // to MBB LIMO (CALI) before using this function. You
+  // can set the pulse period from the external signal generator.
+  void UseSignalGeneratorAsCalibSrc();
   void SystemReset();
   void RegisterReset();
   void UDPReset();
