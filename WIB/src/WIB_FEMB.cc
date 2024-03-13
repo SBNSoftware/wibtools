@@ -2210,3 +2210,11 @@ void WIB::Write_Missing_FEMB_Regs(uint8_t mode, uint8_t iFEMB){
     else TLOG_INFO(identification) << "***** All registers are already written in FEMB " << iFEMB << " **********" << TLOG_ENDL;
     TLOG_INFO(identification) << "************* Write_Missing_FEMB_Regs completed ****************" << TLOG_ENDL;
 }
+
+void WIB::Change_TST_PLS_Separation(uint8_t iFEMB, uint32_t pls_sep){
+    const std::string identification = "WIB::Change_TST_PLS_Separation";
+    TLOG_INFO(identification) << "************* Now Starting Change_TST_PLS_Separation  ****************" << TLOG_ENDL;
+    WriteFEMB(iFEMB,"TEST_PULSE_WIDTH",pls_sep);
+    CheckFEMBRegisters(pls_sep,"TEST_PULSE_WIDTH",iFEMB,30);
+    TLOG_INFO(identification) << "************* Change_TST_PLS_Separation completed ****************" << TLOG_ENDL;
+}

@@ -250,6 +250,7 @@ class WIB: public WIBBase {
   void Config_FEMBs_to_ChnlMap_Mode(std::vector<bool> enable_FEMBs);
   void Config_FEMBs_to_NormalData_Mode(std::vector<bool> enable_FEMBs);
   void Write_Missing_FEMB_Regs(uint8_t mode, uint8_t iFEMB); // Implemented as instructed by Shanshan (02/15/2024)
+  void Change_TST_PLS_Separation(uint8_t iFEMB, uint32_t pls_sep); // Implemented as instructed by Shanshan (03/13/2024)
 
  private:
   WIB(); //disallow the default constructor
