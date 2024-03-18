@@ -1915,6 +1915,8 @@ uint16_t WIB::New_SetupFEMBASICs(uint8_t iFEMB, uint8_t config_no, uint8_t gain,
   return 1;
 }
 
+// =================================== Tested code for FEMB config (02/23/2024) ==================================================================
+
 void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint32_t chnl_no, uint32_t pls_cs, uint32_t dac_sel, uint32_t fpgadac_en,                         uint32_t asicdac_en,uint32_t fpgadac_v, uint32_t pls_gap, uint32_t pls_dly, uint32_t mon_cs, uint32_t data_cs, uint32_t sts,                             uint32_t snc, uint32_t sg0, uint32_t sg1, uint32_t st0, uint32_t st1, uint32_t smn, uint32_t sdf,
 		     uint32_t slk0, uint32_t stb1, uint32_t stb, uint32_t s16, uint32_t slk1, uint32_t sdc, uint32_t swdac1, uint32_t swdac2,                                 uint32_t dac,bool fecfg_loadflg){
    // This function is copied from Shanshan's python script
@@ -2174,6 +2176,8 @@ void WIB::CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint
    TLOG_INFO(identification) << "************* CE_CHK_CFG completed ****************" << TLOG_ENDL;
 }
 
+//=========================================== Tested code for FEMB config (02/23/2024) ==================================
+
 void WIB::ConfigFEMB_to_send_fake_data(uint8_t iFEMB, uint8_t fk_mode){
    const std::string identification = "WIB::ConfigFEMB_to_send_fake_data";
    TLOG_INFO(identification) << "************* Now Starting ConfigFEMB_to_send_fake_data  ****************" << TLOG_ENDL;
@@ -2234,4 +2238,299 @@ void WIB::Config_FEMBs_to_NormalData_Mode(std::vector<bool> enable_FEMBs){
 	 }
     }
     TLOG_INFO(identification) << "************* Config_FEMBs_to_NormalData_Mode completed ****************" << TLOG_ENDL;
+}
+
+void WIB::Write_Missing_FEMB_Regs(uint8_t mode, uint8_t iFEMB){
+    const std::string identification = "WIB::Write_Missing_FEMB_Regs";
+    TLOG_INFO(identification) << "************* Now Starting Write_Missing_FEMB_Regs  ****************" << TLOG_ENDL;
+    if (mode == 0){
+       WriteFEMB(iFEMB,0x10,0x100);
+       CheckFEMBRegisters(0x100,0x10,iFEMB,30);
+       WriteFEMB(iFEMB,0x12,0x03); 
+       CheckFEMBRegisters(0x03,0x12,iFEMB,30);
+       WriteFEMB(iFEMB,0x05,0x1f40a00);
+       CheckFEMBRegisters(0x1f40a00,0x05,iFEMB,30);
+    }
+    
+    /*else if (mode == 1){
+    
+    }
+    
+    else if (mode == 2){
+    
+    }*/
+    TLOG_INFO(identification) << "************* Write_Missing_FEMB_Regs completed ****************" << TLOG_ENDL;
+}
+
+void WIB::Change_TST_PLS_Separation(uint8_t iFEMB, uint32_t pls_sep){
+    const std::string identification = "WIB::Change_TST_PLS_Separation";
+    TLOG_INFO(identification) << "************* Now Starting Change_TST_PLS_Separation  ****************" << TLOG_ENDL;
+    WriteFEMB(iFEMB,"TEST_PULSE_WIDTH",pls_sep);
+    CheckFEMBRegisters(pls_sep,"TEST_PULSE_WIDTH",iFEMB,30);
+    TLOG_INFO(identification) << "************* Change_TST_PLS_Separation completed ****************" << TLOG_ENDL;
+}
+
+
+
+/////////////////////////========================== TESTING CODE FOR FEMB CALIBRATION =================== (02/24/2024)
+
+void WIB::TST_CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint32_t chnl_fst, uint32_t chnl_lst, uint32_t pls_cs, uint32_t dac_sel,                           uint32_t fpgadac_en,uint32_t asicdac_en,uint32_t fpgadac_v, uint32_t pls_gap, uint32_t pls_dly, uint32_t mon_cs, 
+                         uint32_t data_cs, uint32_t sts, uint32_t snc, uint32_t sg0, uint32_t sg1, uint32_t st0, uint32_t st1, uint32_t smn, 
+			 uint32_t sdf,uint32_t slk0, uint32_t stb1, uint32_t stb, uint32_t s16, uint32_t slk1, uint32_t sdc, uint32_t swdac1, 
+			 uint32_t swdac2, uint32_t dac,bool fecfg_loadflg){
+   // This function is copied from Shanshan's python script
+   // to configure WIB/FEMB.
+   // The original function is in cls_config.py module inside the repository CE_LD with same name (git branch name is, Installation_Support)
+   
+   const std::string identification = "WIB::TST_CE_CHK_CFG";
+   
+   TLOG_INFO(identification) << "************* Now Starting TST_CE_CHK_CFG  ****************" << TLOG_ENDL;
+   
+   uint32_t tp_sel;
+   
+   if (mon_cs == 0) tp_sel = ((asicdac_en&0x01) <<1) + (fpgadac_en&0x01) + ((dac_sel&0x1)<<8);
+   else tp_sel = 0x402;
+   
+   TLOG_INFO(identification) << "tp_sel value : " << tp_sel << TLOG_ENDL;
+   
+   uint32_t pls_cs_value = 0x3;
+   
+   if (pls_cs == 0) pls_cs_value = 0x3; //disable all
+   else if (pls_cs == 1) pls_cs_value = 0x2; // internal pls
+   else if (pls_cs == 2) pls_cs_value = 0x1; // external pls
+   else if (pls_cs == 3) pls_cs_value = 0x0; // enable int and ext pls
+   
+   TLOG_INFO(identification) << "pls_cs value : " << pls_cs_value << TLOG_ENDL;
+   
+   uint32_t reg_5_value;
+   
+   if (fpgadac_en == 1){
+      reg_5_value = ((pls_gap<<16)&0xFFFF0000) + ((pls_dly<<8)&0xFF00) + (fpgadac_v&0xFF);
+   }
+   
+   else{
+      reg_5_value = ((pls_gap<<16)&0xFFFF0000) + ((pls_dly<<8)&0xFF00) + (0x00);
+   }
+   
+   TLOG_INFO(identification) << "Register 5 value : " << reg_5_value << TLOG_ENDL;
+   
+   WriteFEMB(iFEMB,0,1);
+   sleep(0.001);
+   WriteFEMB(iFEMB,5,reg_5_value);
+   CheckFEMBRegisters(reg_5_value,5,iFEMB,30);
+   WriteFEMB(iFEMB,16,tp_sel&0x0000ffff);
+   CheckFEMBRegisters(tp_sel&0x0000ffff,16,iFEMB,30);
+   WriteFEMB(iFEMB,18,pls_cs_value);
+   CheckFEMBRegisters(pls_cs_value,18,iFEMB,30);
+   
+   if ((data_cs&0x0F) != 0){
+      WriteFEMB(iFEMB,42,((((iFEMB-1)&0x0F)<<4) + (data_cs&0x0F)));
+      CheckFEMBRegisters(((((iFEMB-1)&0x0F)<<4) + (data_cs&0x0F)),42,iFEMB,30);
+   } 
+   
+   else{
+     WriteFEMB(iFEMB,42,0);
+     CheckFEMBRegisters(0,42,iFEMB,30);
+   }
+   
+   BNL_FE_Reg_Mapping FEREG_MAP;
+   std::vector<bool> regs;
+   
+   if (fecfg_loadflg) regs = {};
+   else{
+     if (test_chnl_map) FEREG_MAP.tst_set_fe_board_for_chnl_testing(config_no, chnl_fst, chnl_lst, sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac);
+     else{
+       FEREG_MAP.set_fe_board(config_no,sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // ch. by ch.
+       
+       //FEREG_MAP.set_fe_board(sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // global configuration
+       //FEREG_MAP.set_collection_fe_board(config_no, sts, snc, sg0, sg1, st0, st1, smn, sdf, slk0, stb1, stb, s16, slk1, sdc, swdac1, swdac2, dac); // set only collection plane channels
+     }
+     regs = FEREG_MAP.REGS;
+   }
+   
+   std::vector<uint32_t>fe_regs((8+1)*4,0x00000000);
+   std::vector<int> range_vec = {0,2,4,6};
+   
+   //std::ofstream debug_file,debug_file_1,debug_file_2,debug_file_3,debug_file_4;
+   
+   //debug_file.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_file_1.txt");
+//debug_file_1.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_values.txt");
+//debug_file_2.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_writes.txt");
+//debug_file_3.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_reg_reads.txt");
+//debug_file_4.open("/home/nfs/sbnd/DAQ_DevAreas/DAQ_30Mar2023_VM/localProducts_sbndaq_v1_08_01_e20_prof_s112/wibtools/v1_08_00/config/debug_fe_all_regs.txt");
+
+   /*for (unsigned int i=0; i<regs.size(); i++) debug_file_4 << i << " Value : " << regs[i] << "\n";
+   debug_file_4.close();*/
+   
+   for (unsigned int i=0; i<range_vec.size(); i++){
+       //debug_file << "************** Range vector value : " << range_vec[i] << " *****************\n";
+       int chip_bits_len = 8*(16+2);
+       
+       std::vector<bool> chip_fe_regs0(((range_vec[i]+1)* chip_bits_len)-(range_vec[i]*chip_bits_len));
+       copy(regs.begin()+(range_vec[i]*chip_bits_len), regs.begin()+((range_vec[i]+1)* chip_bits_len), chip_fe_regs0.begin());
+       
+       std::vector<bool> chip_fe_regs1(((range_vec[i]+2)* chip_bits_len)-((range_vec[i]+1)*chip_bits_len));
+       copy(regs.begin()+((range_vec[i]+1)*chip_bits_len), regs.begin()+((range_vec[i]+2)* chip_bits_len), chip_fe_regs1.begin());
+       
+       //TLOG_INFO(identification) << "Length of chip_fe_regs0 vector : " << chip_fe_regs0.size() << TLOG_ENDL;
+       //TLOG_INFO(identification) << "Length of chip_fe_regs1 vector : " << chip_fe_regs1.size() << TLOG_ENDL;
+       //TLOG_INFO(identification) << "Range vector value : " << range_vec[i] << TLOG_ENDL;
+       //debug_file << "====== Size of the chip_fe_regs0 vector : " << chip_fe_regs0.size() 
+                  //<< " Size of the chip_fe_regs1 vector : " <<   chip_fe_regs1.size() << " ============\n";
+       /*for (unsigned int ele=0; ele<chip_fe_regs0.size(); ele++){
+          TLOG_INFO(identification) << ele << " chip reg 0 : " << chip_fe_regs0[ele] << "  chip reg 1 : " << chip_fe_regs1[ele] << TLOG_ENDL;
+	  debug_file << ele << " chip reg 0 : " << chip_fe_regs0[ele] << " chip reg 1 : " << chip_fe_regs1[ele] << "\n";
+       }*/
+       
+       std::vector<bool> chip_regs;
+       
+       for (unsigned int onebit=0; onebit<chip_fe_regs0.size(); onebit++){
+          chip_regs.push_back(chip_fe_regs0[onebit]); 
+       }
+       
+       for (unsigned int onebit=0; onebit<chip_fe_regs1.size(); onebit++){
+          chip_regs.push_back(chip_fe_regs1[onebit]); 
+       }
+       
+       int len32 = floor(chip_regs.size()/32);
+       
+       if (len32 != 9){
+          WIBException::WIB_ERROR e;
+          std::stringstream expstr;
+          expstr << " for FEMB: " << int(iFEMB) << " ERROR FE register mapping ";
+          e.Append(expstr.str().c_str());
+          throw e;  
+       }
+       
+       else{
+         for (int j=0; j<len32; j++){
+	    if(j*32 <= int(chip_regs.size())){
+	       std::vector<bool> bits32(((j+1)*32)-(j*32));
+	       copy(chip_regs.begin()+(j*32), chip_regs.begin()+((j+1)*32), bits32.begin());
+	       int sum=0;
+	       for (unsigned int k=0; k<bits32.size(); k++){
+	          sum = sum + (bits32[k]<<k); 
+	       }
+	       fe_regs[int(range_vec[i]/2*len32) + j] = sum;
+	    }
+	 }
+       } 
+   } // loop over range vector
+   
+   //debug_file.close();
+   
+   int i = 0;
+   
+   /*for (unsigned int i=0; i<fe_regs.size(); i++){
+      debug_file_1 << i << "  " << fe_regs[i] << "\n";
+   }*/
+   
+   //debug_file_1.close();
+   
+   for (int regNum=0x200; regNum<(0x200+int(fe_regs.size())); regNum++){
+      WriteFEMB(iFEMB,regNum,fe_regs[i]);
+      CheckFEMBRegisters(fe_regs[i],regNum,iFEMB,30);
+      //debug_file_2 << "Register : " << regNum << " Value : " << fe_regs[i] << "\n";
+      i++; 
+   }
+   
+   //debug_file_2.close();
+   
+   WriteFEMB(iFEMB,2,1); // SPI write
+   //CheckFEMBRegisters(1,2,iFEMB,30);
+   sleep(1);
+   WriteFEMB(iFEMB,2,1); // SPI write
+   //CheckFEMBRegisters(1,2,iFEMB,30);
+   sleep(1);
+   WriteFEMB(iFEMB,2,1); // SPI write
+   //CheckFEMBRegisters(1,2,iFEMB,30);
+   sleep(1);
+   
+   std::vector<uint32_t> fe_rb_regs;
+   
+   for (int regNum=0x250; regNum<(0x250+int(fe_regs.size())); regNum++){
+      auto val = ReadFEMB(iFEMB,regNum);
+      //sleep(0.1);
+      //val = ReadFEMB(iFEMB,regNum);
+      //sleep(0.1);
+      //val = ReadFEMB(iFEMB,regNum);
+      //debug_file_3 << "Register : " << regNum << " Value 1 : " << val << " Value 2 : " << ReadFEMB(iFEMB,regNum) << "\n";
+      fe_rb_regs.push_back(val);
+   }
+   
+   //debug_file_3.close();
+   
+   for (unsigned int j=0; j<fe_regs.size(); j++){
+      if ((fe_regs[j] != fe_rb_regs[j]) && (data_cs == 0)){
+         if(j<=9){
+	    WIBException::FEMB_SPI_READBACK_MISMATCH e;
+            std::stringstream expstr;
+            expstr << " for FEMB: " << int(iFEMB) << "FE-ADC 0 SPI failed " << j << "  " << fe_regs[j] << "  " << fe_rb_regs[j];
+            e.Append(expstr.str().c_str());
+            throw e;
+	 }
+	 else if(j<=18){
+	    WIBException::FEMB_SPI_READBACK_MISMATCH e;
+            std::stringstream expstr;
+            expstr << " for FEMB: " << int(iFEMB) << "FE-ADC 1 SPI failed " << j << "  " << fe_regs[j] << "  " << fe_rb_regs[j];
+            e.Append(expstr.str().c_str());
+            throw e;
+	 }
+	 else if(j<=27){
+	    WIBException::FEMB_SPI_READBACK_MISMATCH e;
+            std::stringstream expstr;
+            expstr << " for FEMB: " << int(iFEMB) << "FE-ADC 2 SPI failed " << j << "  " << fe_regs[j] << "  " << fe_rb_regs[j];
+            e.Append(expstr.str().c_str());
+            throw e;
+	 }
+	 else if(j<=36){
+	    WIBException::FEMB_SPI_READBACK_MISMATCH e;
+            std::stringstream expstr;
+            expstr << " for FEMB: " << int(iFEMB) << "FE-ADC 3 SPI failed " << j << "  " << fe_regs[j] << "  " << fe_rb_regs[j];
+            e.Append(expstr.str().c_str());
+            throw e;
+	 }
+	 else if(j<=45){
+	    WIBException::FEMB_SPI_READBACK_MISMATCH e;
+            std::stringstream expstr;
+            expstr << " for FEMB: " << int(iFEMB) << "FE-ADC 4 SPI failed " << j << "  " << fe_regs[j] << "  " << fe_rb_regs[j];
+            e.Append(expstr.str().c_str());
+            throw e;
+	 }
+	 else if(j<=54){
+	    WIBException::FEMB_SPI_READBACK_MISMATCH e;
+            std::stringstream expstr;
+            expstr << " for FEMB: " << int(iFEMB) << "FE-ADC 5 SPI failed " << j << "  " << fe_regs[j] << "  " << fe_rb_regs[j];
+            e.Append(expstr.str().c_str());
+            throw e;
+	 }
+	 else if(j<=64){
+	    WIBException::FEMB_SPI_READBACK_MISMATCH e;
+            std::stringstream expstr;
+            expstr << " for FEMB: " << int(iFEMB) << "FE-ADC 6 SPI failed " << j << "  " << fe_regs[j] << "  " << fe_rb_regs[j];
+            e.Append(expstr.str().c_str());
+            throw e;
+	 }
+	 else if(j<=72){
+	    WIBException::FEMB_SPI_READBACK_MISMATCH e;
+            std::stringstream expstr;
+            expstr << " for FEMB: " << int(iFEMB) << "FE-ADC 7 SPI failed " << j << "  " << fe_regs[j] << "  " << fe_rb_regs[j];
+            e.Append(expstr.str().c_str());
+            throw e;
+	 }
+	 else{
+	    WIBException::FEMB_SPI_READBACK_MISMATCH e;
+            std::stringstream expstr;
+            expstr << " for FEMB: " << int(iFEMB) << "Other SPI failed (except 1,2,3,4,5,6,7) " << j << "  " << fe_regs[j] << "  " << fe_rb_regs[j];
+            e.Append(expstr.str().c_str());
+            throw e;
+	 }
+      }
+   } // loop over j
+   
+   WriteFEMB(iFEMB,9,9); // enable data stream to WIB and reset transceiver
+   CheckFEMBRegisters(9,9,iFEMB,30);
+   //sleep(2);
+   //FEMB_UDPACQ_V2(iFEMB-1);
+   TLOG_INFO(identification) << "************* TST_CE_CHK_CFG completed ****************" << TLOG_ENDL;
 }

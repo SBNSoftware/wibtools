@@ -243,14 +243,27 @@ class WIB: public WIBBase {
   void WIB_PWR_FEMB(int FEMB_NO, bool pwr_int_f = false, int power = 1); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a single given FEMB at once
   void WIB_PWR_FEMB(std::vector<bool> &FEMB_NOs, bool pwr_int_f = false, std::vector<int> power = {1, 1, 1, 1}); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB and operate on a given set of FEMB at once
   void WIBs_CFG_INIT(bool jumbo_flag = false); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
-  void CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint32_t chnl_no, uint32_t pls_cs=0, uint32_t dac_sel=0, uint32_t fpgadac_en=0,                   uint32_t asicdac_en=0,uint32_t fpgadac_v=0, uint32_t pls_gap=500, uint32_t pls_dly=10, uint32_t mon_cs=0, uint32_t data_cs=0,
+  
+  // This code is the tested code for FEMB config (02/23/2024)
+  
+  void CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint32_t chnl_no, uint32_t pls_cs=0, uint32_t dac_sel=0, uint32_t fpgadac_en=0,                    uint32_t asicdac_en=0, uint32_t fpgadac_v=0, uint32_t pls_gap=500, uint32_t pls_dly=10, uint32_t mon_cs=0, uint32_t data_cs=0,
 		  uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, uint32_t st0=1, uint32_t st1=1, uint32_t smn=0, uint32_t sdf=1,
 		  uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, uint32_t slk1=0, uint32_t sdc=0, uint32_t swdac1=0, 
-		  uint32_t swdac2=0, uint32_t dac=0, bool fecfg_loadflg=false); // This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+		  uint32_t swdac2=0, uint32_t dac=0, bool fecfg_loadflg=false);// This function is a modified version of a function availble in shanshan's python script to configure WIB/FEMB
+  
+  // New code testing for FEMB config (02/23/2024)
+  
+  void TST_CE_CHK_CFG(uint32_t iFEMB, uint8_t config_no, bool test_chnl_map, uint32_t chnl_fst, uint32_t chnl_lst, uint32_t pls_cs=0, uint32_t dac_sel=0,                       uint32_t fpgadac_en=0, uint32_t asicdac_en=0, uint32_t fpgadac_v=0, uint32_t pls_gap=500, uint32_t pls_dly=10, uint32_t mon_cs=0,                         uint32_t data_cs=0, uint32_t sts=0, uint32_t snc=0, uint32_t sg0=0, uint32_t sg1=1, uint32_t st0=1, uint32_t st1=1, uint32_t smn=0,                       uint32_t sdf=1,uint32_t slk0=0, uint32_t stb1=0, uint32_t stb=0, uint32_t s16=0, uint32_t slk1=0, uint32_t sdc=0, 
+                      uint32_t swdac1=0, uint32_t swdac2=0, uint32_t dac=0, bool fecfg_loadflg=false);	
+		  
+  // ===========================================================================		  
+  
   void ConfigFEMB_to_send_fake_data(uint8_t iFEMB, uint8_t fk_mode); // configure a given femb to send fake data (as per instructions by Shanshan)
   void Prepare_FEMBs_for_MBB_Calib(uint8_t iFEMB);
   void Config_FEMBs_to_ChnlMap_Mode(std::vector<bool> enable_FEMBs);
   void Config_FEMBs_to_NormalData_Mode(std::vector<bool> enable_FEMBs);
+  void Write_Missing_FEMB_Regs(uint8_t mode, uint8_t iFEMB); // Implemented as instructed by Shanshan (02/15/2024)
+  void Change_TST_PLS_Separation(uint8_t iFEMB, uint32_t pls_sep); // Implemented as instructed by Shanshan (02/23/2024)
 
  private:
   WIB(); //disallow the default constructor

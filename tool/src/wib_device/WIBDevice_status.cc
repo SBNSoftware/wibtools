@@ -237,6 +237,29 @@ CommandReturn::status WIBTool::WIBDevice::Dump_WIB_FEMB_Status(std::vector<std::
  
    auto link_status = map.find("FEMB"+std::to_string(intArg[0])+"_LINK")->second;
    auto EQ_status = map.find("FEMB"+std::to_string(intArg[0])+"_EQ")->second;
+   auto TS_link_status = map.find("FEMB"+std::to_string(intArg[0])+"_TS_LINK")->second;
+   auto CHK_ERR_link_status = map.find("FEMB"+std::to_string(intArg[0])+"_CHK_ERR_LINK")->second;
+   auto FRAME_ERR_link_status = map.find("FEMB"+std::to_string(intArg[0])+"_FRAME_ERR_LINK")->second;
+   auto WIB_2991_VCC = map.find("WIB_2991_VCC")->second;
+   auto WIB_2991_T = map.find("WIB_2991_T")->second;
+   auto WIB_BIAS_V = map.find("WIB_BIAS_V")->second;
+   auto WIB_BIAS_I = map.find("WIB_BIAS_I")->second;
+   auto WIB_V18_V = map.find("WIB_V18_V")->second;
+   auto WIB_V18_I = map.find("WIB_V18_I")->second;
+   auto WIB_V36_V = map.find("WIB_V36_V")->second;
+   auto WIB_V36_I = map.find("WIB_V36_I")->second;
+   auto WIB_V28_V = map.find("WIB_V28_V")->second;
+   auto WIB_V28_I = map.find("WIB_V28_I")->second;
+   auto BIAS_2991_V = map.find("BIAS_2991_V")->second;
+   auto BIAS_2991_T = map.find("BIAS_2991_T")->second;
+   auto WIB_PC = map.find("WIB_PC")->second;
+   auto FEMB_2991_VCC = map.find("FEMB"+std::to_string(intArg[0])+"_2991_VCC")->second;
+   auto FEMB_2991_T = map.find("FEMB"+std::to_string(intArg[0])+"_2991_T")->second;
+   auto FEMB_FMV39_V = map.find("FEMB"+std::to_string(intArg[0])+"_FMV39_V")->second;
+   auto FEMB_FMV30_V = map.find("FEMB"+std::to_string(intArg[0])+"_FMV30_V")->second;
+   auto FEMB_FMV18_V = map.find("FEMB"+std::to_string(intArg[0])+"_FMV18_V")->second;
+   auto FEMB_BIAS_V = map.find("FEMB"+std::to_string(intArg[0])+"_BIAS_V")->second;
+   auto FEMB_PC = map.find("FEMB"+std::to_string(intArg[0])+"_PC")->second;
    auto Bias_curr = map.find("FEMB"+std::to_string(intArg[0])+"_BIAS_I")->second;
    auto FMV39_curr = map.find("FEMB"+std::to_string(intArg[0])+"_FMV39_I")->second;
    auto FMV30_curr = map.find("FEMB"+std::to_string(intArg[0])+"_FMV30_I")->second;
@@ -257,17 +280,74 @@ CommandReturn::status WIBTool::WIBDevice::Dump_WIB_FEMB_Status(std::vector<std::
    
    std::cout << std::left << std::setw(20) << "Variable" << std::left << std::setw(20) << "Value" << std::left << std::setw(80) << "Comments" << "\n";
    std::cout << "****************************************************************************\n";
-   std::cout << std::left << std::setw(20) << "Link status" << std::left << std::setw(20) << link_status << std::left << std::setw(80) << link_comment << "\n";
-   std::cout << std::left << std::setw(20) << "EQ status" << std::left << std::setw(20) << EQ_status << std::left << std::setw(80) << eq_comment << "\n";
-   std::cout << std::left << std::setw(20) << "Bias Current" << std::left << std::setw(20) << Bias_curr << std::left << std::setw(80) << bias_curr_comment << "\n";
-   std::cout << std::left << std::setw(20) << "FM_V39 Current" << std::left << std::setw(20) << FMV39_curr << std::left << std::setw(80) << FMV39_curr_comment << "\n";
-   std::cout << std::left << std::setw(20) << "FM_V30 Current" << std::left << std::setw(20) << FMV30_curr << std::left << std::setw(80) << FMV30_curr_comment << "\n";
-   std::cout << std::left << std::setw(20) << "FM_V18 Current" << std::left << std::setw(20) << FMV18_curr << std::left << std::setw(80) << FMV18_curr_comment << "\n";
-   std::cout << std::left << std::setw(20) << "AM_V33 Current" << std::left << std::setw(20) << AMV33_curr << std::left << std::setw(80) << AMV33_curr_comment << "\n";
-   std::cout << std::left << std::setw(20) << "AM_V28 Current" << std::left << std::setw(20) << AMV28_curr << std::left << std::setw(80) << AMV28_curr_comment << "\n";
-   std::cout << std::left << std::setw(20) << "AM_V33 Voltage" << std::left << std::setw(20) << AMV33_volt << "\n";
-   std::cout << std::left << std::setw(20) << "AM_V28 Voltage" << std::left << std::setw(20) << AMV28_volt << "\n";
-   
+   std::cout << std::left << std::setw(20) << "Link status" << std::left << std::setw(20) << link_status << std::left << std::setw(80) 
+             << link_comment << "\n";
+   std::cout << std::left << std::setw(20) << "EQ status" << std::left << std::setw(20) << EQ_status << std::left << std::setw(80) 
+             << eq_comment << "\n";
+   std::cout << std::left << std::setw(20) << "TS link_status" << std::left << std::setw(20) << TS_link_status 
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "CHK ERR link status" << std::left << std::setw(20) << CHK_ERR_link_status 
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "FRAME ERR link status " << std::left << std::setw(20) << FRAME_ERR_link_status 
+             << std::left << std::setw(80) << "---" << "\n"; 
+   std::cout << std::left << std::setw(20) << "Bias Current" << std::left << std::setw(20) << std::to_string(Bias_curr) + " A" 
+             << std::left << std::setw(80) << bias_curr_comment << "\n";
+   std::cout << std::left << std::setw(20) << "Bias Voltage" << std::left << std::setw(20) << std::to_string(FEMB_BIAS_V) + " V" 
+             << std::left << std::setw(80) << "---" << "\n";	     
+   std::cout << std::left << std::setw(20) << "FM_V39 Current" << std::left << std::setw(20) << std::to_string(FMV39_curr) + " A"  
+             << std::left << std::setw(80) << FMV39_curr_comment << "\n";
+   std::cout << std::left << std::setw(20) << "FM_V39 Voltage" << std::left << std::setw(20) << std::to_string(FEMB_FMV39_V) + " V"  
+             << std::left << std::setw(80) << "---" << "\n";	     
+   std::cout << std::left << std::setw(20) << "FM_V30 Current" << std::left << std::setw(20) << std::to_string(FMV30_curr)+ " A"  
+             << std::left << std::setw(80) << FMV30_curr_comment << "\n";
+   std::cout << std::left << std::setw(20) << "FM_V30 Voltage" << std::left << std::setw(20) << std::to_string(FEMB_FMV30_V) + " V"  
+             << std::left << std::setw(80) << "---" << "\n";	     
+   std::cout << std::left << std::setw(20) << "FM_V18 Current" << std::left << std::setw(20) << std::to_string(FMV18_curr) + " A"
+             << std::left << std::setw(80) << FMV18_curr_comment << "\n";
+   std::cout << std::left << std::setw(20) << "FM_V18 Voltage" << std::left << std::setw(20) << std::to_string(FEMB_FMV18_V) + " V" 
+             << std::left << std::setw(80) << "---" << "\n";	     
+   std::cout << std::left << std::setw(20) << "AM_V33 Current" << std::left << std::setw(20) << std::to_string(AMV33_curr) + " A"
+             << std::left << std::setw(80) << AMV33_curr_comment << "\n";
+   std::cout << std::left << std::setw(20) << "AM_V33 Voltage" << std::left << std::setw(20) << std::to_string(AMV33_volt) + " V"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "AM_V28 Current" << std::left << std::setw(20) << std::to_string(AMV28_curr) + " A"
+             << std::left << std::setw(80) << AMV28_curr_comment << "\n";
+   std::cout << std::left << std::setw(20) << "AM_V28 Voltage" << std::left << std::setw(20) << std::to_string(AMV28_volt) + " V"  
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "FEMB 2991 VCC Voltage " << std::left << std::setw(20) << std::to_string(FEMB_2991_VCC) + " V"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "FEMB 2991 Temperature " << std::left << std::setw(20) << std::to_string(FEMB_2991_T) + " C" 
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "FEMB PC" << std::left << std::setw(20) << std::to_string(FEMB_PC) + " W"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << "\n";
+   std::cout << "*******************************  WIB Parameters ******************************\n";
+   std::cout << std::left << std::setw(20) << "WIB 2991 VCC Voltage " << std::left << std::setw(20) << std::to_string(WIB_2991_VCC) + " V"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB 2991 Temperature " << std::left << std::setw(20) << std::to_string(WIB_2991_T) + " C"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB BIAS Voltage" << std::left << std::setw(20) << std::to_string(WIB_BIAS_V) + " V"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB BIAS Current" << std::left << std::setw(20) << std::to_string(WIB_BIAS_I) + " A" 
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB V18 Voltage" << std::left << std::setw(20) << std::to_string(WIB_V18_V) + " V"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB V18 Current" << std::left << std::setw(20) << std::to_string(WIB_V18_I) + " A"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB V36 Voltage" << std::left << std::setw(20) << std::to_string(WIB_V36_V) + " V" 
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB V36 Current" << std::left << std::setw(20) << std::to_string(WIB_V36_I) + " A"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB V28 Voltage" << std::left << std::setw(20) << std::to_string(WIB_V28_V) + " V"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB V28 Current" << std::left << std::setw(20) << std::to_string(WIB_V28_I) + " A"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "BIAS 2991 Voltage" << std::left << std::setw(20) << std::to_string(BIAS_2991_V) + " V"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "BIAS 2991 Temperature " << std::left << std::setw(20) << std::to_string(BIAS_2991_T) + " C"
+             << std::left << std::setw(80) << "---" << "\n";
+   std::cout << std::left << std::setw(20) << "WIB PC" << std::left << std::setw(20) << std::to_string(WIB_PC) + " W" 
+             << std::left << std::setw(80) << "---" << "\n";
    ret = CommandReturn::OK;
  }  
  
