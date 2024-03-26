@@ -229,11 +229,27 @@ void MBB::CalibrationPulse(){//Transition from 0 to 1 will generate a calibratio
   }
   
 void MBB::NewCalibrationPulse(){ // latest version of CalibrationPulse() function as instructed by Shanshan. (02/05/2024, Varuna Meddage)
-  Write("CALIBRATION_PULSE", 0);
-  sleep(0.001);
-  Write("CALIBRATION_PULSE", 1);
-  sleep(0.001);
-  Write("CALIBRATION_PULSE", 0);
+    Write("CALIBRATION_PULSE", 0);
+    //sleep(0.001);
+    usleep(1000);
+    Write("CALIBRATION_PULSE", 1);
+    //sleep(0.001);
+    usleep(1000);
+    Write("CALIBRATION_PULSE", 0);
+}
+
+void MBB::UseMBBPeriodicalCalibSrc(uint32_t pls_prd){ // Implemented as instructed by Shanshan (03/05/2024, Varuna Meddage)
+   Write("PULSE_SRC_SELECT", 1);
+   sleep(1);
+   Write("PULSE_PERIOD", pls_prd);
+}
+
+// Implemented as instructed by Shanshan (03/05/2024, Varuna Meddage)
+// Makse sure to connect an external signal generator
+// to MBB LIMO (CALI) before using this function. You
+// can set the pulse period from the external signal generator.
+void MBB::UseSignalGeneratorAsCalibSrc(){
+   Write("PULSE_SRC_SELECT", 0);
 }
 
 void MBB::SystemReset(){//Set to reset entire system (AUTO Clears)
