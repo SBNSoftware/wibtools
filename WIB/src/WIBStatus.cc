@@ -445,6 +445,7 @@ std::map<std::string,double> WIBTool::WIBStatus::RetrieveStatusVars(){
     }
     
     map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_AMV28_I", wib_map.find("FEMB"+std::to_string(ibrd)+"_AMV28_I")->second ));
+    map.insert( std::pair<std::string,double>(  "FEMB"+std::to_string(ibrd)+"_AMV33_I", wib_map.find("FEMB"+std::to_string(ibrd)+"_AMV33_I")->second ));
          
   }  
 
