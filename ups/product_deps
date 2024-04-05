@@ -19,11 +19,18 @@ perllib  product_dir
 
 #
 product         version         optional
-boost           v1_80_0
-cetlib          v3_16_00        
-cetlib_except   v1_08_00
+boost           v1_80_0         s120a
+boost           v1_80_0         s120b
+boost           v1_82_0         s130
+cetlib          v3_16_00        s120a
+cetlib          v3_16_00        s120b
+cetlib          v3_18_02        s130
+cetlib_except   v1_08_00        s120a
+cetlib_except   v1_08_00        s120b
+cetlib_except   v1_09_01        s130
 messagefacility v2_09_00        s120a
 messagefacility v2_09_01        s120b
+messagefacility v2_10_05        s130
 TRACE           v3_17_11        -       only_for_build
 cetmodules      v3_24_01        -       only_for_build
 end_product_list
@@ -38,6 +45,8 @@ e26:s120a:debug    e26:debug  e26:debug  e26:debug     e26:debug       -nq-   -s
 e26:s120a:prof     e26:prof   e26:prof   e26:prof      e26:prof        -nq-   -std=c++17
 e26:s120b:debug    e26:debug  e26:debug  e26:debug     e26:debug       -nq-   -std=c++17
 e26:s120b:prof     e26:prof   e26:prof   e26:prof      e26:prof        -nq-   -std=c++17
+e26:s130:debug     e26:debug  e26:debug  e26:debug     e26:debug       -nq-   -std=c++17
+e26:s130:prof      e26:prof   e26:prof   e26:prof      e26:prof        -nq-   -std=c++17
 end_qualifier_list
 
 
