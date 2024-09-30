@@ -1,7 +1,7 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
 parent wibtools
-defaultqual	e26:s120b
+defaultqual	e26:s131
 
 # These optional lines define the installed directories where
 # headers, libraries, and executables will be found
@@ -22,15 +22,19 @@ product         version         optional
 boost           v1_80_0         s120a
 boost           v1_80_0         s120b
 boost           v1_82_0         s130
+boost           v1_82_0         s131
 cetlib          v3_16_00        s120a
 cetlib          v3_16_00        s120b
 cetlib          v3_18_02        s130
+cetlib          v3_18_02        s131
 cetlib_except   v1_08_00        s120a
 cetlib_except   v1_08_00        s120b
 cetlib_except   v1_09_01        s130
+cetlib_except   v1_09_01        s131
 messagefacility v2_09_00        s120a
 messagefacility v2_09_01        s120b
 messagefacility v2_10_05        s130
+messagefacility v2_10_05        s131
 TRACE           v3_17_11        -       only_for_build
 cetmodules      v3_24_01        -       only_for_build
 end_product_list
@@ -47,6 +51,8 @@ e26:s120b:debug    e26:debug  e26:debug  e26:debug     e26:debug       -nq-   -s
 e26:s120b:prof     e26:prof   e26:prof   e26:prof      e26:prof        -nq-   -std=c++17
 e26:s130:debug     e26:debug  e26:debug  e26:debug     e26:debug       -nq-   -std=c++17
 e26:s130:prof      e26:prof   e26:prof   e26:prof      e26:prof        -nq-   -std=c++17
+e26:s131:debug     e26:debug  e26:debug  e26:debug     e26:debug       -nq-   -std=c++17
+e26:s131:prof      e26:prof   e26:prof   e26:prof      e26:prof        -nq-   -std=c++17
 end_qualifier_list
 
 
