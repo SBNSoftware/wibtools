@@ -1011,8 +1011,8 @@ std::map<std::string,double> WIB::WIB_STATUS(){
      
      TLOG_INFO(identification) << "************* Now Starting WIB_STATUS  ****************" << TLOG_ENDL;
      
-     Write(0x12, 0x8000);
-     CheckWIBRegisters(0x8000, 0x12, 30);
+     //Write(0x12, 0x8000); // commented out by Varuna 04-29-2024
+     //CheckWIBRegisters(0x8000, 0x12, 30);
      Write(0x12, 0x100);
      CheckWIBRegisters(0x100, 0x12, 30);
      sleep(0.02);
