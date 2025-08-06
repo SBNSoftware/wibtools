@@ -12,3 +12,4 @@ MBB/lib/*
 ups_package/wibtools/*
 *.swp
 edit.sh
+build-linux-*

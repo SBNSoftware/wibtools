@@ -1,7 +1,7 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
 parent wibtools
-defaultqual	e26:s131
+defaultqual	e28:s130
 
 # These optional lines define the installed directories where
 # headers, libraries, and executables will be found
@@ -51,6 +51,8 @@ e26:s120b:debug    e26:debug  e26:debug  e26:debug     e26:debug       -nq-   -s
 e26:s120b:prof     e26:prof   e26:prof   e26:prof      e26:prof        -nq-   -std=c++17
 e26:s130:debug     e26:debug  e26:debug  e26:debug     e26:debug       -nq-   -std=c++17
 e26:s130:prof      e26:prof   e26:prof   e26:prof      e26:prof        -nq-   -std=c++17
+e28:s130:debug     e28:debug  e28:debug  e28:debug     e28:debug       -nq-   -std=c++20
+e28:s130:prof      e28:prof   e28:prof   e28:prof      e28:prof        -nq-   -std=c++20
 e26:s131:debug     e26:debug  e26:debug  e26:debug     e26:debug       -nq-   -std=c++17
 e26:s131:prof      e26:prof   e26:prof   e26:prof      e26:prof        -nq-   -std=c++17
 end_qualifier_list
