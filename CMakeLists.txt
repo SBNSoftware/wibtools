@@ -11,7 +11,7 @@ cmake_minimum_required (VERSION 3.18.2)
 
 find_package(cetmodules)
 
-project(wibtools VERSION 2.0.00)
+project(wibtools VERSION 2.01.00)
 
 include(CetCMakeEnv)
 cet_cmake_env()
